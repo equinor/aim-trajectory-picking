@@ -3,3 +3,4 @@ Trajectory picking package for the AI for Maturation project. Created by summer 
 
 ## Authors: ## 
 Alexander Johnsgaard
+Even Åge Smedshaug
