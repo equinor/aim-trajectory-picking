@@ -19,7 +19,7 @@ def test_add_collision():
 # Test whether the convertion of data to and from JSON-format results in the same result
 # NB: the documentation does not garantee the result to be equal if there are non-string keys
 def test_JSON_IO():
-    donors, targets, trajectories = func.create_data(3,3,10,0.2)
+    _, _, trajectories = func.create_data(3,3,10,0.2)
     filename = 'JSON_test.txt'
     JSON_IO.write_data_to_json_file(filename, trajectories)
     read_trajectories = JSON_IO.read_data_from_json_file(filename)
