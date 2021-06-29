@@ -133,3 +133,6 @@ JSON_test_set.txt
 .vscode
 JSON_test.txt
 JSON_not_test_set.txt
+
+Scripts
+pyvenv.cfg

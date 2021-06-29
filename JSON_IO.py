@@ -1,12 +1,6 @@
 import json
 import aim_trajectory_picking.functions as dem
 
-donors, targets, trajectories = dem.create_data(2,2,4,0.3)
-print(donors)
-print(targets)
-print(trajectories)
-
-
 def read_data_from_json_file(filename):
     file = open(filename,'r')
     input_data = json.loads(file.read())
@@ -33,7 +27,3 @@ def write_data_to_json_file(filename, list_of_trajectories):
     with open(filename, 'w') as outfile: 
         json.dump(JSON_trajectories, outfile, sort_keys=False, indent=4)
 
-write_data_to_json_file("JSON_not_test_set.txt", trajectories)
-husk = read_data_from_json_file("JSON_not_test_set.txt")
-for traj in husk:
-    print(traj)
