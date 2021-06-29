@@ -1,16 +1,21 @@
 import aim_trajectory_picking.functions as func
 #import aim_trajectory_picking.functions.Trajectory
 import networkx as nx
+
+# Generate random test set
 donors, targets, trajectories = func.create_data(15,15,1000,0.05)
 
 G = nx.Graph()
 print(type(trajectories))
 G.add_nodes_from(trajectories)
+# Add collisions from donors and targets
 for i in range(len(trajectories)):
     for j in range(i, len(trajectories)):
         if i != j:
             if trajectories[i].id in  trajectories[j].collisions:
                 G.add_edge(trajectories[i], trajectories[j])
+
+# TODO 4 times transform graph? 
 
 optimal_trajectories = func.abstract_trajectory_algorithm(G,func.greedy, False)
 
