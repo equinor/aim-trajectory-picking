@@ -14,13 +14,21 @@ class Trajectory:
         self.collisions = []
     
     def add_collision(self, trajectory):
-        self.collisions.append(trajectory.id)
+        if trajectory.id not in self.collisions:
+            self.collisions.append(trajectory.id)
+            trajectory.add_collision(self)
 
     def add_collision_by_id(self, id):
         self.collisions.append(id)
  
     def __str__(self):
         return str(self.id) + ": "+ self.donor + "-->" + self.target + "  Value " + str(self.value) + " "
+    
+    def __eq__(self, other):
+        if not isinstance(other, Trajectory):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        return self.id == other.id and self.donor == other.donor and self.target == other.target and self.value == other.value and self.collisions == other.collisions
 
 #Data is created in the following way: Amount is given and the function returns the nodes and trajectories between these.
 #Also returns collisions with given collision rate
