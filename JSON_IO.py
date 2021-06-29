@@ -1,5 +1,5 @@
 import json
-import aim_trajectory_picking.demo_uke_1 as dem
+import aim_trajectory_picking.functions as dem
 
 donors, targets, trajectories = dem.create_data(2,2,4,0.3)
 print(donors)
