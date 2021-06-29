@@ -104,3 +104,57 @@ def greedy_trajectory_algorithm(graph):
         if inn == 'n':
             return
     return optimal_trajectories
+
+def abstract_trajectory_algorithm(graph, choice_function,visualize=True):
+    optimal_trajectories = []
+    plt.figure()
+    while graph.number_of_nodes() != 0:
+        nodes = list(graph.nodes)
+        chosen_node = choice_function(nodes)
+        _node_colors = []
+        for i in range(len(nodes)):
+            if nodes[i] == chosen_node:
+                _node_colors.append('green')
+            elif nodes[i] in graph.neighbors(chosen_node):
+                _node_colors.append('red')
+            else:
+                _node_colors.append('blue')
+        if visualize:
+            nx.draw(graph, with_labels=True, node_color=_node_colors)
+            plt.show()
+        optimal_trajectories.append(chosen_node)
+        for n in list(graph.neighbors(chosen_node)):
+            graph.remove_node(n)
+        graph.remove_node(chosen_node)
+    print(sum(n.value for n in optimal_trajectories))
+    return optimal_trajectories
+
+def weight_transformation(nodes):
+    transformed_weights = []
+    for i in range(len(nodes)):
+        value_adjacent_nodes = 0
+        for n in nodes[i].collisions:
+            value_adjacent_nodes += n.value
+        if value_adjacent_nodes == 0:
+            value_adjacent_nodes = 1
+        transformed_weights.append(nodes[i].value /value_adjacent_nodes)
+    
+    return nodes[transformed_weights.index(max(transformed_weights))]
+
+def greedy(nodes):
+    return  max(nodes, key= lambda n : n.value)
+
+def random_choice(nodes):
+    return random.choice(nodes)
+
+def NN_transformation(nodes):
+    transformed_weights = []
+    for i in range(len(nodes)):
+        number_of_adjacent_nodes = 0
+        for n in nodes[i].collisions:
+            number_of_adjacent_nodes += 1
+        if number_of_adjacent_nodes == 0:
+            number_of_adjacent_nodes =1
+        transformed_weights.append(nodes[i].value /number_of_adjacent_nodes)
+    
+    return nodes[transformed_weights.index(max(transformed_weights))]
