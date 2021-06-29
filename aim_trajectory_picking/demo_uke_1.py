@@ -15,11 +15,12 @@ class Trajectory:
     
     def add_collision(self, trajectory):
         self.collisions.append(trajectory.id)
-        
+
+    def add_collision_by_id(self, id):
+        self.collisions.append(id)
+ 
     def __str__(self):
         return str(self.id) + ": "+ self.donor + "-->" + self.target + "  Value " + str(self.value) + " "
-
-
 
 #Data is created in the following way: Amount is given and the function returns the nodes and trajectories between these.
 #Also returns collisions with given collision rate
