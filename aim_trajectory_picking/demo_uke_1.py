@@ -14,7 +14,7 @@ class Trajectory:
         self.collisions = []
     
     def add_collision(self, trajectory):
-        self.collisions.append(trajectory)
+        self.collisions.append(trajectory.id)
         
     def __str__(self):
         return str(self.id) + ": "+ self.donor + "-->" + self.target + "  Value " + str(self.value) + " "
@@ -64,7 +64,7 @@ def mutually_exclusive_trajectories(t1, t2):
         return True
     if(t1.target == t2.target):
         return True
-    if(t2 in t1.collisions):
+    if(t2.id in t1.collisions):
         return True
     return False
 
