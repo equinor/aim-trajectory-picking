@@ -6,24 +6,34 @@ print(donors)
 print(targets)
 print(trajectories)
 
-JSON_trajectories = {}
-JSON_trajectories['trajectories'] = []
-for x in range(3):
-    trajectory = {}
-    trajectory['id'] = trajectories[x].id
-    trajectory['donor'] = trajectories[x].donor
-    trajectory['target'] = trajectories[x].target
-    trajectory['collisions'] = trajectories[x].collisions
-    JSON_trajectories['trajectories'].append(trajectory)
-    
 
-print(JSON_trajectories)
+def read_data_from_json_file(filename):
+    file = open(filename,'r')
+    input_data = json.loads(file.read())
+    liste = []
+    for trajectory in input_data["trajectories"]:
+        print(trajectory)
+        tra = dem.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
+        for collision in trajectory["collisions"]:
+            tra.add_collision_by_id(collision)
+        liste.append(tra)
+    return liste
 
-with open('JSON_test_set.txt', 'w') as outfile: 
-    json.dump(JSON_trajectories, outfile, sort_keys=False, indent=4)
+def write_data_to_json_file(filename, list_of_trajectories):
+    JSON_trajectories = {}
+    JSON_trajectories['trajectories'] = []
+    for x in range(len(list_of_trajectories)):
+        trajectory = {}
+        trajectory['id'] = list_of_trajectories[x].id
+        trajectory['donor'] = list_of_trajectories[x].donor
+        trajectory['target'] = list_of_trajectories[x].target
+        trajectory['value'] = list_of_trajectories[x].value
+        trajectory['collisions'] = list_of_trajectories[x].collisions
+        JSON_trajectories['trajectories'].append(trajectory)
+    with open(filename, 'w') as outfile: 
+        json.dump(JSON_trajectories, outfile, sort_keys=False, indent=4)
 
-
-file = open('JSON_test_set.txt','r')
-
-input_data = json.loads(file.read())
-print(input_data)
+write_data_to_json_file("JSON_not_test_set.txt", trajectories)
+husk = read_data_from_json_file("JSON_not_test_set.txt")
+for traj in husk:
+    print(traj)
