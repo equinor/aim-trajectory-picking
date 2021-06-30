@@ -124,7 +124,8 @@ def greedy_trajectory_algorithm(graph):
 #Computes a pseudogreedy optimal set of trajectories, given a function to determine the next node to add.
 def abstract_trajectory_algorithm(graph, choice_function,visualize=True):
     optimal_trajectories = []
-    plt.figure()
+    if visualize:
+        plt.figure()
     while graph.number_of_nodes() != 0: #while there still are nodes left
         nodes = list(graph.nodes)
         chosen_node = choice_function(nodes) #choose most optimal node based on given choice function
@@ -152,7 +153,7 @@ def weight_transformation(nodes):
     for i in range(len(nodes)):
         value_adjacent_nodes = 0
         for n in nodes[i].collisions:
-            value_adjacent_nodes += n.value
+            value_adjacent_nodes += n#.value
         if value_adjacent_nodes == 0:
             value_adjacent_nodes = 1
         transformed_weights.append(nodes[i].value /value_adjacent_nodes)
