@@ -6,7 +6,7 @@ def read_data_from_json_file(filename):
     input_data = json.loads(file.read())
     liste = []
     for trajectory in input_data["trajectories"]:
-        print(trajectory)
+        #print(trajectory)
         tra = dem.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
         for collision in trajectory["collisions"]:
             tra.add_collision_by_id(collision)
