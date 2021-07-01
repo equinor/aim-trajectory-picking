@@ -68,7 +68,12 @@ def bipartite_graph(donors, targets, trajectories, visual=False):
     for i in range(len(targets)):
         _node_color.append('red')
     if visual:
-        nx.draw(g, nx.bipartite_layout(g,donors), node_color=_node_color, with_labels=True)
+        plt.figure()
+        pos = nx.bipartite_layout(g, donors)
+        nx.draw(g, pos, node_color=_node_color, with_labels=True)
+        labels = nx.get_edge_attributes(g,'weight')
+        nx.draw_networkx_edge_labels(g,pos,edge_labels=labels)
+        plt.show()
     return g
     
 #Returns true if trajectories collide/are mutually exclusive, false otherwise
