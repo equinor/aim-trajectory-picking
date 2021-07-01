@@ -1,4 +1,6 @@
 import json
+
+from networkx.algorithms.asteroidal import create_component_structure
 import aim_trajectory_picking.functions as dem
 
 def read_data_from_json_file(filename):
@@ -27,3 +29,6 @@ def write_data_to_json_file(filename, list_of_trajectories):
     with open(filename, 'w') as outfile: 
         json.dump(JSON_trajectories, outfile, sort_keys=False, indent=4)
 
+for i in range(5):
+    donor, target, trajectories = dem.create_data(5,5,10,0.05)
+    write_data_to_json_file('datasets/dataset_'+str(i)+'.txt',trajectories)
