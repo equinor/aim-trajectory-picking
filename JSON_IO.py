@@ -29,6 +29,12 @@ def write_data_to_json_file(filename, list_of_trajectories):
     with open(filename, 'w') as outfile: 
         json.dump(JSON_trajectories, outfile, sort_keys=False, indent=4)
 
-for i in range(5):
-    donor, target, trajectories = dem.create_data(5,5,10,0.05)
-    write_data_to_json_file('datasets/dataset_'+str(i)+'.txt',trajectories)
+# "temp" for generating datasets
+# for i in range(5):
+#     donor, target, trajectories = dem.create_data(5,5,10,0.05)
+#     write_data_to_json_file('datasets/dataset_'+str(i)+'.txt',trajectories)
+
+# does not work atm due to json formatting needing a key
+lis = [32,20,26,31,23] # results of 5 greedy algorithms
+with open('results.txt','w') as filename:
+    json.dumps(lis,filename,sort_keys=False)

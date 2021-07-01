@@ -3,80 +3,76 @@
         {
             "id": 0,
             "donor": "D2",
-            "target": "T2",
-            "value": 6,
+            "target": "T1",
+            "value": 0,
             "collisions": []
         },
         {
             "id": 1,
             "donor": "D3",
-            "target": "T2",
-            "value": 10,
-            "collisions": [
-                7
-            ]
-        },
-        {
-            "id": 2,
-            "donor": "D2",
-            "target": "T0",
-            "value": 10,
-            "collisions": []
-        },
-        {
-            "id": 3,
-            "donor": "D0",
-            "target": "T0",
-            "value": 3,
-            "collisions": []
-        },
-        {
-            "id": 4,
-            "donor": "D4",
             "target": "T1",
             "value": 4,
             "collisions": []
         },
         {
-            "id": 5,
+            "id": 2,
             "donor": "D0",
-            "target": "T0",
-            "value": 1,
+            "target": "T3",
+            "value": 0,
             "collisions": [
-                9
+                8
             ]
         },
         {
-            "id": 6,
+            "id": 3,
+            "donor": "D2",
+            "target": "T1",
+            "value": 3,
+            "collisions": []
+        },
+        {
+            "id": 4,
+            "donor": "D2",
+            "target": "T0",
+            "value": 10,
+            "collisions": []
+        },
+        {
+            "id": 5,
             "donor": "D1",
-            "target": "T3",
-            "value": 5,
+            "target": "T1",
+            "value": 8,
+            "collisions": []
+        },
+        {
+            "id": 6,
+            "donor": "D0",
+            "target": "T2",
+            "value": 8,
             "collisions": []
         },
         {
             "id": 7,
-            "donor": "D1",
-            "target": "T3",
-            "value": 5,
-            "collisions": [
-                1
-            ]
-        },
-        {
-            "id": 8,
             "donor": "D2",
-            "target": "T4",
+            "target": "T3",
             "value": 6,
             "collisions": []
         },
         {
-            "id": 9,
-            "donor": "D1",
-            "target": "T4",
-            "value": 2,
+            "id": 8,
+            "donor": "D3",
+            "target": "T2",
+            "value": 4,
             "collisions": [
-                5
+                2
             ]
+        },
+        {
+            "id": 9,
+            "donor": "D0",
+            "target": "T4",
+            "value": 1,
+            "collisions": []
         }
     ]
 }
