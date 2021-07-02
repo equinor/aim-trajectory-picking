@@ -37,7 +37,7 @@ class Trajectory:
 
 #Data is created in the following way: Amount is given and the function returns the nodes and trajectories between these.
 #Also returns collisions with given collision rate
-def create_data(no_donors, no_targets, no_trajectories,*, collision_rate=0,data_range=10 ):
+def create_data(no_donors, no_targets, no_trajectories, collision_rate=0,data_range=10 ):
     donors = []
     targets = []
     trajectories = []

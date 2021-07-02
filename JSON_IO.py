@@ -46,3 +46,8 @@ lis = [32,20,26,31,23] # results of 5 greedy algorithms
 results['greedy'] = lis
 with open('results.txt','w') as filename:
     json.dump(results,filename,sort_keys=False)
+
+
+# liste = read_data_from_json_file('base_test_1.txt')
+# dictionary = dem.greedy_algorithm(liste)
+# functions = [dem.greedy_algorithm,dem.random_algorithm,dem.NN_algorithm]
