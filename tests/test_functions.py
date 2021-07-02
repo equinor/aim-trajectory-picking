@@ -28,3 +28,5 @@ def test_JSON_IO():
         print(read_trajectories[i])
     print(trajectories[0] == read_trajectories[0])
     assert all([a == b for a, b in zip(trajectories, read_trajectories)])
+
+#print(func.timer(test_add_collision))

@@ -19,17 +19,25 @@ import datasets
 
 # filename = "dataset1.txt"
 
-directory = r'.\datasets'
-for filename in os.listdir(directory):
-    fullpath = os.path.join(directory,filename)
-    # JSON_IO.write_data_to_json_file(filename, trajectories1)
-    dataset1_after = JSON_IO.read_data_from_json_file(fullpath)
-    print([n.value for n in dataset1_after])
-    test1_1 = func.transform_graph(dataset1_after)
-    
-    # plt.figure()
-    # nx.draw(test1_1, with_labels=True)
-    # plt.show()
-    tra = func.abstract_trajectory_algorithm(test1_1, func.greedy,visualize=False)
-    print(sum(n.value for n in tra))
-# print(nx.is_isomorphic(test1, test1_1))
+if __name__ == '__main__':
+    results = []
+    directory = r'.\datasets'
+    for filename in os.listdir(directory):
+        fullpath = os.path.join(directory,filename)
+        # JSON_IO.write_data_to_json_file(filename, trajectories1)
+        dataset1_after = JSON_IO.read_data_from_json_file(fullpath)
+        print([n.value for n in dataset1_after])
+        test1_1 = func.transform_graph(dataset1_after)
+        
+        # plt.figure()
+        # nx.draw(test1_1, with_labels=True)
+        # plt.show()
+        tra = func.abstract_trajectory_algorithm(test1_1, func.greedy,visualize=False)
+        print(sum(n.value for n in tra))
+
+        results.append(sum([n.value for n in tra]))
+    read_results = JSON_IO.read_results('results.txt')
+    greedy_expected = read_results['greedy']
+    assert greedy_expected == results
+    print('done')
+    # print(nx.is_isomorphic(test1, test1_1))

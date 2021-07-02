@@ -2,6 +2,7 @@ import networkx as nx
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 # A class to define all the useful information pertaining a certain trajectory.
 class Trajectory:
@@ -150,7 +151,10 @@ def abstract_trajectory_algorithm(graph, choice_function,visualize=True):
             graph.remove_node(n)
         graph.remove_node(chosen_node)
     print("Algorithm: " + choice_function.__name__ + ' sum: ' +str(sum(n.value for n in optimal_trajectories))) #print sum of trajectories
-    return optimal_trajectories
+    dictionary = {}
+    dictionary['value'] = sum(n.value for n in optimal_trajectories)
+    dictionary['trajectories'] = optimal_trajectories
+    return dictionary
 
 #Choice function for pseudogreedy algorithm. Finds the best node by scaling all values by dividing with the sum of blocked nodes.
 def weight_transformation(nodes):
@@ -200,3 +204,9 @@ def check_for_collisions(optimal_trajectories):
         targets.append(t.target)
         ids += t.collisions
     return False
+
+def timer(func, *args, **kwargs):
+    start = time.perf_counter()
+    func(*args, **kwargs)
+    stop = time.perf_counter()
+    return stop-start

@@ -29,6 +29,11 @@ def write_data_to_json_file(filename, list_of_trajectories):
     with open(filename, 'w') as outfile: 
         json.dump(JSON_trajectories, outfile, sort_keys=False, indent=4)
 
+def read_results(filename):
+    file = open(filename,'r')
+    input_data = json.loads(file.read())
+    return input_data
+
 # For generating datasets
 def generate_datasets(num_datasets):
     for i in range(num_datasets):
