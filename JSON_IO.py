@@ -35,6 +35,8 @@ def write_data_to_json_file(filename, list_of_trajectories):
 #     write_data_to_json_file('datasets/dataset_'+str(i)+'.txt',trajectories)
 
 # does not work atm due to json formatting needing a key
+results = {}
 lis = [32,20,26,31,23] # results of 5 greedy algorithms
+results['greedy'] = lis
 with open('results.txt','w') as filename:
-    json.dumps(lis,filename,sort_keys=False)
+    json.dump(results,filename,sort_keys=False)
