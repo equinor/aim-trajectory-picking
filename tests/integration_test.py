@@ -52,7 +52,7 @@ def create_results(algorithms, no_of_datasets):
 
 if __name__ == '__main__':
     results = []
-    directory = r'.\datasets'
+    directory = r'.\testsets'
     test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm, func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions]
     combined_results = {}
     for algorithm in test_functions:
@@ -77,6 +77,7 @@ if __name__ == '__main__':
         #print(sum(n.value for n in tra))
 
         #results.append(sum([n.value for n in tra]))
+    # plot_performances(test_functions,combined_results)
     #read_results = JSON_IO.read_results('results.txt')
     #greedy_expected = read_results['greedy']
     #assert greedy_expected == results
@@ -91,4 +92,3 @@ if __name__ == '__main__':
                 print("error in " + name.__name__)
 
     plot_performances(test_functions, r)
-

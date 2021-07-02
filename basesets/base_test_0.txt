@@ -1,0 +1,62 @@
+{
+    "trajectories": [
+        {
+            "id": 0,
+            "donor": "D0",
+            "target": "T0",
+            "value": 10,
+            "collisions": [
+                1,
+                2,
+                3,
+                4,
+                5
+            ]
+        },
+        {
+            "id": 1,
+            "donor": "D1",
+            "target": "T1",
+            "value": 7,
+            "collisions": [
+                0
+            ]
+        },
+        {
+            "id": 2,
+            "donor": "D2",
+            "target": "T2",
+            "value": 3,
+            "collisions": [
+                0
+            ]
+        },
+        {
+            "id": 3,
+            "donor": "D3",
+            "target": "T3",
+            "value": 10,
+            "collisions": [
+                0
+            ]
+        },
+        {
+            "id": 4,
+            "donor": "D4",
+            "target": "T4",
+            "value": 3,
+            "collisions": [
+                0
+            ]
+        },
+        {
+            "id": 5,
+            "donor": "D5",
+            "target": "T5",
+            "value": 1,
+            "collisions": [
+                0
+            ]
+        }
+    ]
+}
