@@ -52,7 +52,7 @@ def create_results(algorithms, no_of_datasets):
 
 if __name__ == '__main__':
     results = []
-    directory = r'.\testsets'
+    directory = r'.\datasets'
     test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm, func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions]
     combined_results = {}
     for algorithm in test_functions:
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         dataset_names.append(filename)
         fullpath = os.path.join(directory,filename)
         # JSON_IO.write_data_to_json_file(filename, trajectories1)
-        dataset1_after = JSON_IO.read_data_from_json_file(fullpath)
+        dataset1_after = JSON_IO.read_trajectory_from_json(fullpath)
         print("Dataset: " + filename + "\n Performance:")
         #print([n.value for n in dataset1_after])
         #test1_1 = func.transform_graph(dataset1_after)
@@ -78,8 +78,8 @@ if __name__ == '__main__':
 
         #results.append(sum([n.value for n in tra]))
     # plot_performances(test_functions,combined_results)
-    #read_results = JSON_IO.read_results('results.txt')
-    #greedy_expected = read_results['greedy']
+    #read_data_from_jsons = JSON_IO.read_data_from_jsons('results.txt')
+    #greedy_expected = read_data_from_jsons['greedy']
     #assert greedy_expected == results
     #print('done')
     # print(nx.is_isomorphic(test1, test1_1))

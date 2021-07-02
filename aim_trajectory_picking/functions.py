@@ -37,7 +37,7 @@ class Trajectory:
 
 #Data is created in the following way: Amount is given and the function returns the nodes and trajectories between these.
 #Also returns collisions with given collision rate
-def create_data(no_donors, no_targets, no_trajectories, collision_rate=0,data_range=10 ):
+def create_data(no_donors, no_targets, no_trajectories, collision_rate=0,data_range=100 ):
     donors = []
     targets = []
     trajectories = []
@@ -266,7 +266,7 @@ def get_donors_and_targets_from_trajectories(trajectories):
 def get_trajectory_objects_from_matching(matching, trajectories):
     trajectories_optimal = []
     matching_list = list(matching)
-    #print(matching)
+    print('match',matching)
     for t in trajectories:
         if (t.donor, t.target) in matching:
             trajectories_optimal.append(t)
