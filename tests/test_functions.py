@@ -1,6 +1,7 @@
 import pytest
 import aim_trajectory_picking.functions as func
 import JSON_IO
+import matplotlib
 
 # Test the mutually exclusive function on three different arbitrary sets
 @pytest.mark.parametrize("test_input1,test_input2,test_input3,test_input4,expected", [("T1","D1","T1","D2",True), ("T1","D1","T2","D1",True), ("T1","D1","T2","D2",False)])
@@ -22,7 +23,7 @@ def test_JSON_IO():
     _, _, trajectories = func.create_data(3,3,10,0.2)
     filename = 'JSON_test.txt'
     JSON_IO.write_trajectory_to_json(filename, trajectories)
-    read_trajectories = JSON_IO.read_data_from_json_file(filename)
+    read_trajectories = JSON_IO.read_trajectory_from_json(filename)
     for i in range(len(read_trajectories)):
         print(trajectories[i])
         print(read_trajectories[i])

@@ -246,8 +246,8 @@ def bipartite_matching_removed_collisions(trajectories, visualize):
     
     optimal_trajectories =  get_trajectory_objects_from_matching(matching, trajectories)
     value = sum([t.value for t in optimal_trajectories])
-    for t in optimal_trajectories:
-        print(t)
+   # for t in optimal_trajectories:
+  #      print(t)
     dictionary = {}
     dictionary['value'] = value
     dictionary['trajectories'] = optimal_trajectories
@@ -266,7 +266,7 @@ def get_donors_and_targets_from_trajectories(trajectories):
 def get_trajectory_objects_from_matching(matching, trajectories):
     trajectories_optimal = []
     matching_list = list(matching)
-    print('match',matching)
+    #print('match',matching)
     for t in trajectories:
         if (t.donor, t.target) in matching or (t.target , t.donor) in matching:
             #if t not in trajectories_optimal: 
