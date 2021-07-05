@@ -21,6 +21,48 @@ import random
 # filename = "dataset1.txt"
 
 def plot_performances(algorithms, results):
+    '''
+    Fully automatic function that plots the results per algorithm. 
+
+    Important: the names of the algorithms must be keys in the results dictionary, and every value is a list \
+        that consists of dictionarys, which again contain the value of trajectories of that specific algorithm on that \
+            specific dataset.
+    
+    Parameters:
+    -----------
+    algorithms: List<Function>
+        list of functions used to obtain results
+
+    results: dictionary{
+        'algorithm1.__name__' : list<dictionary> [
+            dictionary1{
+                'value' : int  
+                'trajectories': List<Trajectory>
+            }, 
+            dictionary2{
+                'value' : int  
+                'trajectories': List<Trajectory>
+            },
+            ...
+        ], 
+        'algorithm2.__name__' : list<dictionary> [
+            dictionary1{
+                'value' : int  
+                'trajectories': List<Trajectory>
+            }, 
+            dictionary2{
+                'value' : int  
+                'trajectories': List<Trajectory>
+            },
+            ...
+        ], 
+        ...
+    }
+
+    Returns:
+    --------
+    None
+    '''
     plt.figure(figsize=(9,3))
     plt.subplot(121)
     #fig.title('Performance of various algorithms on trajectory problem')
@@ -49,6 +91,21 @@ def create_results(algorithms, no_of_datasets):
     return combined_results
 
 def create_data(no_of_datasets):
+    '''
+    Helper function to create datasets randomly for testing.
+
+    Uses functions.create_data internally.
+
+    Parameters:
+    -----------
+    no_of_datasets: int
+        number of datasets desired
+    
+    Returns:
+    --------
+    data: List<List<Trajectories>>
+        list of trajectory lists, aka multiple datasets.
+    '''
     data = []
     for i in range(no_of_datasets):
         donors, targets, trajectories = func.create_data(random.randint(1,10), random.randint(1,10), random.randint(50,500), 0.05)
@@ -94,18 +151,22 @@ if __name__ == '__main__':
         #print(sum(n.value for n in tra))
 
         #results.append(sum([n.value for n in tra]))
+    for i in range(5):
+        for algorithm in test_functions:
+            print(algorithm.__name__ + " on " + dataset_names[i] + " gave result: " + str(combined_results[algorithm.__name__][i]['value']))
+    
     # plot_performances(test_functions,combined_results)
     #read_data_from_jsons = JSON_IO.read_data_from_jsons('results.txt')
     #greedy_expected = read_data_from_jsons['greedy']
     #assert greedy_expected == results
     #print('done')
     # print(nx.is_isomorphic(test1, test1_1))
-    r = create_results(test_functions, 5)
+    # r = create_results(test_functions, 5)
 
-    #loop through all optimal trajectories found, check if collision
-    for name in test_functions:
-        for result in r[name.__name__]:
-            if func.check_for_collisions(result['trajectories']):
-                print("error in " + name.__name__)
+    # #loop through all optimal trajectories found, check if collision
+    # for name in test_functions:
+    #     for result in r[name.__name__]:
+    #         if func.check_for_collisions(result['trajectories']):
+    #             print("error in " + name.__name__)
 
-    plot_performances(test_functions, r)
+    # plot_performances(test_functions, r)
