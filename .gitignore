@@ -136,3 +136,7 @@ JSON_not_test_set.txt
 
 Scripts
 pyvenv.cfg
+pycache
+
+*.txt
+!test_requirements.txt
