@@ -60,7 +60,7 @@ def create_data(no_donors, no_targets, no_trajectories, collision_rate=0,data_ra
 #creates and returns a colored bypartite graph, with the option of showing it
 def bipartite_graph(donors, targets, trajectories, visual=False):
     g = nx.Graph()
-    g.add_nodes_from(donors+ targets)
+    g.add_nodes_from(donors + targets)
     for t in trajectories:
         g.add_edge(t.donor, t.target, weight=t.value)
     _node_color =[]
@@ -269,5 +269,12 @@ def get_trajectory_objects_from_matching(matching, trajectories):
     print('match',matching)
     for t in trajectories:
         if (t.donor, t.target) in matching:
-            trajectories_optimal.append(t)
+            if t not in trajectories_optimal: 
+                trajectories_optimal.append(t)
+            else: 
+                for i in trajectories_optimal:
+                    if i.donor == t.donor and i.target == t.target and i.value < t.value:
+                        trajectories_optimal.remove(i) 
+                        trajectories_optimal.append(t)
+
     return trajectories_optimal

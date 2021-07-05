@@ -1,5 +1,4 @@
 from numpy import true_divide
-from aim_trajectory_picking import functions
 import aim_trajectory_picking.functions as func
 import networkx as nx
 import matplotlib.pyplot as plt
