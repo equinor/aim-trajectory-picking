@@ -268,13 +268,18 @@ def get_trajectory_objects_from_matching(matching, trajectories):
     matching_list = list(matching)
     print('match',matching)
     for t in trajectories:
-        if (t.donor, t.target) in matching:
-            if t not in trajectories_optimal: 
-                trajectories_optimal.append(t)
-            else: 
-                for i in trajectories_optimal:
-                    if i.donor == t.donor and i.target == t.target and i.value < t.value:
+        if (t.donor, t.target) in matching or (t.target , t.donor) in matching:
+            #if t not in trajectories_optimal: 
+            add_trajectory = True
+            for i in trajectories_optimal:
+                if i.donor == t.donor and i.target == t.target:
+                    add_trajectory = False
+                    if i.value < t.value:
                         trajectories_optimal.remove(i) 
                         trajectories_optimal.append(t)
-
+                        break
+                    else:
+                        break
+            if add_trajectory:
+                trajectories_optimal.append(t)
     return trajectories_optimal
