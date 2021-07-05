@@ -48,7 +48,7 @@ def create_results(algorithms, no_of_datasets):
             combined_results[algorithm.__name__].append(answer)
     return combined_results
 
-def create_results(no_of_datasets):
+def create_data(no_of_datasets):
     data = []
     for i in range(no_of_datasets):
         donors, targets, trajectories = func.create_data(random.randint(1,10), random.randint(1,10), random.randint(50,500), 0.05)
