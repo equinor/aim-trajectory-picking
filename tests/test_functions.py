@@ -21,7 +21,7 @@ def test_add_collision():
 def test_JSON_IO():
     _, _, trajectories = func.create_data(3,3,10,0.2)
     filename = 'JSON_test.txt'
-    JSON_IO.write_data_to_json_file(filename, trajectories)
+    JSON_IO.write_trajectory_to_json(filename, trajectories)
     read_trajectories = JSON_IO.read_data_from_json_file(filename)
     for i in range(len(read_trajectories)):
         print(trajectories[i])

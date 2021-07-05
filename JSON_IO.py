@@ -3,19 +3,30 @@ import json
 from networkx.algorithms.asteroidal import create_component_structure
 import aim_trajectory_picking.functions as dem
 
+# General function for reading a json-formatted .txt file
 def read_data_from_json_file(filename):
     file = open(filename,'r')
     input_data = json.loads(file.read())
+    return input_data
+
+# Wrapper for reading the trajectory from a json-formatted .txt file
+def read_trajectory_from_json(filename):
+    input_data = read_data_from_json_file(filename)
     liste = []
     for trajectory in input_data["trajectories"]:
-        #print(trajectory)
         tra = dem.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
         for collision in trajectory["collisions"]:
             tra.add_collision_by_id(collision)
         liste.append(tra)
     return liste
 
-def write_data_to_json_file(filename, list_of_trajectories):
+# General function for writing data to a json-format .txt file
+def write_data_to_json_file(filename, data):
+    with open(filename, 'w') as outfile: 
+        json.dump(data, outfile, sort_keys=False, indent=4)
+
+# Wrapper function to write the trajectory in json-format to .txt file
+def write_trajectory_to_json(filename,list_of_trajectories):
     JSON_trajectories = {}
     JSON_trajectories['trajectories'] = []
     for x in range(len(list_of_trajectories)):
@@ -26,28 +37,16 @@ def write_data_to_json_file(filename, list_of_trajectories):
         trajectory['value'] = list_of_trajectories[x].value
         trajectory['collisions'] = list_of_trajectories[x].collisions
         JSON_trajectories['trajectories'].append(trajectory)
-    with open(filename, 'w') as outfile: 
-        json.dump(JSON_trajectories, outfile, sort_keys=False, indent=4)
+    write_data_to_json_file(filename,JSON_trajectories)
 
-def read_results(filename):
-    file = open(filename,'r')
-    input_data = json.loads(file.read())
-    return input_data
-
-# For generating datasets
-def generate_datasets(num_datasets):
+# For generating datasets with choosen parameters
+def generate_datasets_as_json_files(num_datasets):
     for i in range(num_datasets):
         donor, target, trajectories = dem.create_data(5,5,10,0.05)
-        write_data_to_json_file('datasets/dataset_'+str(i)+'.txt',trajectories)
+        write_trajectory_to_json('datasets/dataset_'+str(i)+'.txt',trajectories)
 
 # does not work atm due to json formatting needing a key
 results = {}
 lis = [32,20,26,31,23] # results of 5 greedy algorithms
 results['greedy'] = lis
-with open('results.txt','w') as filename:
-    json.dump(results,filename,sort_keys=False)
-
-
-# liste = read_data_from_json_file('base_test_1.txt')
-# dictionary = dem.greedy_algorithm(liste)
-# functions = [dem.greedy_algorithm,dem.random_algorithm,dem.NN_algorithm]
+write_data_to_json_file('results.txt',results)
