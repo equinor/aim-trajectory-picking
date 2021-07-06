@@ -674,5 +674,17 @@ def lonely_target_algorithm (trajectories, visualize=False):
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
             
-    
-   
+def reversed_greedy(trajectories, visualize=False, collision_rate = 0.07):
+    graph = transform_graph(trajectories)
+    highest_collision_trajectory = None
+    while highest_collision_trajectory == None or len(highest_collision_trajectory.collisions) > (len(trajectories) * collision_rate):
+        for tra in list(graph.nodes): 
+            num_collisions = len(list(graph.neighbors(tra)))
+            if highest_collision_trajectory == None or num_collisions > len(highest_collision_trajectory.collisions):
+                highest_collision_trajectory = tra
+        graph.remove_node(highest_collision_trajectory)
+    #return greedy_algorithm(list(graph.nodes))
+    return weight_transformation_algorithm(list(graph.nodes))
+    #return bipartite_matching_removed_collisions(list(graph.nodes), False)
+
+

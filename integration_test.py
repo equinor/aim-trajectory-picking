@@ -72,11 +72,12 @@ def plot_performances(algorithms, results):
     for algorithm in algorithms:
         results_per_dataset = [item['value'] for item in results[algorithm.__name__]]
         print(results_per_dataset)
-        plt.plot(dataset_names, results_per_dataset, label=algorithm.__name__)
+        plt.plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
         means.append(np.mean(results_per_dataset))
     plt.legend()
     plt.subplot(122)
     plt.bar(algo_names, means)
+    plt.xticks(rotation=45)
     plt.show()
 
 def create_results(algorithms, no_of_datasets):
@@ -127,7 +128,9 @@ def calculate_results(algorithms, datasets):
 if __name__ == '__main__':
     results = []
     directory = r'.\datasets'
-    test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm, func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions, func.lonely_target_algorithm]
+    test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
+                     func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions,
+                     func.lonely_target_algorithm, func.reversed_greedy]
     combined_results = {}
     for algorithm in test_functions:
         combined_results[algorithm.__name__] = []
