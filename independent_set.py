@@ -29,7 +29,7 @@ def single_independent_set(G,visualize=False):
     while G.number_of_nodes() > 0:
         # Choose node from G
         nodes = list(G.nodes)
-        choice = random_choice(nodes)
+        choice = greedy(nodes)
         print(choice)
 
         # Add node to set I
@@ -39,7 +39,6 @@ def single_independent_set(G,visualize=False):
             nx.draw(G)
             plt.show()
         # Remove node from G
-        '''The node seen to not get removed correctly, todo'''
         
         for n in list(G.neighbors(choice)):
             G.remove_node(n)
