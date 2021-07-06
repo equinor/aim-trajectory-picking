@@ -278,7 +278,7 @@ def abstract_trajectory_algorithm(graph, choice_function,visualize=False):
         plt.figure()
     while graph.number_of_nodes() != 0: #while there still are nodes left
         nodes = list(graph.nodes)
-        chosen_node = choice_function(nodes) #choose most optimal node based on given choice function
+        chosen_node = choice_function(graph) #choose most optimal node based on given choice function
         _node_colors = []
         for i in range(len(nodes)): #color nodes for visual purposes
             if nodes[i] == chosen_node:
@@ -302,7 +302,7 @@ def abstract_trajectory_algorithm(graph, choice_function,visualize=False):
     return dictionary
 
 #Choice function for pseudogreedy algorithm. Finds the best node by scaling all values by dividing with the sum of blocked nodes.
-def weight_transformation(nodes):
+def weight_transformation(graph):
     '''
     Finds the most 'optimal' node by dividing each node with the value of the nodes it blocks, then picks the node \
         with the most value.
@@ -317,18 +317,19 @@ def weight_transformation(nodes):
     node: 
         the most optimal Trajectory
     '''
+    nodes = list(graph.nodes)
     transformed_weights = []
     for i in range(len(nodes)):
         value_adjacent_nodes = 1
-        for n in nodes[i].collisions:
+        for n in graph.neighbors(nodes[i]):
             #print(type(nodes[i]))
-            value_adjacent_nodes += n#.value
+            value_adjacent_nodes += n.value
         transformed_weights.append(nodes[i].value /value_adjacent_nodes)
     
     return nodes[transformed_weights.index(max(transformed_weights))]
 
 #Greedy algorithm choice function
-def greedy(nodes):
+def greedy(graph):
     '''
     Finds the most 'optimal' picking the one with the highest value.
     
@@ -342,10 +343,11 @@ def greedy(nodes):
     node: 
         the most optimal Trajectory
     '''
+    nodes = list(graph.nodes)
     return  max(nodes, key= lambda n : n.value)
 
 #Random choice function, used for benchmarks
-def random_choice(nodes):
+def random_choice(graph):
     '''
     Returns a random node. Used for benchmarks
 
@@ -359,10 +361,11 @@ def random_choice(nodes):
     node: 
         the most optimal Trajectory
     '''
+    nodes = list(graph.nodes)
     return random.choice(nodes)
 
 #Scale weights by dividing every node with the amount of nodes it blocks.
-def NN_transformation(nodes):
+def NN_transformation(graph):
     '''
     Finds the most 'optimal' by scaling every value by the amount of nodes adjacent, then picking the node with \
         the highest value.
@@ -377,6 +380,7 @@ def NN_transformation(nodes):
     node: 
         the most optimal Trajectory
     '''
+    nodes = list(graph.nodes)
     transformed_weights = []
     for i in range(len(nodes)):
         number_of_adjacent_nodes = 1
