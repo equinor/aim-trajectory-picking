@@ -101,7 +101,7 @@ class Trajectory:
         return self.id == other.id and self.donor == other.donor and self.target == other.target and self.value == other.value and self.collisions == other.collisions
 
     def __hash__(self):
-        return self.id + self.value
+        return self.id #+ self.value
 
 #Data is created in the following way: Amount is given and the function returns the nodes and trajectories between these.
 #Also returns collisions with given collision rate
