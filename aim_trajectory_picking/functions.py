@@ -612,6 +612,19 @@ def get_trajectory_objects_from_matching(matching, trajectories):
     return trajectories_optimal
 
 def get_lonely_target_trajectories (trajectories):
+    '''
+    Function to get the trajectories of targets only hit once.
+
+    Parameters:
+    -----------
+    trajectories: List<Trajectory>
+        list of trajectories from which the lonely target hitter will be found
+    
+    Returns:
+    --------
+    tra_list: List<Trajectory>
+        list of trajectories which are the only ones to hit their respective targets
+    '''
     target_dict = {}
     tra_list = []
     for tra in trajectories: 
@@ -626,6 +639,23 @@ def get_lonely_target_trajectories (trajectories):
         
 
 def lonely_target_algorithm (trajectories, visualize=False):
+    '''
+    Algorithm to solve the trajectory picking problem, focusing on choosing targets only hit by one trajectory.
+
+    Parameters:
+    -----------
+    trajectories: List<Trajectory>
+        list of trajectories to constitute the trajectory picking problem
+    visualize: bool, optional
+        if True, plot every step of algorithm
+    
+    Returns:
+    --------
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects found.
+
+    '''
     optimal_trajectories = []
     graph = transform_graph(trajectories)
     while graph.number_of_nodes() != 0: 

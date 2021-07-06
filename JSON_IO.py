@@ -5,12 +5,39 @@ import aim_trajectory_picking.functions as dem
 
 # General function for reading a json-formatted .txt file
 def read_data_from_json_file(filename):
+    '''
+    Reads data from a json-formatted text file.
+
+    Parameters:
+    -----------
+    filename: str
+        name of file to be read
+
+    Returns:
+    --------
+    dictionary: dict
+        a dictionary containing the JSON data read
+    '''
     file = open(filename,'r')
     input_data = json.loads(file.read())
     return input_data
 
 # Wrapper for reading the trajectory from a json-formatted .txt file
 def read_trajectory_from_json(filename):
+    '''
+    Wrapper for reading the trajectory from a json-formatted .txt file
+
+    Paramenters:
+    -----------
+    filename: str
+        name of file to be read
+        
+    Returns:
+    --------
+    liste: List<Trajectory>
+        list of trajectory objects contained in filename
+    
+    '''
     input_data = read_data_from_json_file(filename)
     liste = []
     for trajectory in input_data["trajectories"]:
@@ -22,11 +49,35 @@ def read_trajectory_from_json(filename):
 
 # General function for writing data to a json-format .txt file
 def write_data_to_json_file(filename, data):
+    '''
+    General function for writing data to a json-format .txt file
+
+    Parameters:
+    -----------
+    filename: str
+        name of file to be written to
+    data: dictionary (usually)
+        dictionary with information to be written to JSON format
+    '''
     with open(filename, 'w') as outfile: 
         json.dump(data, outfile, sort_keys=False, indent=4)
 
 # Wrapper function to write the trajectory in json-format to .txt file
 def write_trajectory_to_json(filename,list_of_trajectories):
+    '''
+    Wrapper function to write the trajectory in json-format to .txt file
+
+    Parameters:
+    -----------
+    filename: str
+        name of file to be written to
+    list_of_trajectories: List<Trajectory>
+        list of trajectories to be written to fike
+
+    Returns:
+    --------
+    None
+    '''
     JSON_trajectories = {}
     JSON_trajectories['trajectories'] = []
     for x in range(len(list_of_trajectories)):
@@ -41,6 +92,9 @@ def write_trajectory_to_json(filename,list_of_trajectories):
 
 # For generating datasets with choosen parameters
 def generate_datasets_as_json_files(num_datasets):
+    '''
+    Function used once to generate datasets to be solved both by computer and by hand. DONT USE AGAIN
+    '''
     for i in range(num_datasets):
         donor, target, trajectories = dem.create_data(5,5,10,0.05)
         write_trajectory_to_json('datasets/dataset_'+str(i)+'.txt',trajectories)
