@@ -1,5 +1,6 @@
 import networkx as nx
 import random
+from networkx.algorithms.link_analysis.pagerank_alg import google_matrix
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -605,3 +606,39 @@ def get_trajectory_objects_from_matching(matching, trajectories):
             if add_trajectory:
                 trajectories_optimal.append(t)
     return trajectories_optimal
+
+def get_lonely_target_trajectories (trajectories):
+    target_dict = {}
+    tra_list = []
+    for tra in trajectories: 
+        if tra.target in target_dict:
+            target_dict[tra.target].append(tra)
+        else: 
+            target_dict[tra.target] = [tra]
+    for target in target_dict: 
+        if len(target_dict[target]) == 1: 
+            tra_list.append(target_dict[target][0])
+    return tra_list
+        
+
+def lonely_target_algorithm (trajectories, visualize=False):
+    optimal_trajectories = []
+    graph = transform_graph(trajectories)
+    while graph.number_of_nodes() != 0: 
+        lonely_target_trajectories = get_lonely_target_trajectories(list(graph.nodes))
+        if len(lonely_target_trajectories) != 0: 
+            feasible_nodes = lonely_target_trajectories 
+        else: 
+            feasible_nodes = list(graph.nodes)
+        chosen_node = max(feasible_nodes, key= lambda n : n.value)
+        optimal_trajectories.append(chosen_node)
+        for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
+            graph.remove_node(n)
+        graph.remove_node(chosen_node)
+    dictionary = {}
+    dictionary['value'] = sum(n.value for n in optimal_trajectories)
+    dictionary['trajectories'] = optimal_trajectories
+    return dictionary
+            
+    
+   

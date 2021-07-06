@@ -127,7 +127,7 @@ def calculate_results(algorithms, datasets):
 if __name__ == '__main__':
     results = []
     directory = r'.\datasets'
-    test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm, func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions]
+    test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm, func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions, func.lonely_target_algorithm]
     combined_results = {}
     for algorithm in test_functions:
         combined_results[algorithm.__name__] = []
@@ -161,12 +161,12 @@ if __name__ == '__main__':
     #assert greedy_expected == results
     #print('done')
     # print(nx.is_isomorphic(test1, test1_1))
-    # r = create_results(test_functions, 5)
+    r = create_results(test_functions, 5)
 
-    # #loop through all optimal trajectories found, check if collision
-    # for name in test_functions:
-    #     for result in r[name.__name__]:
-    #         if func.check_for_collisions(result['trajectories']):
-    #             print("error in " + name.__name__)
+    #loop through all optimal trajectories found, check if collision
+    for name in test_functions:
+         for result in r[name.__name__]:
+             if func.check_for_collisions(result['trajectories']):
+                 print("error in " + name.__name__)
 
-    # plot_performances(test_functions, r)
+    plot_performances(test_functions, r)
