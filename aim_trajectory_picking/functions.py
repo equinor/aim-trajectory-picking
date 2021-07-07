@@ -101,7 +101,7 @@ class Trajectory:
         return self.id == other.id and self.donor == other.donor and self.target == other.target and self.value == other.value and self.collisions == other.collisions
 
     def __hash__(self):
-        return self.id + self.value
+        return self.id #+ self.value
 
 #Data is created in the following way: Amount is given and the function returns the nodes and trajectories between these.
 #Also returns collisions with given collision rate
@@ -674,29 +674,18 @@ def lonely_target_algorithm (trajectories, visualize=False):
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
             
-    
-def translate_trajectory_objects_to_dictionaries(trajectories):
-   return [e.__dict__ for e in trajectories]
 
-def make_transformed_graph_from_trajectory_dictionaries(trajectories):
-    G = nx.Graph()
-    G.add_nodes_from(trajectories)
-    node_attrs = {}
-    for i in range(len(trajectories)):
-        node_attrs[trajectories[i]] = trajectories[i].__dict__
-    nx.set_node_attributes(G,node_attrs)
-    for i in range(len(trajectories)):
-        for j in range(i, len(trajectories)):
-            if i != j:
-                if mutually_exclusive_trajectories(trajectories[i], trajectories[j]):
-                    G.add_edge(trajectories[i], trajectories[j])
-    return G
+def reversed_greedy(trajectories, visualize=False, collision_rate = 0.07):
+    graph = transform_graph(trajectories)
+    highest_collision_trajectory = None
+    while highest_collision_trajectory == None or len(highest_collision_trajectory.collisions) > (len(trajectories) * collision_rate):
+        for tra in list(graph.nodes): 
+            num_collisions = len(list(graph.neighbors(tra)))
+            if highest_collision_trajectory == None or num_collisions > len(highest_collision_trajectory.collisions):
+                highest_collision_trajectory = tra
+        graph.remove_node(highest_collision_trajectory)
+    #return greedy_algorithm(list(graph.nodes))
+    return weight_transformation_algorithm(list(graph.nodes))
+    #return bipartite_matching_removed_collisions(list(graph.nodes), False)
 
-def mutually_exclusive_trajectories_dictionary(t1, t2):
-    if t1['donor'] == t2['donor']:
-        return True
-    elif t1['target'] == t2['target']:
-        return True
-    elif t1['id'] in t2['collisions']:
-        return True
-    return False
+
