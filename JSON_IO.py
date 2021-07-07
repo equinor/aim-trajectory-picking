@@ -99,8 +99,37 @@ def generate_datasets_as_json_files(num_datasets):
         donor, target, trajectories = dem.create_data(5,5,10,0.05)
         write_trajectory_to_json('datasets/dataset_'+str(i)+'.txt',trajectories)
 
-# does not work atm due to json formatting needing a key
-results = {}
-lis = [32,20,26,31,23] # results of 5 greedy algorithms
-results['greedy'] = lis
-write_data_to_json_file('results.txt',results)
+# # does not work atm due to json formatting needing a key
+# results = {}
+# lis = [32,20,26,31,23] # results of 5 greedy algorithms
+# results['greedy'] = lis
+# write_data_to_json_file('results.txt',results)
+
+
+if __name__ == '__main__':
+    HIGH_DONORS = 50
+    HIGH_TARGETS = 50
+    LOW_DONORS = 5
+    LOW_TARGETS = 5
+    COLLISION_RATE = 0.05
+    LOW_TRAJECTORIES = 500
+    HIGH_TRAJECTORIES= 50000
+    print('started generating data')
+    _,_, trajectories = dem.create_data(HIGH_DONORS, HIGH_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
+    write_trajectory_to_json('big_datasets/highD_highT_lowT.txt', trajectories)
+    _,_, trajectories = dem.create_data(HIGH_DONORS, LOW_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
+    write_trajectory_to_json('big_datasets/highD_lowT_lowT.txt', trajectories)
+    _,_, trajectories = dem.create_data(LOW_DONORS, HIGH_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
+    write_trajectory_to_json('big_datasets/lowD_highT_lowT.txt', trajectories)
+    _,_, trajectories = dem.create_data(LOW_DONORS, LOW_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
+    write_trajectory_to_json('big_datasets/lowD_lowT_lowT.txt', trajectories)
+
+    print('started high collision rate')
+    _,_, trajectories = dem.create_data(HIGH_DONORS, HIGH_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
+    write_trajectory_to_json('big_datasets/highD_highT_highT.txt', trajectories)
+    _,_, trajectories = dem.create_data(HIGH_DONORS, LOW_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
+    write_trajectory_to_json('big_datasets/highD_lowT_highT.txt', trajectories)
+    _,_, trajectories = dem.create_data(LOW_DONORS, HIGH_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
+    write_trajectory_to_json('big_datasets/lowD_highT_highT.txt', trajectories)
+    _,_, trajectories = dem.create_data(LOW_DONORS, LOW_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
+    write_trajectory_to_json('big_datasets/lowD_lowT_highT.txt', trajectories)
