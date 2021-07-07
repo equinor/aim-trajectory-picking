@@ -163,7 +163,7 @@ if __name__ == '__main__':
         for algorithm in test_functions:
             answer = algorithm(dataset1_after, False)
             combined_results[algorithm.__name__].append(answer)
-            print("done with algorithm: " + algorithm + " on dataset: " + filename)
+            print("done with algorithm: " + algorithm.__name__ + " on dataset: " + filename)
 
 
         #results.append(sum([n.value for n in tra]))
