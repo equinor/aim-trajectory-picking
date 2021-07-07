@@ -2,6 +2,30 @@ import pytest
 import aim_trajectory_picking.functions as func
 import JSON_IO
 import matplotlib
+import integration_test as int_test
+import os
+
+def algorithm_test_function(algorithm):
+    targeted_result_list = []
+    directory = r'.\datasets'
+    test_functions = [algorithm]
+    combined_results = {}
+    for algorithm in test_functions:
+        combined_results[algorithm.__name__] = []
+    dataset_names = []
+    for filename in os.listdir(directory):
+        dataset_names.append(filename)
+        fullpath = os.path.join(directory,filename)
+        dataset1_after = JSON_IO.read_trajectory_from_json(fullpath)
+
+        for algorithm in test_functions:
+            answer = algorithm(dataset1_after, False)
+            combined_results[algorithm.__name__].append(answer)
+
+    for i in range(5):
+        targeted_result = combined_results[algorithm.__name__][i]['value']
+        targeted_result_list.append(targeted_result)
+    return targeted_result_list
 
 # Test the mutually exclusive function on three different arbitrary sets
 @pytest.mark.parametrize("test_input1,test_input2,test_input3,test_input4,expected", [("T1","D1","T1","D2",True), ("T1","D1","T2","D1",True), ("T1","D1","T2","D2",False)])
@@ -29,5 +53,29 @@ def test_JSON_IO():
         print(read_trajectories[i])
     print(trajectories[0] == read_trajectories[0])
     assert all([a == b for a, b in zip(trajectories, read_trajectories)])
+
+def test_greedy_on_datasets_0_to_4():
+    targeted_result_list = algorithm_test_function(func.greedy_algorithm)
+    assert targeted_result_list == [32, 20, 26, 31, 23]
+
+def test_NN_on_datasets_0_to_4():
+    targeted_result_list = algorithm_test_function(func.NN_algorithm)
+    assert targeted_result_list == [32, 20, 26, 32, 24]
+
+def test_weight_on_datasets_0_to_4():
+    targeted_result_list = algorithm_test_function(func.weight_transformation_algorithm)
+    assert targeted_result_list == [29, 24, 26, 31, 24]
+
+def test_bipartite_removed_collision_on_datasets_0_to_4():
+    targeted_result_list = algorithm_test_function(func.bipartite_matching_removed_collisions)
+    assert targeted_result_list == [32, 24, 26, 32, 23]
+
+def test_lonely_target_on_datasets_0_to_4():
+    targeted_result_list = algorithm_test_function(func.lonely_target_algorithm)
+    assert targeted_result_list == [32, 11, 23, 32, 24]
+
+def test_reverse_greedy_on_datasets_0_to_4():
+    targeted_result_list = algorithm_test_function(func.reversed_greedy)
+    assert targeted_result_list == [29, 24, 26, 31, 23]
 
 #print(func.timer(test_add_collision))
