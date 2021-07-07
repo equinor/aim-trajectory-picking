@@ -675,7 +675,28 @@ def lonely_target_algorithm (trajectories, visualize=False):
     return dictionary
             
 
-def reversed_greedy(trajectories, visualize=False, collision_rate = 0.07):
+def reversed_greedy(trajectories, visualize=False, collision_rate = 0.05):
+    '''
+    Algorithm which follows the inverse logic of the greedy algorithm, focusing on the number of collisions. 
+    At each iteration, the trajectory with the highest number of collisions is removed. 
+    
+    Parameters:
+    -----------
+    trajectories: List<Trajectory>
+        list of trajectories to constitute the trajectory picking problem
+    visualize: bool, optional
+        if True, plot every step of algorithm
+    collision_rate: int 
+        defaults to 0.05
+    
+    Returns:
+    --------
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects found, after running the result of the
+            reverse greedy through the  weight transform algorithm.
+
+    '''
     graph = transform_graph(trajectories)
     highest_collision_trajectory = None
     while highest_collision_trajectory == None or len(highest_collision_trajectory.collisions) > (len(trajectories) * collision_rate):
