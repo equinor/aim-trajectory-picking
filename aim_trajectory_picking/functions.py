@@ -280,21 +280,21 @@ def abstract_trajectory_algorithm(graph, choice_function,visualize=False):
         nodes = list(graph.nodes)
         chosen_node = choice_function(graph) #choose most optimal node based on given choice function
         _node_colors = []
-        for i in range(len(nodes)): #color nodes for visual purposes
-            if nodes[i] == chosen_node:
-                _node_colors.append('green')
-            elif nodes[i] in graph.neighbors(chosen_node):
-                _node_colors.append('red')
-            else:
-                _node_colors.append('blue')
         if visualize:
+            for i in range(len(nodes)): #color nodes for visual purposes
+                if nodes[i] == chosen_node: 
+                    _node_colors.append('green')
+                elif nodes[i] in graph.neighbors(chosen_node):
+                    _node_colors.append('red')
+                else:
+                    _node_colors.append('blue')
             nx.draw(graph, with_labels=True, node_color=_node_colors)
             plt.show()
         optimal_trajectories.append(chosen_node)
         for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
             graph.remove_node(n)
         graph.remove_node(chosen_node)
-        #print(nodes)
+        print("added trajectory number: " + str(len(optimal_trajectories)))
     #print("Algorithm: " + choice_function.__name__ + ' sum: ' +str(sum(n.value for n in optimal_trajectories))) #print sum of trajectories
     dictionary = {}
     dictionary['value'] = sum(n.value for n in optimal_trajectories)
@@ -384,7 +384,7 @@ def NN_transformation(graph):
     transformed_weights = []
     for i in range(len(nodes)):
         number_of_adjacent_nodes = 1
-        for n in nodes[i].collisions:
+        for n in graph.neighbors(nodes[i]):
             number_of_adjacent_nodes += 1
         transformed_weights.append(nodes[i].value /number_of_adjacent_nodes)
     
@@ -674,6 +674,7 @@ def lonely_target_algorithm (trajectories, visualize=False):
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
             
+
 def reversed_greedy(trajectories, visualize=False, collision_rate = 0.07):
     graph = transform_graph(trajectories)
     highest_collision_trajectory = None
