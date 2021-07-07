@@ -7,6 +7,7 @@ import os
 import datasets
 import numpy as np
 import random
+import cProfile
 
 # donors1, targets1, trajectories1 = func.create_data(4, 4, 7, 0.04)
 # print([n.value for n in trajectories1])
@@ -132,11 +133,9 @@ def calculate_results(algorithms, datasets):
         for algorithm in algorithms:
             answer = algorithm(data, False)
             combined_results[algorithm.__name__].append(answer)
-    return results
+    return combined_results
     
-
-
-if __name__ == '__main__':
+def read_data_and_give_results():
     results = []
     directory = r'.\datasets'
     test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
@@ -147,6 +146,8 @@ if __name__ == '__main__':
         combined_results[algorithm.__name__] = []
     dataset_names = []
     for filename in os.listdir(directory):
+        if filename == 'HHL.txt':
+            pass
         dataset_names.append(filename)
         fullpath = os.path.join(directory,filename)
         # JSON_IO.write_data_to_json_file(filename, trajectories1)
@@ -163,14 +164,23 @@ if __name__ == '__main__':
         for algorithm in test_functions:
             answer = algorithm(dataset1_after, False)
             combined_results[algorithm.__name__].append(answer)
-            print("done with algorithm: " + algorithm + " on dataset: " + filename)
+            #print("done with algorithm: " + algorithm.__name__ + " on dataset: " + filename)
 
 
         #results.append(sum([n.value for n in tra]))
     for i in range(5):
         for algorithm in test_functions:
             print(algorithm.__name__ + " on " + dataset_names[i] + " gave result: " + str(combined_results[algorithm.__name__][i]['value']))
-    plot_performances(test_functions,combined_results, dataset_names)
+    #plot_performances(test_functions,combined_results, dataset_names)
+
+def profile_testing():
+        _,_, traj = func.create_data(15,15,5000, 0.05)
+        graph = func.transform_graph(traj)
+
+
+if __name__ == '__main__':
+    cProfile.run('read_data_and_give_results()')
+    
     # for i in range(5):
     #     print("Amount of trajectories: " + str(10**i) + " with time: " + str(func.timer(func.create_data,10, 10 , 10**i, 0.05)) )
 

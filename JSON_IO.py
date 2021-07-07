@@ -2,7 +2,7 @@ import json
 
 from networkx.algorithms.asteroidal import create_component_structure
 import aim_trajectory_picking.functions as dem
-
+from numba import jit
 # General function for reading a json-formatted .txt file
 def read_data_from_json_file(filename):
     '''
@@ -18,6 +18,8 @@ def read_data_from_json_file(filename):
     dictionary: dict
         a dictionary containing the JSON data read
     '''
+
+    #add context manager? "with open(file) as y"
     file = open(filename,'r')
     input_data = json.loads(file.read())
     return input_data
@@ -46,6 +48,19 @@ def read_trajectory_from_json(filename):
             tra.add_collision_by_id(collision)
         liste.append(tra)
     return liste
+
+@jit(nopython=True)
+def read_trajectory_from_json_v2(filename):
+    input_data = read_data_from_json_file(filename)
+    liste = []
+    collisions = set()
+    for trajectory in input_data["trajectories"]:
+        tra = dem.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
+        liste.append(tra)
+        for collision in trajectory["collisions"]:
+            collisions.add((tra.id,collision))
+    return liste, collisions
+
 
 # General function for writing data to a json-format .txt file
 def write_data_to_json_file(filename, data):

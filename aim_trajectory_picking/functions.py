@@ -4,6 +4,8 @@ from networkx.algorithms.link_analysis.pagerank_alg import google_matrix
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+from numba import jit
+import itertools
 
 # A class to define all the useful information pertaining a certain trajectory.
 class Trajectory:
@@ -55,7 +57,7 @@ class Trajectory:
         self.donor = _donor
         self.target = _target
         self.value = _value
-        self.collisions = []
+        self.collisions = set()
     
     #Add a collision to the trajectory object. Also adds self to the other trajectory's collision list.
     def add_collision(self, trajectory):
@@ -72,7 +74,7 @@ class Trajectory:
         None
         '''
         if trajectory.id not in self.collisions:
-            self.collisions.append(trajectory.id)
+            self.collisions.add(trajectory.id)
             trajectory.add_collision(self)
 
     #Add a collision by id only, does not add itself to the other trajectory's collision list.
@@ -89,7 +91,7 @@ class Trajectory:
         --------
         None
         '''
-        self.collisions.append(id)
+        self.collisions.add(id)
  
     def __str__(self):
         return str(self.id) + ": "+ self.donor + "-->" + self.target + "  Value " + str(self.value) + " "
@@ -223,6 +225,7 @@ def mutually_exclusive_trajectories(t1, t2):
 
 #Creates a graph where the nodes are trajectories and the edges are mutual exclusivity, either through collisions in space or in donors/targets
 #Returns the created graph
+@jit(nogil=True)
 def transform_graph(trajectories):
     '''
     Creates a graph from the given trajectories such that every trajectory is a node and every collision/mutual exclusivity is an edge.
@@ -246,7 +249,31 @@ def transform_graph(trajectories):
                     G.add_edge(trajectories[i], trajectories[j])
     return G
 
-
+@jit(nogil=True)
+def create_graph(trajectories, collisions):
+    G = nx.Graph()
+    G.add_nodes_from(trajectories)
+    print("done adding nodes")
+    donor_and_target_collisions = {}
+    for t in trajectories:
+        try:
+            donor_and_target_collisions[t.donor].append(t)
+        except:
+            donor_and_target_collisions[t.donor] = []
+            donor_and_target_collisions[t.donor].append(t)
+        try:
+            donor_and_target_collisions[t.target].append(t)
+        except:
+            donor_and_target_collisions[t.target] = []
+            donor_and_target_collisions[t.target].append(t)
+    for key in donor_and_target_collisions:
+        donor_or_target_collisions = donor_and_target_collisions[key]
+        for pair in list(itertools.combinations(donor_or_target_collisions, 2)):
+            G.add_edge(pair[0], pair[1])
+    for pair in collisions:
+        G.add_edge(pair[0], pair[1])
+    return G
+        
 
 
 #Computes a pseudogreedy optimal set of trajectories, given a function to determine the next node to add.
@@ -291,10 +318,11 @@ def abstract_trajectory_algorithm(graph, choice_function,visualize=False):
             nx.draw(graph, with_labels=True, node_color=_node_colors)
             plt.show()
         optimal_trajectories.append(chosen_node)
-        for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
-            graph.remove_node(n)
+        # for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
+        #     graph.remove_node(n)
+        [graph.remove_node(n) for n in list(graph.neighbors(chosen_node))]
         graph.remove_node(chosen_node)
-        print("added trajectory number: " + str(len(optimal_trajectories)))
+        #print("added trajectory number: " + str(len(optimal_trajectories)))
     #print("Algorithm: " + choice_function.__name__ + ' sum: ' +str(sum(n.value for n in optimal_trajectories))) #print sum of trajectories
     dictionary = {}
     dictionary['value'] = sum(n.value for n in optimal_trajectories)
@@ -592,11 +620,8 @@ def get_trajectory_objects_from_matching(matching, trajectories):
         list of trajectory objects that make up the max weight matching
     '''
     trajectories_optimal = []
-    matching_list = list(matching)
-    #print('match',matching)
     for t in trajectories:
         if (t.donor, t.target) in matching or (t.target , t.donor) in matching:
-            #if t not in trajectories_optimal: 
             add_trajectory = True
             for i in trajectories_optimal:
                 if i.donor == t.donor and i.target == t.target:
@@ -689,3 +714,29 @@ def reversed_greedy(trajectories, visualize=False, collision_rate = 0.07):
     #return bipartite_matching_removed_collisions(list(graph.nodes), False)
 
 
+def modified_greedy(trajectories,collisions, visualize=False):
+    print("started making graph")
+    start = time.perf_counter()
+    graph = create_graph(trajectories, collisions)
+    stop = time.perf_counter()
+    print("done creating graph with time: " + str(start-stop))
+    optimal_trajectories = []
+    nodes = list(graph.nodes)
+    print("started sorting")
+    nodes.sort(key = lambda n: n.value )
+    print("finished sorting")
+    while graph.number_of_nodes() != 0:
+        chosen_node = nodes[-1]
+        optimal_trajectories.append(chosen_node)
+        print("started removing node")
+        for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
+            graph.remove_node(n)
+            nodes.remove(n)
+        print("finished removing node")
+        graph.remove_node(chosen_node)
+        print("added trajectory number: " + str(len(optimal_trajectories)))
+    #print("Algorithm: " + choice_function.__name__ + ' sum: ' +str(sum(n.value for n in optimal_trajectories))) #print sum of trajectories
+    dictionary = {}
+    dictionary['value'] = sum(n.value for n in optimal_trajectories)
+    dictionary['trajectories'] = optimal_trajectories
+    return dictionary
