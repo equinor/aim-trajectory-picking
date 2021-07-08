@@ -750,6 +750,21 @@ def reversed_greedy(trajectories, visualize=False, collision_rate = 0.05):
     return weight_transformation_algorithm(list(graph.nodes))
     #return bipartite_matching_removed_collisions(list(graph.nodes), False)
 
+def translate_trajectory_objects_to_dictionaries(trajectories):
+    node_set = []
+    for element in trajectories:
+        node_set.append(Trajectory(element.id, element.donor, element.target,element.value))
+    dictionary = {}
+    dictionary['value'] = sum(n.value for n in node_set)
+    dictionary['trajectories'] = node_set
+    return dictionary
+
+
+def minimum_weighted_vertex_cover_algorithm(trajectory,visualize=False):
+    # Possibly invert this before using?
+    G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
+    vertex_cover_nodes = aprox.min_weighted_vertex_cover(G,weight='value')
+    dictionary = translate_trajectory_objects_to_dictionaries(vertex_cover_nodes)
 
 def modified_greedy(trajectories,collisions, visualize=False):
     print("started making graph")
@@ -776,16 +791,7 @@ def modified_greedy(trajectories,collisions, visualize=False):
     dictionary = {}
     dictionary['value'] = sum(n.value for n in optimal_trajectories)
     dictionary['trajectories'] = optimal_trajectories
-def minimum_weighted_vertex_cover(trajectory,visualize=False):
-
-    G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
-    vertex_cover_nodes = aprox.min_weighted_vertex_cover(G,weight='value')
-
-    dictionary = {}
-    dictionary['value'] = sum(n.value for n in vertex_cover_nodes)
-    dictionary['trajectories'] = vertex_cover_nodes
-    return dictionary
-
+    
 
 def clique_set(trajectory,visualize=False):
     values = []
