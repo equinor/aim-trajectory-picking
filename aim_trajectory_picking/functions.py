@@ -4,7 +4,7 @@ from networkx.algorithms.link_analysis.pagerank_alg import google_matrix
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-import networkx.algorithms.approximation as aprox
+from networkx.algorithms import approximation as aprox
 
 # A class to define all the useful information pertaining a certain trajectory.
 class Trajectory:
@@ -725,17 +725,23 @@ def reversed_greedy(trajectories, visualize=False, collision_rate = 0.05):
     return weight_transformation_algorithm(list(graph.nodes))
     #return bipartite_matching_removed_collisions(list(graph.nodes), False)
 
-def minimum_weighted_vertex_cover(trajectory,visualize=False):
-
-    G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
-    vertex_cover_nodes = aprox.min_weighted_vertex_cover(G,weight='value')
-
+def translate_trajectory_objects_to_dictionaries(trajectories):
+    node_set = []
+    for element in trajectories:
+        node_set.append(Trajectory(element.id, element.donor, element.target,element.value))
     dictionary = {}
-    dictionary['value'] = sum(n.value for n in optimal_trajectories)
-    dictionary['trajectories'] = optimal_trajectories
+    dictionary['value'] = sum(n.value for n in node_set)
+    dictionary['trajectories'] = node_set
     return dictionary
 
-def clique_set(trajectory, weights=None,visualize=False):
+def minimum_weighted_vertex_cover_algorithm(trajectory,visualize=False):
+    # Possibly invert this before using?
+    G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
+    vertex_cover_nodes = aprox.min_weighted_vertex_cover(G,weight='value')
+    dictionary = translate_trajectory_objects_to_dictionaries(vertex_cover_nodes)
+    return dictionary
+
+def clique_set_algorithm(trajectory, weights=None,visualize=False):
     values = []
     for i in range(len(trajectory)):
         values.append(trajectory[i].value)
@@ -761,7 +767,7 @@ def clique_set(trajectory, weights=None,visualize=False):
     
     return C, values_of_set
 
-def maximum_independent_set(trajectory,visualize=False):
+def maximum_independent_set_algorithm(trajectory,visualize=False):
     G = transform_graph(trajectory)
-    max_ind_set = maximum_independent_set(G)
+    max_ind_set = aprox.maximum_independent_set(G)
     return max_ind_set
