@@ -169,7 +169,7 @@ if __name__ == '__main__':
     directory = r'.\datasets'
     test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
                      func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions,
-                     func.lonely_target_algorithm, func.reversed_greedy]
+                     func.lonely_target_algorithm, func.reversed_greedy, func.clique_set]
     combined_results = {}
     for algorithm in test_functions:
         combined_results[algorithm.__name__] = []
@@ -198,6 +198,11 @@ if __name__ == '__main__':
     for i in range(5):
         for algorithm in test_functions:
             print(algorithm.__name__ + " on " + dataset_names[i] + " gave result: " + str(combined_results[algorithm.__name__][i]['value']))
+    for name in test_functions:
+        for result in combined_results[name.__name__]:
+            if func.check_for_collisions(result['trajectories']):
+                print("error in " + name.__name__)
+
     plot_performances(test_functions,combined_results, dataset_names)
     # for i in range(5):
     #     print("Amount of trajectories: " + str(10**i) + " with time: " + str(func.timer(func.create_data,10, 10 , 10**i, 0.05)) )
@@ -211,7 +216,7 @@ if __name__ == '__main__':
     # r = create_results(test_functions, 5)
 
     # #loop through all optimal trajectories found, check if collision
-    # for name in test_functions:
+    #  for name in test_functions:
     #      for result in r[name.__name__]:
     #          if func.check_for_collisions(result['trajectories']):
     #              print("error in " + name.__name__)
