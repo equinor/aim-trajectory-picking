@@ -10,6 +10,7 @@ import random
 import cProfile
 from time import perf_counter
 import math
+import pandas as pd
 
 algorithms = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
                      func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions,
@@ -101,23 +102,30 @@ for filename in os.listdir(directory):
 
 Trenger en dictionary med algoritmenavn som key, og resultat som values
 Noe sånt: 
-
-results_dict = {}
-for algorithm in algorithms: 
-    results_dict[algorithm.__name__ ] = 0
-
-plotdata = pd.DataFrame({
-    "algorithm1":[40, 12, 10, 26, 36],
-    "algorithm2":[19, 8, 30, 21, 38],
-    "algorithm3":[10, 10, 42, 17, 37]
-    }, 
-    index=dataset_names
-)
-plotdata.plot(kind="bar")
-plt.title("Performance of Algorithms on Datasets")
-plt.xlabel("Dataset")
-plt.ylabel("Value")
 '''
+def plot_pandas_graph(algorithms, results, directory):
+    results_dict = {}
+    for algorithm in algorithms: 
+        results_dict[algorithm.__name__ ] = 0
+
+    dataset_names = [i for i in range(4)]
+    # for filename in os.listdir(directory):
+    #     if len(filename) < 10:
+    #         break
+    #     dataset_names.append(filename)
+    pandas_dict = translate_results_to_panda_dict(results, algorithms)
+    plotdata = pd.DataFrame(
+        pandas_dict, 
+        index=dataset_names
+    )
+
+    plotdata.plot(kind="bar", cmap =plt.get_cmap('Pastel1'))
+    plt.title("Performance of Algorithms on Datasets")
+   # plt.style.use('seaborn-pastel')
+    plt.xlabel("Dataset")
+    plt.ylabel("Value")
+    plt.show()
+
 def translate_results_to_panda_dict(results, algorithms):
     pandas_dict = {}
     for algo in algorithms:
@@ -252,6 +260,12 @@ if __name__ == '__main__':
     times = []
     max_iter = 4
     sets = []
+    directory = r'.\datasets'
+    # for filename in os.listdir(directory):
+    #     if len(filename) < 10:
+    #         break
+    #     fullpath = os.path.join(directory,filename)
+    #     sets.append(JSON_IO.read_trajectory_from_json(fullpath))
     for i in range(max_iter):
         _,_,traj = func.create_data(15,15,100)
         sets.append(traj)
@@ -273,4 +287,5 @@ if __name__ == '__main__':
     pandas_dict =  translate_results_to_panda_dict(r, algorithms)
   
     print(pandas_dict)
-    plot_performances(algorithms,r)
+    plot_pandas_graph(algorithms, r, 'datasets')
+    #plot_performances(algorithms,r)

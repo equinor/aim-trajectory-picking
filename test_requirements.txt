@@ -3,4 +3,5 @@ pytest
 argparse
 matplotlib
 numpy
-asdasda
+pandas
+itertools
