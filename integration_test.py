@@ -25,7 +25,7 @@ def plot_performances(algorithms, results,_dataset_names=0):
     Fully automatic function that plots the results per algorithm. 
 
     Important: the names of the algorithms must be keys in the results dictionary, and every value is a list \
-        that consists of dictionarys, which again contain the value of trajectories of that specific algorithm on that \
+        that consists of dictionaries, which again contain the value of trajectories of that specific algorithm on that \
             specific dataset.
     
     Parameters:
@@ -84,6 +84,34 @@ def plot_performances(algorithms, results,_dataset_names=0):
     plt.bar(algo_names, means)
     plt.xticks(rotation=45)
     plt.show()
+
+'''
+Sketch for making new plot, with one figure with one histogram per dataset, with one bar for every algorithm
+
+dataset_names = []
+for filename in os.listdir(directory):
+    dataset_names.append(filename)
+
+
+Trenger en dictionary med algoritmenavn som key, og resultat som values
+Noe sånt: 
+
+results_dict = {}
+for algorithm in algorithms: 
+    results_dict[algorithm.__name__ ] = 0
+
+plotdata = pd.DataFrame({
+    "algorithm1":[40, 12, 10, 26, 36],
+    "algorithm2":[19, 8, 30, 21, 38],
+    "algorithm3":[10, 10, 42, 17, 37]
+    }, 
+    index=dataset_names
+)
+plotdata.plot(kind="bar")
+plt.title("Performance of Algorithms on Datasets")
+plt.xlabel("Dataset")
+plt.ylabel("Value")
+'''
 
 def create_results(algorithms, no_of_datasets):
     combined_results = {}
