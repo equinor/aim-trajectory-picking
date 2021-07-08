@@ -741,6 +741,8 @@ def reversed_greedy(trajectories, visualize=False, collision_rate = 0.05):
     graph = transform_graph(trajectories)
     highest_collision_trajectory = None
     while highest_collision_trajectory == None or len(highest_collision_trajectory.collisions) > (len(trajectories) * collision_rate):
+        if graph.number_of_nodes() == 0:
+            break
         for tra in list(graph.nodes): 
             num_collisions = len(list(graph.neighbors(tra)))
             if highest_collision_trajectory == None or num_collisions > len(highest_collision_trajectory.collisions):

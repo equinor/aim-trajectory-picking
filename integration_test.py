@@ -1,4 +1,4 @@
-from numpy import true_divide
+from numpy import result_type, true_divide
 import aim_trajectory_picking.functions as func
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -8,7 +8,12 @@ import datasets
 import numpy as np
 import random
 import cProfile
+from time import perf_counter
+import math
 
+algorithms = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
+                     func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions,
+                     func.lonely_target_algorithm, func.reversed_greedy, func.invert_and_clique]
 # donors1, targets1, trajectories1 = func.create_data(4, 4, 7, 0.04)
 # print([n.value for n in trajectories1])
 # test1 = func.transform_graph(trajectories1)
@@ -113,6 +118,14 @@ plt.title("Performance of Algorithms on Datasets")
 plt.xlabel("Dataset")
 plt.ylabel("Value")
 '''
+def translate_results_to_panda_dict(results, algorithms):
+    pandas_dict = {}
+    for algo in algorithms:
+        name = algo.__name__
+        pandas_dict[name] = [d['value'] for d in results[name]]
+    return pandas_dict
+
+
 
 def create_results(algorithms, no_of_datasets):
     combined_results = {}
@@ -161,11 +174,19 @@ def calculate_results(algorithms, datasets):
         for algorithm in algorithms:
             answer = algorithm(data, False)
             combined_results[algorithm.__name__].append(answer)
+            print("done with algorithm: " + algorithm.__name__ + " on dataset " + str(datasets.index(data)))
+
+    for name in algorithms:
+        for result in combined_results[name.__name__]:
+            if func.check_for_collisions(result['trajectories']):
+                print("error in " + name.__name__)
+
     return combined_results
     
 def read_data_and_give_results():
     results = []
     directory = r'.\datasets'
+    even_datasets = r'.\even_datasets'
     test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
                      func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions,
                      func.lonely_target_algorithm, func.reversed_greedy, func.invert_and_clique]
@@ -173,11 +194,14 @@ def read_data_and_give_results():
     for algorithm in test_functions:
         combined_results[algorithm.__name__] = []
     dataset_names = []
-    for filename in os.listdir(directory):
-        if filename == 'HHL.txt':
-            pass
+    iter = 0
+    ITER_MAX = 2
+    for filename in os.listdir(even_datasets):
+        iter += 1
+        if iter > ITER_MAX:
+            break
         dataset_names.append(filename)
-        fullpath = os.path.join(directory,filename)
+        fullpath = os.path.join(even_datasets,filename)
         # JSON_IO.write_data_to_json_file(filename, trajectories1)
         dataset1_after = JSON_IO.read_trajectory_from_json(fullpath)
         print("read file: " +filename)
@@ -196,7 +220,7 @@ def read_data_and_give_results():
 
 
         #results.append(sum([n.value for n in tra]))
-    for i in range(5):
+    for i in range(iter):
         for algorithm in test_functions:
             print(algorithm.__name__ + " on " + dataset_names[i] + " gave result: " + str(combined_results[algorithm.__name__][i]['value']))
     for name in test_functions:
@@ -223,3 +247,30 @@ def read_data_and_give_results():
     #              print("error in " + name.__name__)
 
     # plot_performances(test_functions, r)
+
+if __name__ == '__main__':
+    times = []
+    max_iter = 4
+    sets = []
+    for i in range(max_iter):
+        _,_,traj = func.create_data(15,15,100)
+        sets.append(traj)
+        # start = perf_counter()
+        # result = func.invert_and_clique(traj, False)
+        # stop = perf_counter()
+        # times.append(stop - start)
+        # print("time for "+ str(i*10) + " trajectories: " + str(stop -start))
+    # plt.figure()
+    # plt.title("runtime analysis for clique")
+    # x = [10*i for i in range(max_iter)]
+    # plt.plot(x, times, label='runtime clique algo')
+    # plt.plot(x, [e**2 /10**7 for e in x], label='quadratic', color='k')
+    # plt.plot(x, [e**3 /10**7 for e in x], label='cubic', color='k')
+    # plt.plot(x, [math.factorial(e) /(10**7) for e in x], label='factorial')
+    # plt.legend()
+    # plt.show()
+    r = calculate_results(algorithms, sets)
+    pandas_dict =  translate_results_to_panda_dict(r, algorithms)
+  
+    print(pandas_dict)
+    plot_performances(algorithms,r)
