@@ -26,7 +26,7 @@ def plot_performances(algorithms, results,_dataset_names=0):
     Fully automatic function that plots the results per algorithm. 
 
     Important: the names of the algorithms must be keys in the results dictionary, and every value is a list \
-        that consists of dictionarys, which again contain the value of trajectories of that specific algorithm on that \
+        that consists of dictionaries, which again contain the value of trajectories of that specific algorithm on that \
             specific dataset.
     
     Parameters:
@@ -86,6 +86,34 @@ def plot_performances(algorithms, results,_dataset_names=0):
     plt.xticks(rotation=45)
     plt.show()
 
+'''
+Sketch for making new plot, with one figure with one histogram per dataset, with one bar for every algorithm
+
+dataset_names = []
+for filename in os.listdir(directory):
+    dataset_names.append(filename)
+
+
+Trenger en dictionary med algoritmenavn som key, og resultat som values
+Noe sånt: 
+
+results_dict = {}
+for algorithm in algorithms: 
+    results_dict[algorithm.__name__ ] = 0
+
+plotdata = pd.DataFrame({
+    "algorithm1":[40, 12, 10, 26, 36],
+    "algorithm2":[19, 8, 30, 21, 38],
+    "algorithm3":[10, 10, 42, 17, 37]
+    }, 
+    index=dataset_names
+)
+plotdata.plot(kind="bar")
+plt.title("Performance of Algorithms on Datasets")
+plt.xlabel("Dataset")
+plt.ylabel("Value")
+'''
+
 def create_results(algorithms, no_of_datasets):
     combined_results = {}
     print("progress:")
@@ -140,7 +168,7 @@ def read_data_and_give_results():
     directory = r'.\datasets'
     test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
                      func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions,
-                     func.lonely_target_algorithm, func.reversed_greedy]
+                     func.lonely_target_algorithm, func.reversed_greedy, func.invert_and_clique]
     combined_results = {}
     for algorithm in test_functions:
         combined_results[algorithm.__name__] = []
@@ -164,23 +192,19 @@ def read_data_and_give_results():
         for algorithm in test_functions:
             answer = algorithm(dataset1_after, False)
             combined_results[algorithm.__name__].append(answer)
-            #print("done with algorithm: " + algorithm.__name__ + " on dataset: " + filename)
+            print("done with algorithm: " + algorithm.__name__ + " on dataset: " + filename)
 
 
         #results.append(sum([n.value for n in tra]))
     for i in range(5):
         for algorithm in test_functions:
             print(algorithm.__name__ + " on " + dataset_names[i] + " gave result: " + str(combined_results[algorithm.__name__][i]['value']))
-    #plot_performances(test_functions,combined_results, dataset_names)
+    for name in test_functions:
+        for result in combined_results[name.__name__]:
+            if func.check_for_collisions(result['trajectories']):
+                print("error in " + name.__name__)
 
-def profile_testing():
-        _,_, traj = func.create_data(15,15,5000, 0.05)
-        graph = func.transform_graph(traj)
-
-
-if __name__ == '__main__':
-    cProfile.run('read_data_and_give_results()')
-    
+    plot_performances(test_functions,combined_results, dataset_names)
     # for i in range(5):
     #     print("Amount of trajectories: " + str(10**i) + " with time: " + str(func.timer(func.create_data,10, 10 , 10**i, 0.05)) )
 
@@ -193,7 +217,7 @@ if __name__ == '__main__':
     # r = create_results(test_functions, 5)
 
     # #loop through all optimal trajectories found, check if collision
-    # for name in test_functions:
+    #  for name in test_functions:
     #      for result in r[name.__name__]:
     #          if func.check_for_collisions(result['trajectories']):
     #              print("error in " + name.__name__)

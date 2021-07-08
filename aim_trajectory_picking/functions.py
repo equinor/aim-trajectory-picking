@@ -4,8 +4,8 @@ from networkx.algorithms.link_analysis.pagerank_alg import google_matrix
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from numba import jit
-import itertools
+import networkx.algorithms.approximation as aprox
+from itertools import combinations
 
 # A class to define all the useful information pertaining a certain trajectory.
 class Trajectory:
@@ -225,7 +225,7 @@ def mutually_exclusive_trajectories(t1, t2):
 
 #Creates a graph where the nodes are trajectories and the edges are mutual exclusivity, either through collisions in space or in donors/targets
 #Returns the created graph
-@jit(nogil=True)
+
 def transform_graph(trajectories):
     '''
     Creates a graph from the given trajectories such that every trajectory is a node and every collision/mutual exclusivity is an edge.
@@ -249,7 +249,7 @@ def transform_graph(trajectories):
                     G.add_edge(trajectories[i], trajectories[j])
     return G
 
-@jit(nogil=True)
+
 def create_graph(trajectories, collisions):
     G = nx.Graph()
     G.add_nodes_from(trajectories)
@@ -274,6 +274,22 @@ def create_graph(trajectories, collisions):
         G.add_edge(pair[0], pair[1])
     return G
         
+def make_transformed_graph_from_trajectory_dictionaries(trajectories):
+    '''
+    empty discription
+    '''
+    G = nx.Graph()
+    G.add_nodes_from(trajectories)
+    node_attrs = {}
+    for i in range(len(trajectories)):
+        node_attrs[trajectories[i]] = trajectories[i].__dict__
+    nx.set_node_attributes(G,node_attrs)
+    for i in range(len(trajectories)):
+        for j in range(i, len(trajectories)):
+            if i != j:
+                if mutually_exclusive_trajectories(trajectories[i], trajectories[j]):
+                    G.add_edge(trajectories[i], trajectories[j])
+    return G
 
 
 #Computes a pseudogreedy optimal set of trajectories, given a function to determine the next node to add.
@@ -700,7 +716,28 @@ def lonely_target_algorithm (trajectories, visualize=False):
     return dictionary
             
 
-def reversed_greedy(trajectories, visualize=False, collision_rate = 0.07):
+def reversed_greedy(trajectories, visualize=False, collision_rate = 0.05):
+    '''
+    Algorithm which follows the inverse logic of the greedy algorithm, focusing on the number of collisions. 
+    At each iteration, the trajectory with the highest number of collisions is removed. 
+    
+    Parameters:
+    -----------
+    trajectories: List<Trajectory>
+        list of trajectories to constitute the trajectory picking problem
+    visualize: bool, optional
+        if True, plot every step of algorithm
+    collision_rate: int 
+        defaults to 0.05
+    
+    Returns:
+    --------
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects found, after running the result of the
+            reverse greedy through the  weight transform algorithm.
+
+    '''
     graph = transform_graph(trajectories)
     highest_collision_trajectory = None
     while highest_collision_trajectory == None or len(highest_collision_trajectory.collisions) > (len(trajectories) * collision_rate):
@@ -739,4 +776,80 @@ def modified_greedy(trajectories,collisions, visualize=False):
     dictionary = {}
     dictionary['value'] = sum(n.value for n in optimal_trajectories)
     dictionary['trajectories'] = optimal_trajectories
+def minimum_weighted_vertex_cover(trajectory,visualize=False):
+
+    G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
+    vertex_cover_nodes = aprox.min_weighted_vertex_cover(G,weight='value')
+
+    dictionary = {}
+    dictionary['value'] = sum(n.value for n in vertex_cover_nodes)
+    dictionary['trajectories'] = vertex_cover_nodes
+    return dictionary
+
+
+def clique_set(trajectory,visualize=False):
+    values = []
+    for i in range(len(trajectory)):
+        values.append(trajectory[i].value)
+
+    #trajectories_dict = translate_trajectory_objects_to_dictionaries(list_of_trajectories)
+    # print('hei')
+    G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
+    
+    if visualize:
+        plt.figure()
+        nx.draw(G,with_labels=True)
+        plt.show()
+    
+    optimal_trajectories = []
+    while G.number_of_nodes() != 0: 
+        clique, values_of_set = nx.max_weight_clique(G,"value")
+        if len(clique) == 0: 
+            [optimal_trajectories.append(n) for n in list(G.nodes)]
+            print(G.number_of_nodes())
+            break 
+        print(G.number_of_nodes())
+        chosen_node = max(clique, key=lambda n:n.value)
+        optimal_trajectories.append(chosen_node)
+        [G.remove_node(n) for n in list(G.neighbors(chosen_node))]
+        G.remove_node(chosen_node)
+        print(type(clique[0]))
+    # optimal_trajectories.append(G.nodes[0])
+
+    value = sum([t.value for t in optimal_trajectories])
+    dictionary = {}
+    dictionary['value'] = value
+    dictionary['trajectories'] = optimal_trajectories
+
+    if visualize:
+        plt.figure()
+        nx.draw(C,with_labels=True)
+        plt.show()
+    
+    return dictionary
+
+def maximum_independent_set(trajectory,visualize=False):
+    G = transform_graph(trajectory)
+    max_ind_set = maximum_independent_set(G)
+    return max_ind_set
+
+def invert_graph(graph):
+    for pair in combinations(graph.nodes, 2): 
+        if graph.has_edge(pair[0], pair[1]): 
+            graph.remove_edge(pair[0], pair[1])
+        else: 
+            graph.add_edge(pair[0], pair[1]) 
+    return graph 
+
+
+def invert_and_clique(trajectories, visualize = False):
+    G = make_transformed_graph_from_trajectory_dictionaries(trajectories)
+    G = invert_graph(G)
+    optimal_trajectories, value = nx.max_weight_clique(G, "value")
+    value = sum([t.value for t in optimal_trajectories])
+
+    dictionary = {}
+    dictionary['value'] = value
+    dictionary['trajectories'] = optimal_trajectories
+
     return dictionary
