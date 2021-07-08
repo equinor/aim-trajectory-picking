@@ -7,6 +7,7 @@ import os
 import datasets
 import numpy as np
 import random
+import cProfile
 
 # donors1, targets1, trajectories1 = func.create_data(4, 4, 7, 0.04)
 # print([n.value for n in trajectories1])
@@ -160,11 +161,9 @@ def calculate_results(algorithms, datasets):
         for algorithm in algorithms:
             answer = algorithm(data, False)
             combined_results[algorithm.__name__].append(answer)
-    return results
+    return combined_results
     
-
-
-if __name__ == '__main__':
+def read_data_and_give_results():
     results = []
     directory = r'.\datasets'
     test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
@@ -175,6 +174,8 @@ if __name__ == '__main__':
         combined_results[algorithm.__name__] = []
     dataset_names = []
     for filename in os.listdir(directory):
+        if filename == 'HHL.txt':
+            pass
         dataset_names.append(filename)
         fullpath = os.path.join(directory,filename)
         # JSON_IO.write_data_to_json_file(filename, trajectories1)
