@@ -260,7 +260,7 @@ def make_transformed_graph_from_trajectory_dictionaries(trajectories):
     for i in range(len(trajectories)):
         for j in range(i, len(trajectories)):
             if i != j:
-                if func.mutually_exclusive_trajectories(trajectories[i], trajectories[j]):
+                if mutually_exclusive_trajectories(trajectories[i], trajectories[j]):
                     G.add_edge(trajectories[i], trajectories[j])
     return G
 
@@ -725,6 +725,7 @@ def reversed_greedy(trajectories, visualize=False, collision_rate = 0.05):
     return weight_transformation_algorithm(list(graph.nodes))
     #return bipartite_matching_removed_collisions(list(graph.nodes), False)
 
+
 def minimum_weighted_vertex_cover(trajectory,visualize=False):
 
     G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
@@ -735,7 +736,7 @@ def minimum_weighted_vertex_cover(trajectory,visualize=False):
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
 
-def clique_set(trajectory, weights=None,visualize=False):
+def clique_set(trajectory,visualize=False):
     values = []
     for i in range(len(trajectory)):
         values.append(trajectory[i].value)
@@ -748,18 +749,33 @@ def clique_set(trajectory, weights=None,visualize=False):
         plt.figure()
         nx.draw(G,with_labels=True)
         plt.show()
-        
-    clique, values_of_set = nx.max_weight_clique(G,weights)
-    # print(clique)
-    # print(values_of_set)
-    C = make_transformed_graph_from_trajectory_dictionaries(clique)
+    
+    optimal_trajectories = []
+    while G.number_of_nodes() != 0: 
+        clique, values_of_set = nx.max_weight_clique(G,"value")
+        if len(clique) == 0: 
+            [optimal_trajectories.append(n) for n in list(G.nodes)]
+            print(G.number_of_nodes())
+            break 
+        print(G.number_of_nodes())
+        chosen_node = max(clique, key=lambda n:n.value)
+        optimal_trajectories.append(chosen_node)
+        [G.remove_node(n) for n in list(G.neighbors(chosen_node))]
+        G.remove_node(chosen_node)
+        print(type(clique[0]))
+    # optimal_trajectories.append(G.nodes[0])
+
+    value = sum([t.value for t in optimal_trajectories])
+    dictionary = {}
+    dictionary['value'] = value
+    dictionary['trajectories'] = optimal_trajectories
 
     if visualize:
         plt.figure()
         nx.draw(C,with_labels=True)
         plt.show()
     
-    return C, values_of_set
+    return dictionary
 
 def maximum_independent_set(trajectory,visualize=False):
     G = transform_graph(trajectory)
