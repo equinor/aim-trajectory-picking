@@ -92,17 +92,6 @@ def plot_performances(algorithms, results,_dataset_names=0):
     plt.xticks(rotation=45)
     plt.show()
 
-'''
-Sketch for making new plot, with one figure with one histogram per dataset, with one bar for every algorithm
-
-dataset_names = []
-for filename in os.listdir(directory):
-    dataset_names.append(filename)
-
-
-Trenger en dictionary med algoritmenavn som key, og resultat som values
-Noe sånt: 
-'''
 def plot_pandas_graph(algorithms, results, directory):
     results_dict = {}
     for algorithm in algorithms: 
@@ -121,7 +110,6 @@ def plot_pandas_graph(algorithms, results, directory):
 
     plotdata.plot(kind="bar", cmap =plt.get_cmap('Pastel1'))
     plt.title("Performance of Algorithms on Datasets")
-   # plt.style.use('seaborn-pastel')
     plt.xlabel("Dataset")
     plt.ylabel("Value")
     plt.show()
@@ -192,6 +180,9 @@ def calculate_results(algorithms, datasets):
     return combined_results
     
 def read_data_and_give_results():
+    '''
+    Description
+    '''
     results = []
     directory = r'.\datasets'
     even_datasets = r'.\even_datasets'
@@ -256,6 +247,15 @@ def read_data_and_give_results():
 
     # plot_performances(test_functions, r)
 
+def runtime_test(list_of_algorithms,list_of_datasets_to_test):
+    '''
+    to test x algorithms on y datasets and save dataset size and runtime for each algorithm
+
+    input list of algorithms and datasets
+    
+    Return either save result to a file  and return nothing or return as data time and dataset sizes for each algorithm so that another function can plot it nicely
+    '''
+    
 if __name__ == '__main__':
     times = []
     max_iter = 4
