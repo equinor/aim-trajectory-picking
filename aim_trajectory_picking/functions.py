@@ -4,7 +4,7 @@ from networkx.algorithms.link_analysis.pagerank_alg import google_matrix
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-import networkx.algorithms.approximation as aprox
+from networkx.algorithms import approximation as aprox
 from itertools import combinations
 
 # A class to define all the useful information pertaining a certain trajectory.
@@ -268,7 +268,7 @@ def create_graph(trajectories, collisions):
             donor_and_target_collisions[t.target].append(t)
     for key in donor_and_target_collisions:
         donor_or_target_collisions = donor_and_target_collisions[key]
-        for pair in list(itertools.combinations(donor_or_target_collisions, 2)):
+        for pair in list(combinations(donor_or_target_collisions, 2)):
             G.add_edge(pair[0], pair[1])
     for pair in collisions:
         G.add_edge(pair[0], pair[1])
@@ -759,12 +759,14 @@ def translate_trajectory_objects_to_dictionaries(trajectories):
     dictionary['trajectories'] = node_set
     return dictionary
 
-
 def minimum_weighted_vertex_cover_algorithm(trajectory,visualize=False):
     # Possibly invert this before using?
     G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
     vertex_cover_nodes = aprox.min_weighted_vertex_cover(G,weight='value')
     dictionary = translate_trajectory_objects_to_dictionaries(vertex_cover_nodes)
+    return dictionary
+
+
 
 def modified_greedy(trajectories,collisions, visualize=False):
     print("started making graph")
@@ -827,16 +829,16 @@ def clique_set(trajectory,visualize=False):
     dictionary['value'] = value
     dictionary['trajectories'] = optimal_trajectories
 
-    if visualize:
-        plt.figure()
-        nx.draw(C,with_labels=True)
-        plt.show()
+    # if visualize:
+    #     plt.figure()
+    #     nx.draw(C,with_labels=True)
+    #     plt.show()
     
     return dictionary
 
-def maximum_independent_set(trajectory,visualize=False):
+def maximum_independent_set_algorithm(trajectory,visualize=False):
     G = transform_graph(trajectory)
-    max_ind_set = maximum_independent_set(G)
+    max_ind_set = aprox.maximum_independent_set(G)
     return max_ind_set
 
 def invert_graph(graph):
