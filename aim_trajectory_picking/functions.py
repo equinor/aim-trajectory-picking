@@ -767,6 +767,7 @@ def minimum_weighted_vertex_cover_algorithm(trajectory,visualize=False):
     return dictionary
 
 
+
 def modified_greedy(trajectories,collisions, visualize=False):
     print("started making graph")
     start = time.perf_counter()
