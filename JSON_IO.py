@@ -18,8 +18,8 @@ def read_data_from_json_file(filename):
     dictionary: dict
         a dictionary containing the JSON data read
     '''
-    file = open(filename,'r')
-    input_data = json.loads(file.read())
+    with open(filename,'r') as file:
+        input_data = json.loads(file.read())
     return input_data
 
 # Wrapper for reading the trajectory from a json-formatted .txt file
@@ -100,7 +100,7 @@ def generate_datasets_as_json_files(num_datasets):
         write_trajectory_to_json('datasets/dataset_'+str(i)+'.txt',trajectories)
 
 def generate_increasing_datasets(num_datasets,increase):
-    upper_limit_trajectories = 9000
+    upper_limit_trajectories = 11000
     if increase**num_datasets > upper_limit_trajectories: # this is an assumption on the high end of expected number of trajectories
         print("Final datasets will become to large, fewer sets will be generated than the desired amount")
 
@@ -113,7 +113,7 @@ def generate_increasing_datasets(num_datasets,increase):
         target = target + 5*i
         print(increase**i)
         _, _, trajectories = dem.create_data(donor,target,increase**i,0.05)
-        write_trajectory_to_json('timesets/increasing_set_'+str(i)+'.txt',trajectories)
+        write_trajectory_to_json('timesets/increasing_set_'+str(i)+'.json',trajectories)
 
 # results = {}
 # lis = [32,20,26,31,23] # results of 5 greedy algorithms

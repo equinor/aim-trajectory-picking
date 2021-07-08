@@ -51,24 +51,6 @@ def mutually_exclusive_trajectories_dictionary(t1, t2):
         return True
     return False
 
-directory = r'.\basesets'
-filename = 'base_test_0.txt'
-fullpath = os.path.join(directory,filename)
-list_of_trajectories = json.read_trajectory_from_json(fullpath)
-
-values = []
-for i in range(len(list_of_trajectories)):
-    values.append(list_of_trajectories[i].value)
-
-trajectories_dict = translate_trajectory_objects_to_dictionaries(list_of_trajectories)
-print(trajectories_dict)
-print(trajectories_dict[1])
-G = make_transformed_graph_from_trajectory_dictionaries(list_of_trajectories)
-
-
-
-visualize = True
-
 def clique_set(G,weights=None,visualize=False):
     if visualize:
         plt.figure()
@@ -87,7 +69,23 @@ def clique_set(G,weights=None,visualize=False):
     
     return C, weights
 
-weights = 'value'
-C, weights = clique_set(G,weights,True)
+if __name__ == '__main__':
+    directory = r'.\basesets'
+    filename = 'base_test_0.txt'
+    fullpath = os.path.join(directory,filename)
+    list_of_trajectories = json.read_trajectory_from_json(fullpath)
+
+    values = []
+    for i in range(len(list_of_trajectories)):
+        values.append(list_of_trajectories[i].value)
+
+    trajectories_dict = translate_trajectory_objects_to_dictionaries(list_of_trajectories)
+    print('hei')
+    G = make_transformed_graph_from_trajectory_dictionaries(list_of_trajectories)
+
+    visualize = True
+
+    weights = 'value'
+    C, weights = clique_set(G,weights,True)
 
 
