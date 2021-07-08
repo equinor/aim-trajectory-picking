@@ -4,6 +4,7 @@ from networkx.algorithms.link_analysis.pagerank_alg import google_matrix
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import networkx.algorithms.approximation as aprox
 
 # A class to define all the useful information pertaining a certain trajectory.
 class Trajectory:
@@ -246,7 +247,22 @@ def transform_graph(trajectories):
                     G.add_edge(trajectories[i], trajectories[j])
     return G
 
-
+def make_transformed_graph_from_trajectory_dictionaries(trajectories):
+    '''
+    empty discription
+    '''
+    G = nx.Graph()
+    G.add_nodes_from(trajectories)
+    node_attrs = {}
+    for i in range(len(trajectories)):
+        node_attrs[trajectories[i]] = trajectories[i].__dict__
+    nx.set_node_attributes(G,node_attrs)
+    for i in range(len(trajectories)):
+        for j in range(i, len(trajectories)):
+            if i != j:
+                if func.mutually_exclusive_trajectories(trajectories[i], trajectories[j]):
+                    G.add_edge(trajectories[i], trajectories[j])
+    return G
 
 
 #Computes a pseudogreedy optimal set of trajectories, given a function to determine the next node to add.
@@ -709,4 +725,43 @@ def reversed_greedy(trajectories, visualize=False, collision_rate = 0.05):
     return weight_transformation_algorithm(list(graph.nodes))
     #return bipartite_matching_removed_collisions(list(graph.nodes), False)
 
+def minimum_weighted_vertex_cover(trajectory,visualize=False):
 
+    G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
+    vertex_cover_nodes = aprox.min_weighted_vertex_cover(G,weight='value')
+
+    dictionary = {}
+    dictionary['value'] = sum(n.value for n in optimal_trajectories)
+    dictionary['trajectories'] = optimal_trajectories
+    return dictionary
+
+def clique_set(trajectory, weights=None,visualize=False):
+    values = []
+    for i in range(len(trajectory)):
+        values.append(trajectory[i].value)
+
+    #trajectories_dict = translate_trajectory_objects_to_dictionaries(list_of_trajectories)
+    # print('hei')
+    G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
+    
+    if visualize:
+        plt.figure()
+        nx.draw(G,with_labels=True)
+        plt.show()
+        
+    clique, values_of_set = nx.max_weight_clique(G,weights)
+    # print(clique)
+    # print(values_of_set)
+    C = make_transformed_graph_from_trajectory_dictionaries(clique)
+
+    if visualize:
+        plt.figure()
+        nx.draw(C,with_labels=True)
+        plt.show()
+    
+    return C, values_of_set
+
+def maximum_independent_set(trajectory,visualize=False):
+    G = transform_graph(trajectory)
+    max_ind_set = maximum_independent_set(G)
+    return max_ind_set
