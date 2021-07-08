@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import networkx.algorithms.approximation as aprox
+from itertools import combinations
 
 # A class to define all the useful information pertaining a certain trajectory.
 class Trajectory:
@@ -736,6 +737,7 @@ def minimum_weighted_vertex_cover(trajectory,visualize=False):
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
 
+
 def clique_set(trajectory,visualize=False):
     values = []
     for i in range(len(trajectory)):
@@ -781,3 +783,24 @@ def maximum_independent_set(trajectory,visualize=False):
     G = transform_graph(trajectory)
     max_ind_set = maximum_independent_set(G)
     return max_ind_set
+
+def invert_graph(graph):
+    for pair in combinations(graph.nodes, 2): 
+        if graph.has_edge(pair[0], pair[1]): 
+            graph.remove_edge(pair[0], pair[1])
+        else: 
+            graph.add_edge(pair[0], pair[1]) 
+    return graph 
+
+
+def invert_and_clique(trajectories, visualize = False):
+    G = make_transformed_graph_from_trajectory_dictionaries(trajectories)
+    G = invert_graph(G)
+    optimal_trajectories, value = nx.max_weight_clique(G, "value")
+    value = sum([t.value for t in optimal_trajectories])
+
+    dictionary = {}
+    dictionary['value'] = value
+    dictionary['trajectories'] = optimal_trajectories
+
+    return dictionary
