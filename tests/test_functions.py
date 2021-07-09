@@ -1,12 +1,18 @@
 import pytest
-import src.aim_trajectory_picking.functions as func
-import src.aim_trajectory_picking.JSON_IO as JSON_IO
-import src.aim_trajectory_picking.integration_testing as int_test
+# import src.aim_trajectory_picking.functions as func
+# import src.aim_trajectory_picking.JSON_IO as JSON_IO
+# import src.aim_trajectory_picking.integration_testing as int_test
 import os
+
+from src.aim_trajectory_picking import functions as func
+from src.aim_trajectory_picking import JSON_IO
+from src.aim_trajectory_picking import integration_testing as in_test
+
+
 
 def algorithm_test_function(algorithm):
     targeted_result_list = []
-    directory = r'.\datasets'
+    directory = r'./datasets'
     test_functions = [algorithm]
     combined_results = {}
     for algorithm in test_functions:
