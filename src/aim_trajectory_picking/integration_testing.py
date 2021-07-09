@@ -128,7 +128,7 @@ def create_results(algorithms, no_of_datasets):
     combined_results = {}
     print("progress:")
     print('#'*1)
-    for algorithm in test_functions:
+    for algorithm in algorithms:
         combined_results[algorithm.__name__] = []
     print("hei")
     for i in range(no_of_datasets):
