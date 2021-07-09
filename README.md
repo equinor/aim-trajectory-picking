@@ -11,7 +11,7 @@ Alexander Johnsgaard\
 Even Åge Smedshaug\
 Jonatan Lærdahl\
 Vilde Dille Øvreeide\
-Henrik Pettersen\ 
+Henrik Pettersen 
 
 # Introduction
 The goal of the project was to explore and discover algorithms that coordinate wellbore trajectories and pick paths that optimize different variables, given certain constraints.
