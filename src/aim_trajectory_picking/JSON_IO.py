@@ -1,8 +1,8 @@
 import json
-
+import os
+print( "json dir" +os.getcwd())
 from networkx.algorithms.asteroidal import create_component_structure
 import aim_trajectory_picking.functions as dem
-from numba import jit
 import pickle
 
 json_types = (list, dict, str, int, float, bool, type(None))
@@ -62,7 +62,7 @@ def read_trajectory_from_json(filename):
         liste.append(tra)
     return liste
 
-@jit(nopython=True)
+
 def read_trajectory_from_json_v2(filename):
     '''
     Wrapper for reading the trajectory from a json-formatted .txt file

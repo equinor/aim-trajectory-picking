@@ -1,8 +1,7 @@
 import pytest
-import aim_trajectory_picking.functions as func
-import JSON_IO
-import matplotlib
-import integration_test as int_test
+import src.aim_trajectory_picking.functions as func
+import src.aim_trajectory_picking.JSON_IO as JSON_IO
+import src.aim_trajectory_picking.integration_testing as int_test
 import os
 
 def algorithm_test_function(algorithm):
