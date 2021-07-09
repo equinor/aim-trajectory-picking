@@ -2,7 +2,7 @@
 ![GitHub](https://img.shields.io/github/license/Vildeeide/aim-trajectory-picking)
 ![GitHub contributors](https://img.shields.io/github/contributors/equinor/aim-trajectory-picking)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
-
+!(https://img.shields.io/badge/gold-diggers-yellow)
 
 Trajectory picking package for the AI for Maturation project. Created by summer interns 2021
 
