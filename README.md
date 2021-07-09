@@ -11,4 +11,5 @@ Henrik Pettersen\
 ## NB Under heavy development ##
 
 
-https://img.shields.io/github/license/Vildeeide/aim-trajectory-picking
+
+![GitHub](https://img.shields.io/github/license/Vildeeide/aim-trajectory-picking)
