@@ -7,16 +7,19 @@
 <em>Trajectory picking package for the AI for Maturation project. Created by summer interns 2021</em>
 
 ##  Introduction
-This trajectory picking package is a tool for determining sets of wellbore trajectories which optimizes different variables, using different algorithms. The trajectory picking task is operationalized as a graph problem, where each trajectory has a donor, a target and a non-negative value, in addition to a list of other trajectories it collides with. Given that no trajectories should share the same donor, nor target, and not collide with other trajectories, different algorithms are implemented which attempt to pick optimal trajectories.
+This trajectory picking package is a tool for determining sets of wellbore trajectories which optimizes different variables, using different algorithms.
+The trajectory picking task is operationalized as a graph problem, where each trajectory has a donor, a target and a non-negative value, in addition to a list of other trajectories it collides with. Given that no trajectories should share the same donor, nor target, and not collide with other trajectories, different algorithms are implemented which attempt to pick optimal trajectories.
 
 
 ## Getting started 
 ```
+pip install git+https://github.com/equinor/aim-trajectory-picking.git@master
 pip install -r test_requirements.txt
+pip install .
+pytest
 
 ```
-
-The package works with Python 
+This package works with Python 3.
 
 
 [![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://GitHub.com/Naereen/)
