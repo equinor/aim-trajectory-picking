@@ -1,9 +1,8 @@
+from src.aim_trajectory_picking.integration_testing import plot_performances
+from src.aim_trajectory_picking import functions as func
+from src.aim_trajectory_picking import JSON_IO
 from matplotlib.pyplot import plot
-import functions as func
-from integration_testing import plot_performances
-import JSON_IO as JSON_IO
 import time
-
 
 if __name__ == '__main__':
     #test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm, func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions, func.lonely_target_algorithm]
