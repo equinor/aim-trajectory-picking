@@ -4,4 +4,3 @@ argparse
 matplotlib
 numpy
 pandas
-itertools

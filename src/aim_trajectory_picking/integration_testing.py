@@ -1,10 +1,11 @@
 from numpy import result_type, true_divide
-import aim_trajectory_picking.functions as func
+import os
+print(os.getcwd())
+import functions as func
 import networkx as nx
 import matplotlib.pyplot as plt
 import JSON_IO 
 import os
-import datasets
 import numpy as np
 import random
 import cProfile
