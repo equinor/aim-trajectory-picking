@@ -251,6 +251,21 @@ def transform_graph(trajectories):
 
 
 def create_graph(trajectories, collisions):
+    '''
+    Algorithm to create graph from trajectories with the given collisions. Created to try and reduce graph creation times.
+
+    Parameters:
+    -----------
+    trajectories: list<Trajectory>
+        list of trajectories to create graph from
+    collisions: list<Tuple(Trajectory, Trajectory)>
+        list of tuples which contain trajectory objects that collide
+
+    Returns:
+    --------
+    G: nx.Graph()
+        graph with trajectories as nodes and mutual exclusivity as edges
+    '''
     G = nx.Graph()
     G.add_nodes_from(trajectories)
     print("done adding nodes")
@@ -276,7 +291,17 @@ def create_graph(trajectories, collisions):
         
 def make_transformed_graph_from_trajectory_dictionaries(trajectories):
     '''
-    empty discription
+    Helper function to create graph with node attributes for usage of built in nx functions.
+
+    Parameters:
+    -----------
+    trajectories: list<Trajectory>
+        list of trajectories to create graph from
+
+    Returns:
+    --------
+    G: nx.Graph()
+        graph with trajectories as nodes and mutual exclusivity as edges. All nodes have a dictionary of their attributes attached
     '''
     G = nx.Graph()
     G.add_nodes_from(trajectories)
@@ -771,6 +796,22 @@ def minimum_weighted_vertex_cover_algorithm(trajectory,visualize=False):
 
 
 def modified_greedy(trajectories,collisions, visualize=False):
+    '''
+    A version of the greedy algorithm that hopefully has less runtime.
+
+    Parameters:
+    -----------
+    trajectories: list<Trajectory>
+        list of trajectories to pick optimal set from
+    collisions: list<Tuple(Trajectory, Trajectory)>
+        list of collisions between trajectories
+
+    Returns:
+    dictionary:
+        'value': value of trajectories \n
+        'trajectories': list of trajectory objects
+    
+    '''
     print("started making graph")
     start = time.perf_counter()
     graph = create_graph(trajectories, collisions)
@@ -795,48 +836,7 @@ def modified_greedy(trajectories,collisions, visualize=False):
     dictionary = {}
     dictionary['value'] = sum(n.value for n in optimal_trajectories)
     dictionary['trajectories'] = optimal_trajectories
-    
 
-def clique_set(trajectory,visualize=False):
-    values = []
-    for i in range(len(trajectory)):
-        values.append(trajectory[i].value)
-
-    #trajectories_dict = translate_trajectory_objects_to_dictionaries(list_of_trajectories)
-    # print('hei')
-    G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
-    
-    if visualize:
-        plt.figure()
-        nx.draw(G,with_labels=True)
-        plt.show()
-    
-    optimal_trajectories = []
-    while G.number_of_nodes() != 0: 
-        clique, values_of_set = nx.max_weight_clique(G,"value")
-        if len(clique) == 0: 
-            [optimal_trajectories.append(n) for n in list(G.nodes)]
-            print(G.number_of_nodes())
-            break 
-        print(G.number_of_nodes())
-        chosen_node = max(clique, key=lambda n:n.value)
-        optimal_trajectories.append(chosen_node)
-        [G.remove_node(n) for n in list(G.neighbors(chosen_node))]
-        G.remove_node(chosen_node)
-        print(type(clique[0]))
-    # optimal_trajectories.append(G.nodes[0])
-
-    value = sum([t.value for t in optimal_trajectories])
-    dictionary = {}
-    dictionary['value'] = value
-    dictionary['trajectories'] = optimal_trajectories
-
-    # if visualize:
-    #     plt.figure()
-    #     nx.draw(C,with_labels=True)
-    #     plt.show()
-    
-    return dictionary
 
 def maximum_independent_set_algorithm(trajectory,visualize=False):
     G = transform_graph(trajectory)
@@ -844,6 +844,21 @@ def maximum_independent_set_algorithm(trajectory,visualize=False):
     return max_ind_set
 
 def invert_graph(graph):
+    '''
+    Function to invert a graph in order to use Clique algorithm to solve maximal independent weighted set problem.
+    Probably O(n^2)
+
+    Parameters:
+    -----------
+    graph: nx.Graph()
+        graph to be inverted (invert edges)
+
+    Returns:
+    --------
+    graph: nx.Graph()
+        the inverted graph
+
+    '''
     for pair in combinations(graph.nodes, 2): 
         if graph.has_edge(pair[0], pair[1]): 
             graph.remove_edge(pair[0], pair[1])
@@ -853,6 +868,24 @@ def invert_graph(graph):
 
 
 def invert_and_clique(trajectories, visualize = False):
+    '''
+    This function uses clique algorithm to solve the maximal independent weighted set problem, after inverting the graph. Very expensive\
+        computationally! Probably infeasible for problem sizes above 200 trajectories.
+    
+    Parameters:
+    -----------
+    trajectories: List<Trajectory>
+        list of trajectories to constitute the trajectory picking problem
+    visualize: bool, optional
+        if True, plot every step of algorithm
+    
+    Returns:
+    --------
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects found.
+    '''
+
     G = make_transformed_graph_from_trajectory_dictionaries(trajectories)
     G = invert_graph(G)
     optimal_trajectories, value = nx.max_weight_clique(G, "value")
