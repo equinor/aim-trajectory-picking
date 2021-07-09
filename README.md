@@ -9,3 +9,5 @@ Vilde Dille Øvreeide\
 Henrik Pettersen\ 
 
 ## NB Under heavy development ##
+
+![Your Repository's Stats](https://github-readme-stats.vercel.app/api/top-langs/?username=equinor&theme=blue-green)
