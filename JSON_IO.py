@@ -3,6 +3,21 @@ import json
 from networkx.algorithms.asteroidal import create_component_structure
 import aim_trajectory_picking.functions as dem
 from numba import jit
+import pickle
+
+json_types = (list, dict, str, int, float, bool, type(None))
+
+class PythonObjectEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, json_types):
+            return super().default(self, obj)
+        return {'_python_object': pickle.dumps(obj).decode('latin-1')}
+
+def as_python_object(dct):
+    if '_python_object' in dct:
+        return pickle.loads(dct['_python_object'].encode('latin-1'))
+    return dct
+
 # General function for reading a json-formatted .txt file
 def read_data_from_json_file(filename):
     '''
@@ -19,7 +34,7 @@ def read_data_from_json_file(filename):
         a dictionary containing the JSON data read
     '''
     with open(filename,'r') as file:
-        input_data = json.loads(file.read())
+        input_data = json.loads(file.read(),object_hook=as_python_object)
     return input_data
 
 # Wrapper for reading the trajectory from a json-formatted .txt file
@@ -49,6 +64,22 @@ def read_trajectory_from_json(filename):
 
 @jit(nopython=True)
 def read_trajectory_from_json_v2(filename):
+    '''
+    Wrapper for reading the trajectory from a json-formatted .txt file
+
+    Paramenters:
+    -----------
+    filename: str
+        name of file to be read
+        
+    Returns:
+    --------
+    liste: List<Trajectory>
+        list of trajectory objects contained in filename
+
+    collisions: set
+        set of collisions between trajectories
+    '''
     input_data = read_data_from_json_file(filename)
     liste = []
     collisions = set()
@@ -73,7 +104,7 @@ def write_data_to_json_file(filename, data):
         dictionary with information to be written to JSON format
     '''
     with open(filename, 'w') as outfile: 
-        json.dump(data, outfile, sort_keys=False, indent=4)
+        json.dump(data, outfile, cls=PythonObjectEncoder, sort_keys=False, indent=4)
 
 # Wrapper function to write the trajectory in json-format to .txt file
 def write_trajectory_to_json(filename,list_of_trajectories):
@@ -127,11 +158,6 @@ def generate_increasing_datasets(num_datasets,increase):
         print(increase**i)
         _, _, trajectories = dem.create_data(donor,target,increase**i,0.05)
         write_trajectory_to_json('timesets/increasing_set_'+str(i)+'.json',trajectories)
-
-# results = {}
-# lis = [32,20,26,31,23] # results of 5 greedy algorithms
-# results['greedy'] = lis
-# write_data_to_json_file('results.txt',results)
 
 
 if __name__ == '__main__':

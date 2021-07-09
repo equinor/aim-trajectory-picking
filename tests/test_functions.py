@@ -77,5 +77,3 @@ def test_lonely_target_on_datasets_0_to_4():
 def test_reverse_greedy_on_datasets_0_to_4():
     targeted_result_list = algorithm_test_function(func.reversed_greedy)
     assert targeted_result_list == [29, 24, 26, 31, 23]
-
-#print(func.timer(test_add_collision))
