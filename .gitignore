@@ -138,8 +138,8 @@ Scripts
 pyvenv.cfg
 pycache
 
-*.txt
-!test_requirements.txt
+#*.txt
+# !test_requirements.txt
 #results.txt
 #JSON_test.txt
 timesets
