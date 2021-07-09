@@ -1,9 +1,10 @@
 import json
 import os
+from src.aim_trajectory_picking import functions as func
 print( "json dir" +os.getcwd())
 from networkx.algorithms.asteroidal import create_component_structure
-import aim_trajectory_picking.functions as dem
 import pickle
+
 
 json_types = (list, dict, str, int, float, bool, type(None))
 
@@ -56,7 +57,7 @@ def read_trajectory_from_json(filename):
     input_data = read_data_from_json_file(filename)
     liste = []
     for trajectory in input_data["trajectories"]:
-        tra = dem.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
+        tra = func.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
         for collision in trajectory["collisions"]:
             tra.add_collision_by_id(collision)
         liste.append(tra)
@@ -84,7 +85,7 @@ def read_trajectory_from_json_v2(filename):
     liste = []
     collisions = set()
     for trajectory in input_data["trajectories"]:
-        tra = dem.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
+        tra = func.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
         liste.append(tra)
         for collision in trajectory["collisions"]:
             collisions.add((tra.id,collision))
@@ -140,7 +141,7 @@ def generate_datasets_as_json_files(num_datasets):
     Function used once to generate datasets to be solved both by computer and by hand. DONT USE AGAIN
     '''
     for i in range(num_datasets):
-        donor, target, trajectories = dem.create_data(5,5,10,0.05)
+        donor, target, trajectories = func.create_data(5,5,10,0.05)
         write_trajectory_to_json('datasets/dataset_'+str(i)+'.txt',trajectories)
 
 def generate_increasing_datasets(num_datasets,increase):
@@ -156,7 +157,7 @@ def generate_increasing_datasets(num_datasets,increase):
         donor = donor + 5*i
         target = target + 5*i
         print(increase**i)
-        _, _, trajectories = dem.create_data(donor,target,increase**i,0.05)
+        _, _, trajectories = func.create_data(donor,target,increase**i,0.05)
         write_trajectory_to_json('timesets/increasing_set_'+str(i)+'.json',trajectories)
 
 
@@ -169,21 +170,21 @@ if __name__ == '__main__':
     LOW_TRAJECTORIES = 500
     HIGH_TRAJECTORIES= 50000
     print('started generating data')
-    _,_, trajectories = dem.create_data(HIGH_DONORS, HIGH_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories = func.create_data(HIGH_DONORS, HIGH_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/highD_highT_lowT.txt', trajectories)
-    _,_, trajectories = dem.create_data(HIGH_DONORS, LOW_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories = func.create_data(HIGH_DONORS, LOW_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/highD_lowT_lowT.txt', trajectories)
-    _,_, trajectories = dem.create_data(LOW_DONORS, HIGH_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories = func.create_data(LOW_DONORS, HIGH_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/lowD_highT_lowT.txt', trajectories)
-    _,_, trajectories = dem.create_data(LOW_DONORS, LOW_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories = func.create_data(LOW_DONORS, LOW_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/lowD_lowT_lowT.txt', trajectories)
 
     print('started high collision rate')
-    _,_, trajectories = dem.create_data(HIGH_DONORS, HIGH_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories = func.create_data(HIGH_DONORS, HIGH_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/highD_highT_highT.txt', trajectories)
-    _,_, trajectories = dem.create_data(HIGH_DONORS, LOW_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories = func.create_data(HIGH_DONORS, LOW_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/highD_lowT_highT.txt', trajectories)
-    _,_, trajectories = dem.create_data(LOW_DONORS, HIGH_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories = func.create_data(LOW_DONORS, HIGH_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/lowD_highT_highT.txt', trajectories)
-    _,_, trajectories = dem.create_data(LOW_DONORS, LOW_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories = func.create_data(LOW_DONORS, LOW_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/lowD_lowT_highT.txt', trajectories)
