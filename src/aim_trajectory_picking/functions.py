@@ -809,7 +809,7 @@ def translate_trajectory_objects_to_dictionaries(trajectories):
     dictionary['trajectories'] = node_set
     return dictionary
 
-def inverted_minimum_weighted_vertex_cover_algorithm(trajectory):
+def inverted_minimum_weighted_vertex_cover_algorithm(trajectory, visualize=False):
     '''
     An approximation of a minimum weighted vertex cover performed on a inverted graph
 
