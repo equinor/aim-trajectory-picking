@@ -1,5 +1,7 @@
-import JSON_IO
-import functions as func
+#import JSON_IO
+#import functions as func
+from src.aim_trajectory_picking.functions import functions as func
+from src.aim_trajectory_picking.JSON_IO import JSON_IO
 from numpy import result_type, true_divide
 import os
 import networkx as nx
