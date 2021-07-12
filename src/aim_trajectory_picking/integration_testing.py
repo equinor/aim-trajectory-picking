@@ -1,5 +1,5 @@
-from src.aim_trajectory_picking import JSON_IO
-from src.aim_trajectory_picking import functions as func
+import JSON_IO
+import functions as func
 from numpy import result_type, true_divide
 import os
 import networkx as nx
@@ -13,7 +13,8 @@ import pandas as pd
 
 algorithms = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
                      func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions,
-                     func.lonely_target_algorithm, func.reversed_greedy, func.invert_and_clique]
+                     func.lonely_target_algorithm, func.invert_and_clique, func.reversed_greedy_bipartite_matching,
+                     func.reversed_greedy_weight_transformation, func.reversed_greedy_regular_greedy]
 # donors1, targets1, trajectories1 = func.create_data(4, 4, 7, 0.04)
 # print([n.value for n in trajectories1])
 # test1 = func.transform_graph(trajectories1)
