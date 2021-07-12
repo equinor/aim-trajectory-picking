@@ -937,3 +937,14 @@ def invert_and_clique(trajectories, visualize = False):
 
     return dictionary
 
+
+# Pseudocode for the reversed greedy where we first do bipartite matching and then solve for collisions 
+# def bipartite_first_collisions_seconds(trajectories, visualize=False)
+#          
+#   use bipartite_matching to solve for donors and targets
+#   while there still are collisions in the picked trajectories: 
+#       remove the colliding trajectories of lowest value and replace them with other trajectories with same donor and target,
+#       so that there still are no collisions in donors or targets.
+#       if the added trajectories, that replaced former colliding trajectories, don't collide with other picked trajectories:
+#           break:
+#   return trajectories

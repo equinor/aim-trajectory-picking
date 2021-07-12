@@ -6,9 +6,6 @@ import os
 
 from src.aim_trajectory_picking import functions as func
 from src.aim_trajectory_picking import JSON_IO
-from src.aim_trajectory_picking import integration_testing as in_test
-
-
 
 def algorithm_testing_function(algorithm):
     targeted_result_list = []
@@ -81,4 +78,6 @@ def test_lonely_target_on_datasets_0_to_4():
 
 def test_reverse_greedy_on_datasets_0_to_4():
     targeted_result_list = algorithm_testing_function(func.reversed_greedy)
+
     assert targeted_result_list.sort() == [31, 23, 24, 29, 26].sort()#[29, 24, 26, 31, 23]
+
