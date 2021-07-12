@@ -61,7 +61,10 @@ def test_JSON_IO():
 
 def test_greedy_on_datasets_0_to_4():
     targeted_result_list = algorithm_test_function(func.greedy_algorithm)
-    assert targeted_result_list ==  [31, 23, 20, 32, 26]#[32, 20, 26, 31, 23]
+    test_pass = False
+    if targeted_result_list == [32, 20, 26, 31, 23]:
+        test_pass = True
+    assert test_pass == True
 
 def test_NN_on_datasets_0_to_4():
     targeted_result_list = algorithm_test_function(func.NN_algorithm)
