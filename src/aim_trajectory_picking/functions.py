@@ -788,6 +788,19 @@ def reversed_greedy_weight_transformation(trajectories, visualize=False):
 
 
 def translate_trajectory_objects_to_dictionaries(trajectories):
+    '''
+    Parameters:
+    -----------
+    trajectories: set<Trajectory>
+        set of trajectories
+
+    Returns:
+    -----------
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects.
+    
+    '''
     node_set = []
     for element in trajectories:
         node_set.append(Trajectory(element.id, element.donor, element.target,element.value))
@@ -796,9 +809,25 @@ def translate_trajectory_objects_to_dictionaries(trajectories):
     dictionary['trajectories'] = node_set
     return dictionary
 
-def minimum_weighted_vertex_cover_algorithm(trajectory,visualize=False):
-    # Possibly invert this before using?
+def inverted_minimum_weighted_vertex_cover_algorithm(trajectory):
+    '''
+    An approximation of a minimum weighted vertex cover performed on a inverted graph
+
+    Parameters:
+    -----------
+    trajectories: list<Trajectory>
+        list of trajectories to pick optimal set from
+
+    Returns:
+    -----------
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects found, after running the result of the
+            inverted minimum weighted vertex cover algorithm.
+    
+    '''
     G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
+    G = invert_graph(G)
     vertex_cover_nodes = aprox.min_weighted_vertex_cover(G,weight='value')
     dictionary = translate_trajectory_objects_to_dictionaries(vertex_cover_nodes)
     return dictionary
@@ -817,6 +846,7 @@ def modified_greedy(trajectories,collisions, visualize=False):
         list of collisions between trajectories
 
     Returns:
+    -----------
     dictionary:
         'value': value of trajectories \n
         'trajectories': list of trajectory objects
@@ -907,6 +937,3 @@ def invert_and_clique(trajectories, visualize = False):
 
     return dictionary
 
-#def reversed_bipartite_matching():
-    # Kjør først bipartite matching; får da ut noder som hverken har samme donor eller target, men som kan kollidere
-    # 
