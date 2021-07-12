@@ -1,6 +1,9 @@
 import json
 import os
-import functions as func
+try:
+    import functions as func
+except:
+    from src.aim_trajectory_picking import functions as func
 print( "json dir" +os.getcwd())
 from networkx.algorithms.asteroidal import create_component_structure
 import pickle
