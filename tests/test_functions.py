@@ -81,4 +81,4 @@ def test_lonely_target_on_datasets_0_to_4():
 
 def test_reverse_greedy_on_datasets_0_to_4():
     targeted_result_list = algorithm_testing_function(func.reversed_greedy)
-    assert targeted_result_list == [31, 23, 24, 29, 26].sort()#[29, 24, 26, 31, 23]
+    assert targeted_result_list.sort() == [31, 23, 24, 29, 26].sort()#[29, 24, 26, 31, 23]
