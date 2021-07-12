@@ -10,7 +10,7 @@ from src.aim_trajectory_picking import integration_testing as in_test
 
 
 
-def algorithm_test_function(algorithm):
+def algorithm_testing_function(algorithm):
     targeted_result_list = []
     directory = r'./datasets'
     test_functions = [algorithm]
