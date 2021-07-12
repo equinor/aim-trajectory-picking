@@ -741,7 +741,7 @@ def lonely_target_algorithm (trajectories, visualize=False):
     return dictionary
             
 
-def reversed_greedy(trajectories, visualize=False, collision_rate = 0.05):
+def reversed_greedy(trajectories, visualize=False, collision_rate = 0.05, last_collisions = bipartite_matching_removed_collisions):
     '''
     Algorithm which follows the inverse logic of the greedy algorithm, focusing on the number of collisions. 
     At each iteration, the trajectory with the highest number of collisions is removed. 
@@ -774,8 +774,18 @@ def reversed_greedy(trajectories, visualize=False, collision_rate = 0.05):
                 highest_collision_trajectory = tra
         graph.remove_node(highest_collision_trajectory)
     #return greedy_algorithm(list(graph.nodes))
-    return weight_transformation_algorithm(list(graph.nodes))
-    #return bipartite_matching_removed_collisions(list(graph.nodes), False)
+    #return weight_transformation_algorithm(list(graph.nodes))
+    return last_collisions(list(graph.nodes), False)
+
+def reversed_greedy_bipartite_matching(trajectories, visualize=False):
+    return reversed_greedy(trajectories, visualize, collision_rate = 0.05, last_collisions = bipartite_matching_removed_collisions)
+
+def reversed_greedy_regular_greedy(trajectories, visualize=False):
+    return reversed_greedy(trajectories, visualize, collision_rate = 0.05, last_collisions = greedy_algorithm)
+
+def reversed_greedy_weight_transformation(trajectories, visualize=False):
+    return reversed_greedy(trajectories, visualize, collision_rate = 0.05, last_collisions = weight_transformation_algorithm)
+
 
 def translate_trajectory_objects_to_dictionaries(trajectories):
     '''
@@ -926,3 +936,4 @@ def invert_and_clique(trajectories, visualize = False):
     dictionary['trajectories'] = optimal_trajectories
 
     return dictionary
+
