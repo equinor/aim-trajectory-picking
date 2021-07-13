@@ -497,9 +497,9 @@ def check_for_collisions(optimal_trajectories):
 def timer(func, *args, **kwargs):
     ''' Time a function with the given args and kwargs'''
     start = time.perf_counter()
-    func(*args, **kwargs)
+    retval = func(*args, **kwargs)
     stop = time.perf_counter()
-    return stop-start
+    return retval, stop-start
 
 def greedy_algorithm(trajectories, visualize=False):
     '''
