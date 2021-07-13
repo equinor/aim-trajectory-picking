@@ -169,6 +169,22 @@ def create_data(no_of_datasets):
     return trajectories
 
 def calculate_results(algorithms, datasets):
+    '''
+    Performs every function in the algorithms list on every dataset. Returns a dictionary
+
+    Parameters:
+    -----------
+    algorithms: list<Function(list<Trajectory>, boolean)
+        List of functions to be run on the given data
+    datasets: list<list<Trajectories>>
+        list of datasets on which the given algorithms will be ran
+
+    Returns:
+    combined_results: Dictionary{str, list<Dictionary{
+        value: int
+        trajectories: list<Trajectory>
+    }>}
+  '''
     combined_results = {}
     for algorithm in algorithms:
         combined_results[algorithm.__name__] = []
