@@ -97,24 +97,37 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     --------
     None
     '''
-    plt.figure(figsize=(9,3))
-    plt.subplot(121)
+    #plt.figure(figsize=(9,3))
+    fig, axs = plt.subplots(2,1)
     #fig.title('Performance of various algorithms on trajectory problem')
     means = []
     if _dataset_names == 0 or _dataset_names == None:
         dataset_names = [str(i) for i in range(len(results[algorithms[0].__name__]))]
     else:
         dataset_names = _dataset_names
+    #axs2 = axs.twinx()
 
     algo_names = [e.__name__ for e in algorithms]
+    algo_runtimes = []
     for algorithm in algorithms:
         results_per_dataset = [results[algorithm.__name__][item]['value'] for item in results[algorithm.__name__]]
+        algo_runtimes =  [results[algorithm.__name__][item]['runtime'] for item in results[algorithm.__name__]]
         print(results_per_dataset)
-        plt.plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
+        #print(algo_runtimes)
+        #
+        axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
+        #plt.subplot(221)
+        axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
         means.append(np.mean(results_per_dataset))
-    plt.legend()
-    plt.xticks(rotation=45)
-    plt.subplot(122)
+    axs[0].legend()
+    axs[1].legend()
+    #axs[0,0].xticks(rotation=45)
+    #plt.subplot(122)
+    #axs[0,1].bar(algo_names, means)
+    #axs[0,1].xticks(rotation=45)
+    #fig.tight_layout()
+    plt.show()
+    plt.figure()
     plt.bar(algo_names, means)
     plt.xticks(rotation=45)
     plt.show()
@@ -140,10 +153,11 @@ def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _data
         data_name = dataset_names[_datasets.index(data)]
         for algorithm in algos:
             #print(prev_results[algorithm.__name__].keys())
-            if _dataset_names != None and data_name in prev_results[algorithm.__name__].keys():
-                combined_results[algorithm.__name__][data_name] = prev_results[algorithm.__name__][data_name]
-                print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
-            else: 
+            try:
+                if _dataset_names != None and data_name in prev_results[algorithm.__name__].keys():
+                    combined_results[algorithm.__name__][data_name] = prev_results[algorithm.__name__][data_name]
+                    print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
+            except:
                 answer, runtime = func.timer(algorithm, data, False)
                 answer['runtime'] = runtime
                 combined_results[algorithm.__name__][data_name] = answer
@@ -163,7 +177,7 @@ if __name__ == '__main__':
 
     algorithms = {  'greedy' : func.greedy_algorithm, 
                     'NN' : func.NN_algorithm,
-                    'random' : func.random_algorithm,
+                    #'random' : func.random_algorithm,
                     'weight_trans' :func.weight_transformation_algorithm, 
                     'bipartite_matching' : func.bipartite_matching_removed_collisions,
                     'lonely_target' : func.lonely_target_algorithm,
