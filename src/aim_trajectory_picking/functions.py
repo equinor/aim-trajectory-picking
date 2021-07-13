@@ -937,23 +937,23 @@ def invert_and_clique(trajectories, visualize = False):
 
     return dictionary
 
-
+'''
 # Pseudocode for the reversed greedy where we first do bipartite matching and then solve for collisions 
-# def bipartite_first_collisions_seconds(trajectories, visualize=False)
-#          
-#   use bipartite_matching to solve for donors and targets
-#   while there still are collisions in the picked trajectories: 
-#       remove the colliding trajectories of lowest value and replace them with other trajectories with same donor and target,
-#       so that there still are no collisions in donors or targets.
-#       if the added trajectories, that replaced former colliding trajectories, don't collide with other picked trajectories:
-#           break:
-#   return trajectories
+def bipartite_first_collisions_seconds(trajectories, visualize=False)
+          
+    use bipartite_matching to solve for donors and targets
+    while there still are collisions in the picked trajectories: 
+        remove the colliding trajectories of lowest value and replace them with other trajectories with same donor and target,
+        so that there still are no collisions in donors or targets.
+        if the added trajectories, that replaced former colliding trajectories, don't collide with other picked trajectories:
+            break:
+    return trajectories
+'''
 
-
-#def bipartite_matching_removed_collisions(trajectories, visualize):
+def bipartite_matching_not_removed_collisions(trajectories, visualize):
     '''
-    This function uses the greedy algorithm to remove any colliding trajectories (not counting target or donor collision),\
-        then uses a bipartite max weight matching function to calculate the optimal trajectories.
+    This function uses bipartite matching to find a list of trajectories not colliding in donors or targets.\
+        It then removes trajectories colliding in space, and adds new trajectories.
     
     Parameters:
     -----------
@@ -968,17 +968,54 @@ def invert_and_clique(trajectories, visualize = False):
         a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
             and 'trajectories' gives a list of the 'optimal' trajectory objects found.
     '''
-   # donors, targets = get_donors_and_targets_from_trajectories(trajectories)
-   # bi_graph = bipartite_graph(donors, targets, trajectories['trajectories'])
-   # matching = nx.max_weight_matching(bi_graph)
+    donors, targets = get_donors_and_targets_from_trajectories(trajectories)
+    bi_graph = bipartite_graph(donors, targets, trajectories)
+    matching = nx.max_weight_matching(bi_graph)
     
-   # optimal_trajectories =  get_trajectory_objects_from_matching(matching, trajectories)
-    # fjern trajectories som kolliderer med hverandre med reversed greedy
-    # legger til en trajectory med donor og target som ikke allerede er plukket ut
-    # gå gjennom alle trajectories som ikke er valgt enda; finn den (som ikke kolliderer med noen allerede valgte
-    # trajectories) med høyest verdi, og legg denne til.
- #   value = sum([t.value for t in optimal_trajectories])
- #   dictionary = {}
- #   dictionary['value'] = value
- #   dictionary['trajectories'] = optimal_trajectories
- #   return dictionary
+    optimal_trajectories =  get_trajectory_objects_from_matching(matching, trajectories)
+    [trajectories.remove(tra) for tra in optimal_trajectories]
+    
+   #Hjelp til fjern trajectories som kolliderer med hverandre fra optimal_trajectories med reversed greedy
+   
+   #legger til brønnbaner med donor og target som ikke allerede er plukket ut
+    donors_already_picked = set()
+    targets_already_picked = set()
+    ids_already_picked = set()
+    collisions = []
+    
+    #collision_dict = dict()
+    optimal_trajectories.sort(key = lambda n: n.value )
+    for tra in optimal_trajectories:
+        #for id in tra.collisions:
+            # if id in collision_dict.keys:
+            #     collision_dict[str(id)] +=1
+            # else:
+            #     collision_dict[str(id)] = 0
+        donors_already_picked.add(tra.donor)
+        targets_already_picked.add(tra.target)
+        ids_already_picked.add(tra.id)
+        collisions.append(tra.collisions)
+    for tra in optimal_trajectories:
+        for collision_list in collisions:
+            if tra.id in collision_list:
+                optimal_trajectories.remove(tra)
+                collisions.remove(collision_list)
+    #Er trajectories en liste eller et dictionary. Om dictionary må nøklene sorteres mhp. value
+    trajectories.sort(key = lambda n: n.value, reverse = True)
+    for tra in trajectories:
+        skip = False
+        if (tra.donor in donors_already_picked) or (tra.target in targets_already_picked):
+            continue
+        for collision in collision_list:
+            if tra.id in collision:
+                skip = True
+                break
+        if skip == True:
+            continue
+        optimal_trajectories.append(tra)    
+    value = sum([t.value for t in optimal_trajectories])
+    dictionary = {}
+    dictionary['value'] = value
+    print(value)
+    dictionary['trajectories'] = optimal_trajectories
+    return dictionary
