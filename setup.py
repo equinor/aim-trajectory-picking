@@ -15,12 +15,16 @@ setuptools.setup(
     project_urls={
         "Bug Tracker": "https://github.com/equinor/aim-trajectory-picking/issues",
     },
+    entry_points = {
+        'console_scripts': ['funniest-joke=aim_trajectory_picking.command_line:main', 'show-graph=aim_trajectory_picking.integration_testing:main'],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(where='src'),
+    package_dir={"": "src"},
     install_requires=["requests"],
     python_requires=">=3.6",
 )
