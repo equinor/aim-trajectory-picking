@@ -948,3 +948,37 @@ def invert_and_clique(trajectories, visualize = False):
 #       if the added trajectories, that replaced former colliding trajectories, don't collide with other picked trajectories:
 #           break:
 #   return trajectories
+
+
+#def bipartite_matching_removed_collisions(trajectories, visualize):
+    '''
+    This function uses the greedy algorithm to remove any colliding trajectories (not counting target or donor collision),\
+        then uses a bipartite max weight matching function to calculate the optimal trajectories.
+    
+    Parameters:
+    -----------
+    trajectories: List<Trajectory>
+        list of trajectories to constitute the trajectory picking problem
+    visualize: bool, optional
+        if True, plot every step of algorithm
+    
+    Returns:
+    --------
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects found.
+    '''
+   # donors, targets = get_donors_and_targets_from_trajectories(trajectories)
+   # bi_graph = bipartite_graph(donors, targets, trajectories['trajectories'])
+   # matching = nx.max_weight_matching(bi_graph)
+    
+   # optimal_trajectories =  get_trajectory_objects_from_matching(matching, trajectories)
+    # fjern trajectories som kolliderer med hverandre med reversed greedy
+    # legger til en trajectory med donor og target som ikke allerede er plukket ut
+    # gå gjennom alle trajectories som ikke er valgt enda; finn den (som ikke kolliderer med noen allerede valgte
+    # trajectories) med høyest verdi, og legg denne til.
+ #   value = sum([t.value for t in optimal_trajectories])
+ #   dictionary = {}
+ #   dictionary['value'] = value
+ #   dictionary['trajectories'] = optimal_trajectories
+ #   return dictionary
