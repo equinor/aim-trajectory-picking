@@ -827,9 +827,33 @@ def inverted_minimum_weighted_vertex_cover_algorithm(trajectory, visualize=False
     
     '''
     G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
-    G = invert_graph(G)
-    vertex_cover_nodes = aprox.min_weighted_vertex_cover(G,weight='value')
-    dictionary = translate_trajectory_objects_to_dictionaries(vertex_cover_nodes)
+    trajectory_set = set(trajectory)
+    independent_set_nodes = set()
+    
+    while G.number_of_nodes() > 0:
+        vertex_cover_nodes = aprox.min_weighted_vertex_cover(G,weight='value')
+        if visualize == True:
+            vertex_color = []
+            for element in trajectory_set:
+                if element not in vertex_cover_nodes:
+                    vertex_color.append('blue')
+                else:
+                    vertex_color.append('red')
+            plt.figure()
+            nx.draw(G,node_color=vertex_color)
+            plt.show()
+        current_iteration_independent_set_nodes = trajectory_set.difference(vertex_cover_nodes)
+        neighs = set()
+        for element in current_iteration_independent_set_nodes:
+            neighs.update(G.neighbors(element))
+        G.remove_nodes_from(neighs)
+        independent_set_nodes.update(current_iteration_independent_set_nodes)
+        G.remove_nodes_from(current_iteration_independent_set_nodes)
+        # plt.figure()
+        # nx.draw(G)
+        # plt.show()
+        trajectory_set = trajectory_set.difference(neighs,current_iteration_independent_set_nodes)
+    dictionary = translate_trajectory_objects_to_dictionaries(independent_set_nodes)
     return dictionary
 
 
@@ -881,7 +905,8 @@ def modified_greedy(trajectories,collisions, visualize=False):
 def maximum_independent_set_algorithm(trajectory,visualize=False):
     G = transform_graph(trajectory)
     max_ind_set = aprox.maximum_independent_set(G)
-    return max_ind_set
+    trajectory = translate_trajectory_objects_to_dictionaries(max_ind_set)
+    return trajectory
 
 def invert_graph(graph):
     '''
@@ -911,6 +936,8 @@ def invert_and_clique(trajectories, visualize = False):
     '''
     This function uses clique algorithm to solve the maximal independent weighted set problem, after inverting the graph. Very expensive\
         computationally! Probably infeasible for problem sizes above 200 trajectories.
+
+    From Networkx: The recursive algorithm max_weight_clique may run into recursion depth issues if G contains a clique whose number of nodes is close to the recursion depth limit
     
     Parameters:
     -----------
@@ -927,7 +954,9 @@ def invert_and_clique(trajectories, visualize = False):
     '''
 
     G = make_transformed_graph_from_trajectory_dictionaries(trajectories)
-    G = invert_graph(G)
+    values = nx.get_node_attributes(G,'value')
+    G = nx.complement(G)
+    nx.set_node_attributes(G,values,'value')
     optimal_trajectories, value = nx.max_weight_clique(G, "value")
     value = sum([t.value for t in optimal_trajectories])
 
