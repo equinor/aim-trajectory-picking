@@ -16,7 +16,7 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/equinor/aim-trajectory-picking/issues",
     },
     entry_points = {
-        'console_scripts': ['funniest-joke=aim_trajectory_picking.command_line:main', 'show-graph=aim_trajectory_picking.integration_testing:main'],
+        'console_scripts': ['funniest-joke=aim_trajectory_picking.command_line:main', 'run=aim_trajectory_picking.integration_testing:main'],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
