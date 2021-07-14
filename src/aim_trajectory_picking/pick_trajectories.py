@@ -147,6 +147,7 @@ def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _data
                 answer, runtime = func.timer(algorithm, data, False)
                 answer['runtime'] = runtime
                 combined_results[algorithm.__name__][data_name] = answer
+                prev_results[algorithm.__name__][data_name] = answer
                 print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name)
 
     for name in algos:
@@ -154,7 +155,7 @@ def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _data
             assert func.check_for_collisions(combined_results[name.__name__][key]['trajectories']) == False
 
     if _dataset_names != None:
-        JSON_IO.write_value_trajectories_runtime_from_file( combined_results, filename)
+        JSON_IO.write_value_trajectories_runtime_from_file( prev_results, filename)
     return combined_results
     
 
