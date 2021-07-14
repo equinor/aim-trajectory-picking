@@ -1,10 +1,8 @@
 import json
 import os
 
-try:
-    import functions as func
-except:
-    from src.aim_trajectory_picking import functions as func
+#import functions as func
+from aim_trajectory_picking import functions as func
 
 print( "json dir" +os.getcwd())
 from networkx.algorithms.asteroidal import create_component_structure
@@ -165,6 +163,24 @@ def generate_increasing_datasets(num_datasets,increase):
         _, _, trajectories = func.create_data(donor,target,increase**i,0.05)
         write_trajectory_to_json('timesets/increasing_set_'+str(i)+'.json',trajectories)
 
+def write_value_trajectories_runtime_from_file( combined_results,filename='results.txt',):
+    for key1 in combined_results:
+        for key2 in combined_results[key1]:
+            combined_results[key1][key2]['trajectories'] = [e.__dict__ for e in combined_results[key1][key2]['trajectories']]
+    write_data_to_json_file(filename,combined_results)
+
+def read_value_trajectories_runtime_from_file(filename='results.txt'):
+    input_data = read_data_from_json_file(filename)
+    for key1 in input_data:
+        for key2 in input_data[key1]:
+            liste = []
+            for trajectory in input_data[key1][key2]["trajectories"]:
+                tra = func.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
+                for collision in trajectory["collisions"]:
+                    tra.add_collision_by_id(collision)
+                liste.append(tra)
+            input_data[key1][key2]["trajectories"] = liste
+    return input_data
 
 if __name__ == '__main__':
     HIGH_DONORS = 50
