@@ -1,6 +1,6 @@
 import argparse
 from warnings import catch_warnings
-from src.aim_trajectory_picking.integration_testing import plot_performances
+from aim_trajectory_picking.integration_testing import plot_performances
 import functions as func
 import integration_testing as int_test
 import os
@@ -141,6 +141,9 @@ def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _data
 
     try:
         prev_results = JSON_IO.read_value_trajectories_runtime_from_file(filename)
+        for algo in algos:
+            if algo.__name__ not in prev_results.keys():
+                prev_results[algo.__name__] = {}
     except:
         prev_results = {}
         for algorithm in algos:
@@ -157,8 +160,18 @@ def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _data
                 if _dataset_names != None and data_name in prev_results[algorithm.__name__].keys():
                     combined_results[algorithm.__name__][data_name] = prev_results[algorithm.__name__][data_name]
                     print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
+                else:
+                    answer, runtime = func.timer(algorithm, data, False)
+                    #print("answer:")
+                    #print(answer)
+                    answer['runtime'] = runtime
+                    combined_results[algorithm.__name__][data_name] = answer
+                    prev_results[algorithm.__name__][data_name] = answer
+                    print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name)
             except:
                 answer, runtime = func.timer(algorithm, data, False)
+                #print("answer:")
+                #print(answer)
                 answer['runtime'] = runtime
                 combined_results[algorithm.__name__][data_name] = answer
                 prev_results[algorithm.__name__][data_name] = answer
@@ -166,7 +179,8 @@ def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _data
 
     for name in algos:
         for key in combined_results[name.__name__]:
-            assert func.check_for_collisions(combined_results[name.__name__][key]['trajectories']) == False
+            if func.check_for_collisions(combined_results[name.__name__][key]['trajectories']):
+                print("error in algorithm" + name.__name__)
 
     if _dataset_names != None:
         JSON_IO.write_value_trajectories_runtime_from_file( prev_results, filename)
@@ -185,8 +199,8 @@ if __name__ == '__main__':
                     'exact' : func.invert_and_clique,
                     'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
                     'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
-                    'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy
-                    #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
+                    'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
+                    'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
                     }
     not_runnable = [func.invert_and_clique]
 
