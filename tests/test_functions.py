@@ -4,8 +4,8 @@ import pytest
 # import src.aim_trajectory_picking.integration_testing as int_test
 import os
 
-from src.aim_trajectory_picking import functions as func
-from src.aim_trajectory_picking import JSON_IO
+from aim_trajectory_picking import functions as func
+from aim_trajectory_picking import JSON_IO
 
 def algorithm_testing_function(algorithm):
     targeted_result_list = []

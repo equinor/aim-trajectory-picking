@@ -143,3 +143,5 @@ pycache
 #results.txt
 #JSON_test.txt
 timesets
+
+.my_venv
