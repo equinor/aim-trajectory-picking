@@ -175,20 +175,26 @@ def transform_graph_igraph(trajectories):
     #stop = time.perf_counter()
     #difference = stop-start
     #print("timer list comprehension", difference)
+    collisions = []
     for i in range(len(trajectories)):
         for j in range(i, len(trajectories)):
             if i != j:
                 if func.mutually_exclusive_trajectories(trajectories[i], trajectories[j]):
-                    G.add_edges([(G.vs.find(trajectories[i].id), (G.vs.find(trajectories[j].id)))])
+                    collisions.append((trajectories[i].id, trajectories[j].id))
+    G.add_edges(collisions)
     return G
 
 start = time.perf_counter()
 graph = func.transform_graph(trajectories)
+# for node in graph.nodes():
+#     print(node.id)
 stop = time.perf_counter()
 print("networkx", stop-start)
 
 start1 = time.perf_counter()
 graph1 = transform_graph_igraph(trajectories)
+# for node in graph1.vs:
+#     print(node['name'])
 stop1 = time.perf_counter()
 print("igraph", stop1-start1)
 
