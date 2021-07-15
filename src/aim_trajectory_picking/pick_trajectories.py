@@ -25,29 +25,30 @@ def get_datasets(dataset_folders):
         print("None-type input file, bringing up runtime benchmarks")
         dataset_folders = []
         dataset_folders.append('datasets')
-    for i in range(len(dataset_folders)):
-        try:
-            if dataset_folders[i] == 'random':
-                print("if random")
-                data = []
-                no_donors = int(dataset_folders[i+1])
-                no_targets = int(dataset_folders[i+2])
-                no_trajectories = int(dataset_folders[i+3])
-                collision_rate = float(dataset_folders[i+4])
-                no_datasets = int(dataset_folders[len(dataset_folders)])
-                for i in range(no_datasets):
-                    _,_,tra = func.create_data(no_donors, no_targets, no_trajectories, collision_rate)
-                    data.append(tra)
-                    dataset_names.append('dataset_' + str(i)+ '.txt')
-                return data, None
-            else:
-                for filename in os.listdir(dataset_folders[i]):
-                    print("else file")
-                    fullpath = os.path.join(dataset_folders[i],filename)
-                    data.append(JSON_IO.read_trajectory_from_json(fullpath))
-                    dataset_names.append(filename)
-        except:
-            pass
+    # for i in range(len(dataset_folders)):
+    try:
+        if dataset_folders[0] == 'random':
+            print("random data generation chosen")
+            data = []
+            no_donors = int(dataset_folders[1])
+            no_targets = int(dataset_folders[2])
+            no_trajectories = int(dataset_folders[3])
+            collision_rate = float(dataset_folders[4])
+            no_datasets = int(dataset_folders[5])
+            for i in range(no_datasets):
+                print("making dataset nr: " + str(i))
+                _,_,tra = func.create_data(no_donors, no_targets, no_trajectories, collision_rate)
+                data.append(tra)
+                dataset_names.append('dataset_' + str(i)+ '.txt')
+            return data, None
+        else:
+            for filename in os.listdir(dataset_folders[0]):
+                print("else file")
+                fullpath = os.path.join(dataset_folders[0],filename)
+                data.append(JSON_IO.read_trajectory_from_json(fullpath))
+                dataset_names.append(filename)
+    except:
+        pass
     if len(data) == 0:
         print("Dataset arguments not recognized, reading from datasets instead.")
         for filename in os.listdir('datasets'):
@@ -214,7 +215,7 @@ if __name__ == '__main__':
             Trajectory picking algorithm for the AI for Maturation project
             Example of use:
             python pick_trajectories -datasets big_datasets -alg all 
-            python pick_trajectories -datasets random 15 15 1000 0.05 -alg greedy weight_trans bipartite
+            python pick_trajectories -datasets random 15 15 1000 0.05 3 -alg greedy weight_trans bipartite
             --------------------------------------------------------------
             JSON inputfile format:
             {
@@ -244,13 +245,13 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     
-    print(args)
-    print(args.datasets)
-    print(args.outputfile)
-    print(args.alg)    
+    # print(args)
+    # print(args.datasets)
+    # print(args.outputfile)
+    # print(args.alg)    
     
     data, data_names = get_datasets(args.datasets)
-    print(data)
+
     g = igraph.Graph()
     if args.alg == 'all':
         algos = [algorithms[key] for key in algorithms]
