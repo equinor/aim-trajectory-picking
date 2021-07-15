@@ -19,7 +19,7 @@ algorithms = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
                      func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions,
                      func.lonely_target_algorithm, func.invert_and_clique, func.reversed_greedy_bipartite_matching,
                      func.reversed_greedy_weight_transformation, func.reversed_greedy_regular_greedy, 
-                     func.bipartite_matching_not_removed_collisions]#func.inverted_minimum_weighted_vertex_cover_algorithm
+                     func.bipartite_matching_not_removed_collisions ,func.inverted_minimum_weighted_vertex_cover_algorithm]
 
 # donors1, targets1, trajectories1 = func.create_data(4, 4, 7, 0.04)
 # print([n.value for n in trajectories1])
@@ -209,7 +209,8 @@ def read_data_and_give_results():
     directory = r'.\datasets'
     test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
                      func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions,
-                     func.lonely_target_algorithm, func.reversed_greedy, func.invert_and_clique]
+                     func.lonely_target_algorithm, func.reversed_greedy, func.invert_and_clique
+                     , func.inverted_minimum_weighted_vertex_cover_algorithm]
     combined_results = {}
     for algorithm in test_functions:
         combined_results[algorithm.__name__] = []

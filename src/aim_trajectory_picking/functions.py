@@ -672,7 +672,7 @@ def get_trajectory_objects_from_matching(matching, trajectories):
                     if i.value < t.value:
                         trajectories_optimal.remove(i) 
                         trajectories_optimal.append(t)
-                        break
+                        break   
                     else:
                         break
             if add_trajectory:
@@ -809,6 +809,14 @@ def translate_trajectory_objects_to_dictionaries(trajectories):
     dictionary = {}
     dictionary['value'] = sum(n.value for n in node_set)
     dictionary['trajectories'] = node_set
+    return dictionary
+
+def optimal_trajectories_to_return_dictionary(optimal_trajectories):
+
+    value = sum([t.value for t in optimal_trajectories])
+    dictionary = {}
+    dictionary['value'] = value
+    dictionary['trajectories'] = optimal_trajectories
     return dictionary
 
 def inverted_minimum_weighted_vertex_cover_algorithm(trajectory, visualize=False):
@@ -1050,3 +1058,4 @@ def bipartite_matching_not_removed_collisions(trajectories, visualize):
     print(value)
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
+

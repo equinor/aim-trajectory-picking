@@ -1,6 +1,6 @@
 import argparse
 from warnings import catch_warnings
-from src.aim_trajectory_picking.integration_testing import plot_performances
+from aim_trajectory_picking.integration_testing import plot_performances
 import functions as func
 import integration_testing as int_test
 import os
@@ -22,24 +22,27 @@ def get_datasets(dataset_folders):
     data = []
     dataset_names = []
     if dataset_folders == None:
+        print("None-type input file, bringing up runtime benchmarks")
         dataset_folders = []
         dataset_folders.append('datasets')
     for i in range(len(dataset_folders)):
         try:
             if dataset_folders[i] == 'random':
+                print("if random")
                 data = []
                 no_donors = int(dataset_folders[i+1])
                 no_targets = int(dataset_folders[i+2])
                 no_trajectories = int(dataset_folders[i+3])
                 collision_rate = float(dataset_folders[i+4])
-                no_datasets = int(dataset_folders[i+5])
+                no_datasets = int(dataset_folders[len(dataset_folders)])
                 for i in range(no_datasets):
                     _,_,tra = func.create_data(no_donors, no_targets, no_trajectories, collision_rate)
                     data.append(tra)
-                    dataset_names.append('dataset_' + str(i))
+                    dataset_names.append('dataset_' + str(i)+ '.txt')
                 return data, None
             else:
                 for filename in os.listdir(dataset_folders[i]):
+                    print("else file")
                     fullpath = os.path.join(dataset_folders[i],filename)
                     data.append(JSON_IO.read_trajectory_from_json(fullpath))
                     dataset_names.append(filename)
@@ -141,6 +144,9 @@ def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _data
 
     try:
         prev_results = JSON_IO.read_value_trajectories_runtime_from_file(filename)
+        for algo in algos:
+            if algo.__name__ not in prev_results.keys():
+                prev_results[algo.__name__] = {}
     except:
         prev_results = {}
         for algorithm in algos:
@@ -157,8 +163,18 @@ def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _data
                 if _dataset_names != None and data_name in prev_results[algorithm.__name__].keys():
                     combined_results[algorithm.__name__][data_name] = prev_results[algorithm.__name__][data_name]
                     print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
+                else:
+                    answer, runtime = func.timer(algorithm, data, False)
+                    #print("answer:")
+                    #print(answer)
+                    answer['runtime'] = runtime
+                    combined_results[algorithm.__name__][data_name] = answer
+                    prev_results[algorithm.__name__][data_name] = answer
+                    print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name)
             except:
                 answer, runtime = func.timer(algorithm, data, False)
+                #print("answer:")
+                #print(answer)
                 answer['runtime'] = runtime
                 combined_results[algorithm.__name__][data_name] = answer
                 prev_results[algorithm.__name__][data_name] = answer
@@ -166,7 +182,8 @@ def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _data
 
     for name in algos:
         for key in combined_results[name.__name__]:
-            assert func.check_for_collisions(combined_results[name.__name__][key]['trajectories']) == False
+            if func.check_for_collisions(combined_results[name.__name__][key]['trajectories']):
+                print("error in algorithm" + name.__name__)
 
     if _dataset_names != None:
         JSON_IO.write_value_trajectories_runtime_from_file( prev_results, filename)
@@ -175,20 +192,22 @@ def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _data
 
 
 if __name__ == '__main__':
-
     algorithms = {  'greedy' : func.greedy_algorithm, 
-                    'NN' : func.NN_algorithm,
-                    #'random' : func.random_algorithm,
-                    'weight_trans' :func.weight_transformation_algorithm, 
-                    'bipartite_matching' : func.bipartite_matching_removed_collisions,
-                    'lonely_target' : func.lonely_target_algorithm,
-                    'exact' : func.invert_and_clique,
-                    'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
-                    'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
-                    'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy
-                    #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
-                    }
+                'NN' : func.NN_algorithm,
+                #'random' : func.random_algorithm,
+                'weight_trans' :func.weight_transformation_algorithm, 
+                'bipartite_matching' : func.bipartite_matching_removed_collisions,
+                'lonely_target' : func.lonely_target_algorithm,
+                'exact' : func.invert_and_clique,
+                'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
+                'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
+                'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
+                'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
+                }
     not_runnable = [func.invert_and_clique]
+    algo_choices = [ key for key in algorithms]
+    algo_choices.append('all')
+    algo_choices.append('runnable')
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
         description=('''\
@@ -214,11 +233,9 @@ if __name__ == '__main__':
             }''')
             ,epilog='This is the epilog',
             add_help=True)
-    algo_choices = [ key for key in algorithms]
-    algo_choices.append('all')
-    algo_choices.append('runnable')
+
     parser.add_argument('-alg',default='all',type=str,choices=algo_choices, nargs='*',help='Type of algorithm used (default: greedy)',)
-    parser.add_argument('-datasets',metavar='datasets',nargs='*',type=str,help='String of the input data set folder, JSON format. \
+    parser.add_argument('-datasets',metavar='Datasets',nargs='*',type=str,help='String of the input data set folder, JSON format. \
         Default is datasets, and the algorithm will be run on datasets if the argument is not recognized. \
             Can also be random, with specified number of donors, targets and trajectories, in addition to collision rate and number of datasets\
                 ex: random 10 10 100 0.05 10')
@@ -226,11 +243,14 @@ if __name__ == '__main__':
     # could potentially add optional arguments for running test sets instead, or average of X trials
 
     args = parser.parse_args()
+    
     print(args)
     print(args.datasets)
     print(args.outputfile)
-    print(args.alg)
+    print(args.alg)    
+    
     data, data_names = get_datasets(args.datasets)
+    print(data)
     g = igraph.Graph()
     if args.alg == 'all':
         algos = [algorithms[key] for key in algorithms]
