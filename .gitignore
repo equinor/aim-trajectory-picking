@@ -140,6 +140,7 @@ pycache
 
 *.txt
 !test_requirements.txt
+!isolated_clusters.txt
 #results.txt
 #JSON_test.txt
 timesets
