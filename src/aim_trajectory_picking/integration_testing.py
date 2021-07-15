@@ -98,7 +98,7 @@ def plot_performances(algorithms, results,_dataset_names=0):
     plt.xticks(rotation=45)
     plt.show()
 
-def plot_pandas_graph(algorithms, results, directory):
+def plot_algorithm_values_per_dataset(algorithms, results, directory): 
     results_dict = {}
     for algorithm in algorithms: 
         results_dict[algorithm.__name__ ] = 0
@@ -207,7 +207,6 @@ def read_data_and_give_results():
     '''
     results = []
     directory = r'.\datasets'
-    even_datasets = r'.\even_datasets'
     test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
                      func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions,
                      func.lonely_target_algorithm, func.reversed_greedy, func.invert_and_clique
@@ -218,12 +217,12 @@ def read_data_and_give_results():
     dataset_names = []
     iter = 0
     ITER_MAX = 2
-    for filename in os.listdir(even_datasets):
+    for filename in os.listdir(directory):
         iter += 1
         if iter > ITER_MAX:
             break
         dataset_names.append(filename)
-        fullpath = os.path.join(even_datasets,filename)
+        fullpath = os.path.join(directory,filename)
         # JSON_IO.write_data_to_json_file(filename, trajectories1)
         dataset1_after = JSON_IO.read_trajectory_from_json(fullpath)
         print("read file: " +filename)
@@ -311,6 +310,6 @@ def main():
     pandas_dict =  translate_results_to_panda_dict(r, algorithms)
 
     print(pandas_dict)
-    plot_pandas_graph(algorithms, r, 'datasets')
+    plot_algorithm_values_per_dataset(algorithms, r, 'datasets')
     #plot_performances(algorithms,r)
-    #return plot_pandas_graph(algorithms, r, 'datasets')
+    #return plot_algorithm_values_per_dataset(algorithms, r, 'datasets')
