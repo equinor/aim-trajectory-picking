@@ -17,10 +17,16 @@ pip install git+https://github.com/equinor/aim-trajectory-picking.git@master
 pip install -r test_requirements.txt
 pip install .
 pytest
-
 ```
 This package works with Python 3.
 
+### Console script commands 
+
+| Command        | Action                                                |
+|----------------|-------------------------------------------------------|
+| run <filename> | --                                                    |
+| pytest         | --                                                    |
+| benchmark      | Showing pre-generated  figure of expected performance |
 
 [![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://GitHub.com/Naereen/)
 ### Authors: ## 
