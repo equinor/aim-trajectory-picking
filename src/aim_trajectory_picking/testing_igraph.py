@@ -6,6 +6,7 @@ import time
 from itertools import combinations
 from aim_trajectory_picking import functions as func
 import time
+from aim_trajectory_picking import pick_trajectories as pt
 
 # A class to define all the useful information pertaining a certain trajectory.
 class Trajectory:
@@ -175,27 +176,105 @@ def transform_graph_igraph(trajectories):
     #stop = time.perf_counter()
     #difference = stop-start
     #print("timer list comprehension", difference)
-    collisions = []
     for i in range(len(trajectories)):
         for j in range(i, len(trajectories)):
             if i != j:
                 if func.mutually_exclusive_trajectories(trajectories[i], trajectories[j]):
-                    collisions.append((trajectories[i].id, trajectories[j].id))
-    G.add_edges(collisions)
+                    G.add_edges([(G.vs.find(trajectories[i].id), (G.vs.find(trajectories[j].id)))])
     return G
 
-start = time.perf_counter()
-graph = func.transform_graph(trajectories)
-# for node in graph.nodes():
-#     print(node.id)
-stop = time.perf_counter()
-print("networkx", stop-start)
+# start = time.perf_counter()
+# graph = func.transform_graph(trajectories)
+# stop = time.perf_counter()
+# print("networkx", stop-start)
 
-start1 = time.perf_counter()
-graph1 = transform_graph_igraph(trajectories)
-# for node in graph1.vs:
-#     print(node['name'])
-stop1 = time.perf_counter()
-print("igraph", stop1-start1)
+# start1 = time.perf_counter()
+# graph1 = transform_graph_igraph(trajectories)
+# stop1 = time.perf_counter()
+# print("igraph", stop1-start1)
 
+
+def greedy_algorithm_igraph(trajectories):
+    '''
+    Wrapper function for greedy algorithm, utilizing abstract_trajectory_algorithm internally
+
+    Parameters:
+    -----------
+    trajectories: List<Trajectory>
+        list of trajectories to run greedy algorithm on
+    visualize: bool, optional
+        if True the steps of the algorithm will be plotted, if False they will not
+    
+    Returns:
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects found.
+    '''
+    return abstract_trajectory_algorithm_igraph(transform_graph_igraph(trajectories),greedy_igraph)
+
+def greedy_igraph(graph):
+    '''
+    Finds the most 'optimal' picking the one with the highest value.
+    
+    Parameters:
+    -----------
+    nodes: List<Trajectory>
+        list of Trajectory objects of which the most 'optimal' will be calculated
+    
+    Returns: 
+    --------
+    node: 
+        the most optimal Trajectory
+    '''
+    nodes = list(graph.vertices)
+    return  max(nodes, key= lambda n : n.value)
+
+def abstract_trajectory_algorithm_igraph(graph, choice_function):
+    '''
+    Solved the trajectory picking problem in a 'pseudogreedy' way: some choice_function is passed \
+        and this function used that to pick the next node. It then removes the chosen node and \
+            all collisions with this one, then picks another. This process repeats until the graph is \
+                empty. Optionally plots each step of the process.
+    
+    Parameters:
+    -----------
+    graph: nx.Graph()
+        A graph where every node is a trajectory and every edge a mutual exclusivity
+    choice_function: function(nodes)
+        function that takes a list of nodes and returns the 'most optimal' node given certain criteria
+    visualize: bool, optional
+        if True, each step of the algorithm will be plotted (default is False)
+
+    Returns:
+    --------
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects found.
+    
+    '''
+
+    optimal_trajectories = []
+    vertex_list =  []
+    while graph.vcount() != 0: #len(list(ig.VertexSeq.select(graph))) != 0: #while there still are nodes left
+        for i in ig.VertexSeq(graph):
+            vertex_list.append(i)
+        print(vertex_list[:10])
+        nodes = list(ig.VertexSeq) # nodes = list(graph.nodes)
+        print(nodes[1])
+        chosen_node = choice_function(graph) #choose most optimal node based on given choice function
+        optimal_trajectories.append(chosen_node)
+        # for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
+        #     graph.remove_node(n)
+        [graph.remove_node(n) for n in list(graph.neighbors(chosen_node))]
+        graph.remove_node(chosen_node)
+        #print("added trajectory number: " + str(len(optimal_trajectories)))
+    #print("Algorithm: " + choice_function.__name__ + ' sum: ' +str(sum(n.value for n in optimal_trajectories))) #print sum of trajectories
+    dictionary = {}
+    dictionary['value'] = sum(n.value for n in optimal_trajectories)
+    dictionary['trajectories'] = optimal_trajectories
+    return dictionary
+
+
+graph1 = greedy_algorithm_igraph(trajectories)
+#print(graph1)
 
