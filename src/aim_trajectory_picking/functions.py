@@ -94,7 +94,7 @@ class Trajectory:
         self.collisions.add(id)
  
     def __str__(self):
-        return str(self.id) + ": "+ self.donor + "-->" + self.target + "  Value " + str(self.value) + " "
+        return str(self.id) + ": "+ str(self.donor) + "-->" + str(self.target) + "  Value " + str(self.value) + " "
     
     def __eq__(self, other):
         if not isinstance(other, Trajectory):
@@ -153,6 +153,58 @@ def create_data(no_donors, no_targets, no_trajectories, collision_rate=0,data_ra
                 if np.random.binomial(1,collision_rate):
                     trajectories[i].add_collision(trajectories[j])
     return donors, targets, trajectories
+
+def Henrik_create_data(no_donors, no_targets, no_trajectories, collision_rate=0,data_range=100 ):
+    '''
+    Creates a dataset of the correct format for the trajectory picking problem.
+
+    The dataset consists of donors, targets, and trajectories
+
+    Parameters:
+    ----------
+        no_donors: int
+            a positive integer corresponding to the number of donors desired
+        no_targets: int
+            a positive integer corresponding to the number of targets desired
+        no_trajectories: int
+            a positive integer corresponding to the number of trajectories desired
+        collision_rate: float, optional
+            a positive floating point number corresponding to the percentage probability that two trajectories collide (default is 0)
+        data_range: int, optional
+            a positive integer corresponding to the maximal value of the Trajectory.value field (default is 100)
+
+    Returns:
+    --------
+        donors: List<str>
+            a list of the names of the donors in the dataset
+        targets: List<str>
+            a list of the names of the targets in the dataset
+        trajectories: List<Trajectory>
+            a list of the Trajectory objects created
+    '''
+    donors = []
+    targets =[]
+    trajectories = []
+    for i in range(no_trajectories):
+        donor = random.randint(0, no_donors)
+        donors.append(donor)
+        target = random .randint(max(0, donor - no_targets//5), min(donor + no_targets//5, no_targets-1))
+        targets.append(target)
+        trajectories.append(Trajectory(i, donor, target,random.randint(0,data_range))) 
+    for i in range(no_trajectories):
+        for j in range(i, no_trajectories):
+            #if the trajectories are different and dont already collide based on target and donor:
+            if i !=j and trajectories[i].donor != trajectories[j].donor and trajectories[i].target != trajectories[j].target:
+                if trajectories[i].donor in list(range(trajectories[j].donor - no_donors//10, trajectories[j].donor + no_donors//5)):
+                    collision_rate = 0.05
+                elif trajectories[i].donor in list(range(trajectories[j].donor - no_donors//6, trajectories[j].donor + no_donors//5)):
+                    collision_rate = 0.02
+                elif trajectories[i].donor in list(range(trajectories[j].donor - no_donors//4, trajectories[j].donor + no_donors//3)):
+                    collision_rate = 0.01           
+                if np.random.binomial(1,collision_rate):
+                    trajectories[i].add_collision(trajectories[j])
+    return donors, targets, trajectories
+
 
 #creates and returns a colored bypartite graph, with the option of showing it
 def bipartite_graph(donors, targets, trajectories, visual=False):
@@ -1059,3 +1111,11 @@ def bipartite_matching_not_removed_collisions(trajectories, visualize):
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
 
+
+
+# Test Henrik_create_data
+# print('2fvtbt')
+# donors, targets, trajectories = Henrik_create_data(10, 10, 30)
+# for traj in trajectories:
+#     print(traj)
+# print('tbbt')
