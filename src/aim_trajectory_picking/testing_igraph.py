@@ -6,12 +6,7 @@ import time
 from itertools import combinations
 from aim_trajectory_picking import functions as func
 import time
-<<<<<<< HEAD:src/aim_trajectory_picking/testing_igraph.py
-from aim_trajectory_picking import pick_trajectories as pt
-
-=======
 import JSON_IO
->>>>>>> main:src/aim_trajectory_picking/vilde_test_graph.py
 # A class to define all the useful information pertaining a certain trajectory.
 class Trajectory:
     '''
@@ -180,24 +175,15 @@ def transform_graph_igraph(trajectories):
     #stop = time.perf_counter()
     #difference = stop-start
     #print("timer list comprehension", difference)
+    collisions = []
     for i in range(len(trajectories)):
         for j in range(i, len(trajectories)):
             if i != j:
                 if func.mutually_exclusive_trajectories(trajectories[i], trajectories[j]):
-                    G.add_edges([(G.vs.find(trajectories[i].id), (G.vs.find(trajectories[j].id)))])
+                    collisions.append((trajectories[i].id, G.vs.find(trajectories[j].id)))
+    G.add_edges(collisions)
     return G
 
-<<<<<<< HEAD:src/aim_trajectory_picking/testing_igraph.py
-# start = time.perf_counter()
-# graph = func.transform_graph(trajectories)
-# stop = time.perf_counter()
-# print("networkx", stop-start)
-
-# start1 = time.perf_counter()
-# graph1 = transform_graph_igraph(trajectories)
-# stop1 = time.perf_counter()
-# print("igraph", stop1-start1)
-=======
 def greedy_igraph(trajectories,*,visualize=False):
     g = transform_graph_igraph(trajectories)
     optimal_trajectories = []
@@ -260,137 +246,68 @@ def igraph_invert_and_clique(trajectories,*,visualize=False):
     return func.optimal_trajectories_to_return_dictionary([trajectories[i] for i in inverter.largest_cliques()[0]])
 
 
-#trajectories = JSON_IO.read_trajectory_from_json(r'even_datasets\even_test_2.txt')
-_,_,trajectories = func.create_data(10,10,100, 0.05)
+#trajectories = JSON_IO.read_trajectory_from_json(r'even_datasets\even_test_10.txt')
+# start = time.perf_counter()
+# _,_,trajectories = func.create_data(10,10,1000, 0.05)
+# end = time.perf_counter()
+# print("creation time ", end-start)
+# start = time.perf_counter()
+# #graph = func.transform_graph(trajectories)
+# # for node in graph.nodes():
+# #     print(node.id)
+# answer = func.greedy_algorithm(trajectories)
+# print("nx value: " + str(answer['value']))
+# stop = time.perf_counter()
+# print("networkx", stop-start)
+
+# start1 = time.perf_counter()
+# #graph1 = transform_graph_igraph(trajectories)
+# answer1 = greedy_igraph(trajectories)
+# # for node in graph1.vs:
+# #     print(node['name'])
+# print("igraph value:" + str(answer1['value']))
+# stop1 = time.perf_counter()
+# print("igraph", stop1-start1)
+
+# start_bip = time.perf_counter()
+# exact = igraph_invert_and_clique(trajectories)
+# end_bip = time.perf_counter()
+# func.check_for_collisions(exact['trajectories'])
+# print("value exact: ", exact['value'])
+# print("time exact sol with igraph:", end_bip - start_bip)
+
+# start_bip = time.perf_counter()
+# exact = func.invert_and_clique(trajectories)
+# end_bip = time.perf_counter()
+# func.check_for_collisions(exact['trajectories'])
+# print("value exact: ", exact['value'])
+# print("time exact sol with nx:", end_bip - start_bip)
+
+# start_bip = time.perf_counter()
+# answer_bip = remove_collisions_bipartite_matching(trajectories)
+# end_bip = time.perf_counter()
+# print("Igraph bip value:" + str(answer_bip['value']))
+# print("igraph bip time", end_bip-start_bip)
+# func.check_for_collisions(answer_bip['trajectories'])
+
+# start_bip = time.perf_counter()
+# answer_bip = func.bipartite_matching_removed_collisions(trajectories, False)
+# end_bip = time.perf_counter()
+# print("Nx bip value:" + str(answer_bip['value']))
+# print("NX bip time", end_bip-start_bip)
+
+trajectories, collisions = JSON_IO.read_trajectory_from_json_v2(r'even_datasets\even_test_10.txt')
+
 start = time.perf_counter()
-#graph = func.transform_graph(trajectories)
-# for node in graph.nodes():
-#     print(node.id)
-answer = func.greedy_algorithm(trajectories)
-print("nx value: " + str(answer['value']))
+optimal_trajectories_new = func.bipartite_matching_v2(trajectories,collisions)
 stop = time.perf_counter()
-print("networkx", stop-start)
+print("New bip matching done in:", stop-start, "with value" , optimal_trajectories_new['value'])
+func.check_for_collisions(optimal_trajectories_new['trajectories'])
 
-start1 = time.perf_counter()
-#graph1 = transform_graph_igraph(trajectories)
-answer1 = greedy_igraph(trajectories)
-# for node in graph1.vs:
-#     print(node['name'])
-print("igraph value:" + str(answer1['value']))
-stop1 = time.perf_counter()
-print("igraph", stop1-start1)
->>>>>>> main:src/aim_trajectory_picking/vilde_test_graph.py
-
-start_bip = time.perf_counter()
-exact = igraph_invert_and_clique(trajectories)
-end_bip = time.perf_counter()
-func.check_for_collisions(exact['trajectories'])
-print("value exact: ", exact['value'])
-print("time exact sol with igraph:", end_bip - start_bip)
-
-start_bip = time.perf_counter()
-exact = func.invert_and_clique(trajectories)
-end_bip = time.perf_counter()
-func.check_for_collisions(exact['trajectories'])
-print("value exact: ", exact['value'])
-print("time exact sol with nx:", end_bip - start_bip)
-
-start_bip = time.perf_counter()
-answer_bip = remove_collisions_bipartite_matching(trajectories)
-end_bip = time.perf_counter()
-print("Igraph bip value:" + str(answer_bip['value']))
-print("igraph bip time", end_bip-start_bip)
-func.check_for_collisions(answer_bip['trajectories'])
-
-<<<<<<< HEAD:src/aim_trajectory_picking/testing_igraph.py
-def greedy_algorithm_igraph(trajectories):
-    '''
-    Wrapper function for greedy algorithm, utilizing abstract_trajectory_algorithm internally
-
-    Parameters:
-    -----------
-    trajectories: List<Trajectory>
-        list of trajectories to run greedy algorithm on
-    visualize: bool, optional
-        if True the steps of the algorithm will be plotted, if False they will not
-    
-    Returns:
-    dictionary: dict
-        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
-            and 'trajectories' gives a list of the 'optimal' trajectory objects found.
-    '''
-    return abstract_trajectory_algorithm_igraph(transform_graph_igraph(trajectories),greedy_igraph)
-
-def greedy_igraph(graph):
-    '''
-    Finds the most 'optimal' picking the one with the highest value.
-    
-    Parameters:
-    -----------
-    nodes: List<Trajectory>
-        list of Trajectory objects of which the most 'optimal' will be calculated
-    
-    Returns: 
-    --------
-    node: 
-        the most optimal Trajectory
-    '''
-    nodes = list(graph.vertices)
-    return  max(nodes, key= lambda n : n.value)
-
-def abstract_trajectory_algorithm_igraph(graph, choice_function):
-    '''
-    Solved the trajectory picking problem in a 'pseudogreedy' way: some choice_function is passed \
-        and this function used that to pick the next node. It then removes the chosen node and \
-            all collisions with this one, then picks another. This process repeats until the graph is \
-                empty. Optionally plots each step of the process.
-    
-    Parameters:
-    -----------
-    graph: nx.Graph()
-        A graph where every node is a trajectory and every edge a mutual exclusivity
-    choice_function: function(nodes)
-        function that takes a list of nodes and returns the 'most optimal' node given certain criteria
-    visualize: bool, optional
-        if True, each step of the algorithm will be plotted (default is False)
-
-    Returns:
-    --------
-    dictionary: dict
-        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
-            and 'trajectories' gives a list of the 'optimal' trajectory objects found.
-    
-    '''
-
-    optimal_trajectories = []
-    vertex_list =  []
-    while graph.vcount() != 0: #len(list(ig.VertexSeq.select(graph))) != 0: #while there still are nodes left
-        for i in ig.VertexSeq(graph):
-            vertex_list.append(i)
-        print(vertex_list[:10])
-        nodes = list(ig.VertexSeq) # nodes = list(graph.nodes)
-        print(nodes[1])
-        chosen_node = choice_function(graph) #choose most optimal node based on given choice function
-        optimal_trajectories.append(chosen_node)
-        # for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
-        #     graph.remove_node(n)
-        [graph.remove_node(n) for n in list(graph.neighbors(chosen_node))]
-        graph.remove_node(chosen_node)
-        #print("added trajectory number: " + str(len(optimal_trajectories)))
-    #print("Algorithm: " + choice_function.__name__ + ' sum: ' +str(sum(n.value for n in optimal_trajectories))) #print sum of trajectories
-    dictionary = {}
-    dictionary['value'] = sum(n.value for n in optimal_trajectories)
-    dictionary['trajectories'] = optimal_trajectories
-    return dictionary
+start = time.perf_counter()
+optimal_trajectories_old = func.bipartite_matching_removed_collisions(trajectories, False)
+stop = time.perf_counter()
+print("Old bip matching done in:", stop-start, "with value" , optimal_trajectories_old['value'])
 
 
-graph1 = greedy_algorithm_igraph(trajectories)
-#print(graph1)
 
-=======
-start_bip = time.perf_counter()
-answer_bip = func.bipartite_matching_removed_collisions(trajectories, False)
-end_bip = time.perf_counter()
-print("Nx bip value:" + str(answer_bip['value']))
-print("NX bip time", end_bip-start_bip)
->>>>>>> main:src/aim_trajectory_picking/vilde_test_graph.py

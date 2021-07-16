@@ -123,6 +123,9 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
         #plt.subplot(221)
         axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
         means.append(np.mean(results_per_dataset))
+    axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
+    axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
+    #axs[1].plot(dataset_names, [x**3 for x in range(len(dataset_names))],'g', label='n^3')
     axs[0].legend()
     axs[1].legend()
     #axs[0,0].xticks(rotation=45)
@@ -200,10 +203,11 @@ if __name__ == '__main__':
                 'bipartite_matching' : func.bipartite_matching_removed_collisions,
                 'lonely_target' : func.lonely_target_algorithm,
                 'exact' : func.invert_and_clique,
-                'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
-                'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
-                'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
-                'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
+                # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
+                # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
+                # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
+                #'bipartite_matching_v2': func.bip
+                #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
                 }
     not_runnable = [func.invert_and_clique]
     algo_choices = [ key for key in algorithms]
