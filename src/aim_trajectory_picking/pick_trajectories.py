@@ -1,16 +1,13 @@
 import argparse
 from warnings import catch_warnings
-from aim_trajectory_picking.integration_testing import plot_performances
 import functions as func
-import integration_testing as int_test
 import os
 import JSON_IO
 import igraph
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
-# TODO set defaults visable, clean up names, other?
-# TODO save and read results, no arguments run = runtimes of algorithms, specify refresh data or not
 
 def get_datasets(dataset_folders):
     '''
@@ -25,7 +22,6 @@ def get_datasets(dataset_folders):
         print("None-type input file, bringing up runtime benchmarks")
         dataset_folders = []
         dataset_folders.append('datasets')
-    # for i in range(len(dataset_folders)):
     try:
         if dataset_folders[0] == 'random':
             print("random data generation chosen")
@@ -104,38 +100,25 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     --------
     None
     '''
-    #plt.figure(figsize=(9,3))
     fig, axs = plt.subplots(2,1)
-    #fig.title('Performance of various algorithms on trajectory problem')
     means = []
     if _dataset_names == 0 or _dataset_names == None:
         dataset_names = [str(i) for i in range(len(results[algorithms[0].__name__]))]
     else:
         dataset_names = _dataset_names
-    #axs2 = axs.twinx()
 
     algo_names = [e.__name__ for e in algorithms]
     algo_runtimes = []
     for algorithm in algorithms:
         results_per_dataset = [results[algorithm.__name__][item]['value'] for item in results[algorithm.__name__]]
         algo_runtimes =  [results[algorithm.__name__][item]['runtime'] for item in results[algorithm.__name__]]
-        print(results_per_dataset)
-        #print(algo_runtimes)
-        #
         axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
-        #plt.subplot(221)
         axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
         means.append(np.mean(results_per_dataset))
     axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
     axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
-    #axs[1].plot(dataset_names, [x**3 for x in range(len(dataset_names))],'g', label='n^3')
     axs[0].legend()
     axs[1].legend()
-    #axs[0,0].xticks(rotation=45)
-    #plt.subplot(122)
-    #axs[0,1].bar(algo_names, means)
-    #axs[0,1].xticks(rotation=45)
-    #fig.tight_layout()
     plt.show()
     plt.figure()
     plt.bar(algo_names, means)
@@ -165,23 +148,18 @@ def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _data
     for data in _datasets:
         data_name = dataset_names[_datasets.index(data)]
         for algorithm in algos:
-            #print(prev_results[algorithm.__name__].keys())
             try:
                 if _dataset_names != None and data_name in prev_results[algorithm.__name__].keys():
                     combined_results[algorithm.__name__][data_name] = prev_results[algorithm.__name__][data_name]
                     print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
                 else:
-                    answer, runtime = func.timer(algorithm, data, False)
-                    #print("answer:")
-                    #print(answer)
+                    answer, runtime = func.timer(algorithm, data)
                     answer['runtime'] = runtime
                     combined_results[algorithm.__name__][data_name] = answer
                     prev_results[algorithm.__name__][data_name] = answer
                     print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name)
             except:
-                answer, runtime = func.timer(algorithm, data, False)
-                #print("answer:")
-                #print(answer)
+                answer, runtime = func.timer(algorithm, data)
                 answer['runtime'] = runtime
                 combined_results[algorithm.__name__][data_name] = answer
                 prev_results[algorithm.__name__][data_name] = answer
@@ -251,12 +229,6 @@ if __name__ == '__main__':
     # could potentially add optional arguments for running test sets instead, or average of X trials
 
     args = parser.parse_args()
-    
-    # print(args)
-    # print(args.datasets)
-    # print(args.outputfile)
-    # print(args.alg)    
-    
     data, data_names = get_datasets(args.datasets)
 
     g = igraph.Graph()
@@ -272,4 +244,30 @@ if __name__ == '__main__':
     results = calculate_or_read_results(algos,data, _dataset_names =data_names)        
 
     plot_results_with_runtimes(algos, results, data_names)
+
+
+def translate_results_to_pandas_dict(results, algorithms):
+    pandas_dict = {}
+    for algo in algorithms:
+        name = algo.__name__
+        pandas_dict[name] = [d['value'] for d in results[name]]
+    return pandas_dict
+
+def plot_algorithm_values_per_dataset(algorithms, results, directory): 
+    results_dict = {}
+    for algorithm in algorithms: 
+        results_dict[algorithm.__name__ ] = 0
+
+    dataset_names = [i for i in range(4)]
+    pandas_dict = translate_results_to_pandas_dict(results, algorithms)
+    plotdata = pd.DataFrame(
+        pandas_dict, 
+        index=dataset_names
+    )
+
+    plotdata.plot(kind="bar", cmap =plt.get_cmap('Pastel1'))
+    plt.title("Performance of Algorithms on Datasets")
+    plt.xlabel("Dataset")
+    plt.ylabel("Value")
+    plt.show()
 
