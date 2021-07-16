@@ -1,9 +1,5 @@
-#import JSON_IO
-#import functions as func
 from aim_trajectory_picking import functions as func
 from aim_trajectory_picking import JSON_IO
-
-
 from numpy import result_type, true_divide
 import os
 import networkx as nx
@@ -20,18 +16,6 @@ algorithms = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
                      func.lonely_target_algorithm, func.invert_and_clique, func.reversed_greedy_bipartite_matching,
                      func.reversed_greedy_weight_transformation, func.reversed_greedy_regular_greedy, 
                      func.bipartite_matching_not_removed_collisions ,func.inverted_minimum_weighted_vertex_cover_algorithm]
-
-# donors1, targets1, trajectories1 = func.create_data(4, 4, 7, 0.04)
-# print([n.value for n in trajectories1])
-# test1 = func.transform_graph(trajectories1)
-# plt.figure()
-# nx.draw(test1, with_labels=True)
-# plt.show()
-
-# tra = func.abstract_trajectory_algorithm(test1, func.greedy,visualize=True)
-# print(sum(n.value for n in tra))
-
-# filename = "dataset1.txt"
 
 def plot_performances(algorithms, results,_dataset_names=0):
     '''
@@ -78,7 +62,6 @@ def plot_performances(algorithms, results,_dataset_names=0):
     '''
     plt.figure(figsize=(9,3))
     plt.subplot(121)
-    #fig.title('Performance of various algorithms on trajectory problem')
     means = []
     if _dataset_names == 0:
         dataset_names = [str(i) for i in range(len(results[algorithms[0].__name__]))]
@@ -104,10 +87,6 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
         results_dict[algorithm.__name__ ] = 0
 
     dataset_names = [i for i in range(4)]
-    # for filename in os.listdir(directory):
-    #     if len(filename) < 10:
-    #         break
-    #     dataset_names.append(filename)
     pandas_dict = translate_results_to_panda_dict(results, algorithms)
     plotdata = pd.DataFrame(
         pandas_dict, 
@@ -120,6 +99,7 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
     plt.ylabel("Value")
     plt.show()
 
+
 def translate_results_to_panda_dict(results, algorithms):
     pandas_dict = {}
     for algo in algorithms:
@@ -128,22 +108,15 @@ def translate_results_to_panda_dict(results, algorithms):
     return pandas_dict
 
 
-
 def create_results(algorithms, no_of_datasets):
     combined_results = {}
-    print("progress:")
-    print('#'*1)
     for algorithm in algorithms:
         combined_results[algorithm.__name__] = []
-    print("hei")
     for i in range(no_of_datasets):
-        print("er du serr")
         donors, targets, trajectories = func.create_data(random.randint(1,15), random.randint(1,15), random.randint(50,1000), 0.05)
         for algorithm in algorithms:
-            print("started test " + str(i) + " with algorithm " + algorithm.__name__)
             answer = algorithm(trajectories, False)
             combined_results[algorithm.__name__].append(answer)
-            print("done with test " + str(i) + " with algorithm " + algorithm.__name__)
     return combined_results
 
 def create_data(no_of_datasets):
@@ -209,8 +182,8 @@ def read_data_and_give_results():
     directory = r'.\datasets'
     test_functions = [func.greedy_algorithm, func.NN_algorithm,func.random_algorithm,
                      func.weight_transformation_algorithm, func.bipartite_matching_removed_collisions,
-                     func.lonely_target_algorithm, func.reversed_greedy, func.invert_and_clique
-                     , func.inverted_minimum_weighted_vertex_cover_algorithm]
+                     func.lonely_target_algorithm, func.reversed_greedy, func.invert_and_clique,
+                     func.inverted_minimum_weighted_vertex_cover_algorithm]
     combined_results = {}
     for algorithm in test_functions:
         combined_results[algorithm.__name__] = []
@@ -233,7 +206,7 @@ def read_data_and_give_results():
         # plt.figure()
         # nx.draw(test1_1, with_labels=True)
         # plt.show()
-        #tra = func.abstract_trajectory_algorithm(test1_1, func.greedy,visualize=False)
+        #tra = func.general_trajectory_algorithm(test1_1, func.greedy,visualize=False)
         for algorithm in test_functions:
             answer = algorithm(dataset1_after, False)
             combined_results[algorithm.__name__].append(answer)
@@ -275,11 +248,11 @@ def runtime_test(list_of_algorithms,list_of_datasets_to_test):
 
     input list of algorithms and datasets
     
-    Return either save result to a file  and return nothing or return as data time and dataset sizes for each algorithm so that another function can plot it nicely
+    Return either save result to a file  and return nothing or return as data time and dataset
+    sizes for each algorithm so that another function can plot it nicely
     '''
 
 def main():    
-    #if __name__ == '__main__':
     times = []
     max_iter = 4
     sets = []

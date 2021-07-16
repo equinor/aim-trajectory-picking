@@ -7,7 +7,6 @@ import time
 from networkx.algorithms import approximation as aprox
 from itertools import combinations
 
-# A class to define all the useful information pertaining a certain trajectory.
 class Trajectory:
     '''
     A class to represent a Trajectory.
@@ -59,7 +58,6 @@ class Trajectory:
         self.value = _value
         self.collisions = set()
     
-    #Add a collision to the trajectory object. Also adds self to the other trajectory's collision list.
     def add_collision(self, trajectory):
         '''
         Add a collision to this trajectory object. Also adds self to the other trajectory's collision list.
@@ -77,7 +75,6 @@ class Trajectory:
             self.collisions.add(trajectory.id)
             trajectory.add_collision(self)
 
-    #Add a collision by id only, does not add itself to the other trajectory's collision list.
     def add_collision_by_id(self, id):
         '''
         Add a collision to this trajectory object
@@ -98,16 +95,14 @@ class Trajectory:
     
     def __eq__(self, other):
         if not isinstance(other, Trajectory):
-            # don't attempt to compare against unrelated types
             return NotImplemented
         return self.id == other.id and self.donor == other.donor and self.target == other.target and self.value == other.value and self.collisions == other.collisions
 
     def __hash__(self):
-        return self.id #+ self.value
+        return self.id 
 
-#Data is created in the following way: Amount is given and the function returns the nodes and trajectories between these.
-#Also returns collisions with given collision rate
-def create_data(no_donors, no_targets, no_trajectories, collision_rate=0.05,data_range=100 ):
+
+def create_data(num_donors, num_targets, num_trajectories, collision_rate=0.05,data_range=100 ):
     '''
     Creates a dataset of the correct format for the trajectory picking problem.
 
@@ -115,11 +110,11 @@ def create_data(no_donors, no_targets, no_trajectories, collision_rate=0.05,data
 
     Parameters:
     ----------
-        no_donors: int
+        num_donors: int
             a positive integer corresponding to the number of donors desired
-        no_targets: int
+        num_targets: int
             a positive integer corresponding to the number of targets desired
-        no_trajectories: int
+        num_trajectories: int
             a positive integer corresponding to the number of trajectories desired
         collision_rate: float, optional
             a positive floating point number corresponding to the percentage probability that two trajectories collide (default is 0)
@@ -138,28 +133,20 @@ def create_data(no_donors, no_targets, no_trajectories, collision_rate=0.05,data
     donors = []
     targets = []
     trajectories = []
-    for i in range(no_donors):
-        donors.append("D" + str(i)) # name all donors
-    for i in range(no_targets):
-        targets.append("T"+str(i)) # name all targets
-    for i in range(no_trajectories):
-        #a trajectory is remembered by a tuple of start and end, a value, and id and collisions
+    for i in range(num_donors):
+        donors.append("D" + str(i))
+    for i in range(num_targets):
+        targets.append("T"+str(i)) 
+    for i in range(num_trajectories):
         trajectories.append(Trajectory(i, random.choice(donors), random.choice(targets),random.randint(0,data_range))) 
-    # loop through all pairs of trajectories, and randomly choose that they collide
-    # for i in range(no_trajectories):
-    #     for j in range(i, no_trajectories):
-    #         #if the trajectories are different and dont already collide based on target and donor:
-    #         if i !=j and trajectories[i].donor != trajectories[j].donor and trajectories[i].target != trajectories[j].target:
-    #             if np.random.binomial(1,collision_rate):
-    #                 trajectories[i].add_collision(trajectories[j])
     collisions = []
-    for i in range(int(no_trajectories*collision_rate)):
-        collisions.append((trajectories[np.random.randint(0,no_trajectories)],trajectories[np.random.randint(0,no_trajectories)]))
+    for i in range(int(num_trajectories*collision_rate)):
+        collisions.append((trajectories[np.random.randint(0,num_trajectories)],trajectories[np.random.randint(0,num_trajectories)]))
     for pair in collisions:
         pair[0].add_collision(pair[1])
     return donors, targets, trajectories
 
-def Henrik_create_data(no_donors, no_targets, no_trajectories, collision_rate=0,data_range=100 ):
+def create_realistic_data(num_donors, num_targets, num_trajectories, collision_rate=0,data_range=100 ):
     '''
     Creates a dataset of the correct format for the trajectory picking problem.
 
@@ -167,11 +154,11 @@ def Henrik_create_data(no_donors, no_targets, no_trajectories, collision_rate=0,
 
     Parameters:
     ----------
-        no_donors: int
+        num_donors: int
             a positive integer corresponding to the number of donors desired
-        no_targets: int
+        num_targets: int
             a positive integer corresponding to the number of targets desired
-        no_trajectories: int
+        num_trajectories: int
             a positive integer corresponding to the number of trajectories desired
         collision_rate: float, optional
             a positive floating point number corresponding to the percentage probability that two trajectories collide (default is 0)
@@ -190,29 +177,27 @@ def Henrik_create_data(no_donors, no_targets, no_trajectories, collision_rate=0,
     donors = []
     targets =[]
     trajectories = []
-    for i in range(no_trajectories):
-        donor = random.randint(0, no_donors)
+    for i in range(num_trajectories):
+        donor = random.randint(0, num_donors)
         donors.append(donor)
-        target = random .randint(max(0, donor - no_targets//5), min(donor + no_targets//5, no_targets-1))
+        target = random .randint(max(0, donor - num_targets//5), min(donor + num_targets//5, num_targets-1))
         targets.append(target)
         trajectories.append(Trajectory(i, donor, target,random.randint(0,data_range))) 
-    for i in range(no_trajectories):
-        for j in range(i, no_trajectories):
-            #if the trajectories are different and dont already collide based on target and donor:
+    for i in range(num_trajectories):
+        for j in range(i, num_trajectories):
             if i !=j and trajectories[i].donor != trajectories[j].donor and trajectories[i].target != trajectories[j].target:
-                if trajectories[i].donor in list(range(trajectories[j].donor - no_donors//10, trajectories[j].donor + no_donors//5)):
+                if trajectories[i].donor in list(range(trajectories[j].donor - num_donors//10, trajectories[j].donor + num_donors//5)):
                     collision_rate = 0.05
-                elif trajectories[i].donor in list(range(trajectories[j].donor - no_donors//6, trajectories[j].donor + no_donors//5)):
+                elif trajectories[i].donor in list(range(trajectories[j].donor - num_donors//6, trajectories[j].donor + num_donors//5)):
                     collision_rate = 0.02
-                elif trajectories[i].donor in list(range(trajectories[j].donor - no_donors//4, trajectories[j].donor + no_donors//3)):
+                elif trajectories[i].donor in list(range(trajectories[j].donor - num_donors//4, trajectories[j].donor + num_donors//3)):
                     collision_rate = 0.01           
                 if np.random.binomial(1,collision_rate):
                     trajectories[i].add_collision(trajectories[j])
     return donors, targets, trajectories
 
 
-#creates and returns a colored bypartite graph, with the option of showing it
-def bipartite_graph(donors, targets, trajectories, visual=False):
+def bipartite_graph(donors, targets, trajectories, visualize=False):
     '''
     Creates and returns a bipartite graph from the trajectories, donors and targets. Optionally plots the graph.
 
@@ -227,7 +212,7 @@ def bipartite_graph(donors, targets, trajectories, visual=False):
         list of target names, the other partition of the graph
     trajectories: List<Trajectory>
         list of Trajectory objects to be transformed into bipartite graph
-    visual: bool, optional
+    visualize: bool, optional
         the function plots the graph if this boolean is true.
     
     Returns:
@@ -240,7 +225,7 @@ def bipartite_graph(donors, targets, trajectories, visual=False):
     for t in trajectories:
         g.add_edge(t.donor, t.target, weight=t.value)
     _node_color =[]
-    if visual:
+    if visualize:
         for i in range(len(donors)):
             _node_color.append('green')
         for i in range(len(targets)):
@@ -253,7 +238,6 @@ def bipartite_graph(donors, targets, trajectories, visual=False):
         plt.show()
     return g
     
-#Returns true if trajectories collide/are mutually exclusive, false otherwise
 def mutually_exclusive_trajectories(t1, t2):
     '''
     A simple function to detect if two trajectories exclude eachother by colliding in some way. \
@@ -280,9 +264,6 @@ def mutually_exclusive_trajectories(t1, t2):
     return False
 
 
-#Creates a graph where the nodes are trajectories and the edges are mutual exclusivity, either through collisions in space or in donors/targets
-#Returns the created graph
-
 def transform_graph(trajectories):
     '''
     Creates a graph from the given trajectories such that every trajectory is a node and every collision/mutual exclusivity is an edge.
@@ -306,49 +287,10 @@ def transform_graph(trajectories):
                     G.add_edge(trajectories[i], trajectories[j])
     return G
 
-
-def create_graph(trajectories, collisions):
-    '''
-    Algorithm to create graph from trajectories with the given collisions. Created to try and reduce graph creation times.
-
-    Parameters:
-    -----------
-    trajectories: list<Trajectory>
-        list of trajectories to create graph from
-    collisions: list<Tuple(Trajectory, Trajectory)>
-        list of tuples which contain trajectory objects that collide
-
-    Returns:
-    --------
-    G: nx.Graph()
-        graph with trajectories as nodes and mutual exclusivity as edges
-    '''
-    G = nx.Graph()
-    G.add_nodes_from(trajectories)
-    print("done adding nodes")
-    donor_and_target_collisions = {}
-    for t in trajectories:
-        try:
-            donor_and_target_collisions[t.donor].append(t)
-        except:
-            donor_and_target_collisions[t.donor] = []
-            donor_and_target_collisions[t.donor].append(t)
-        try:
-            donor_and_target_collisions[t.target].append(t)
-        except:
-            donor_and_target_collisions[t.target] = []
-            donor_and_target_collisions[t.target].append(t)
-    for key in donor_and_target_collisions:
-        donor_or_target_collisions = donor_and_target_collisions[key]
-        for pair in list(combinations(donor_or_target_collisions, 2)):
-            G.add_edge(pair[0], pair[1])
-    for pair in collisions:
-        G.add_edge(pair[0], pair[1])
-    return G
         
-def make_transformed_graph_from_trajectory_dictionaries(trajectories):
+def make_graph_with_dictionary_attributes(trajectories):
     '''
-    Helper function to create graph with node attributes for usage of built in nx functions.
+    Helper function to create graph with node attributes for usage of built-in nx functions.
 
     Parameters:
     -----------
@@ -374,8 +316,7 @@ def make_transformed_graph_from_trajectory_dictionaries(trajectories):
     return G
 
 
-#Computes a pseudogreedy optimal set of trajectories, given a function to determine the next node to add.
-def abstract_trajectory_algorithm(graph, choice_function,visualize=False):
+def general_trajectory_algorithm(graph, choice_function, visualize=False):
     '''
     Solved the trajectory picking problem in a 'pseudogreedy' way: some choice_function is passed \
         and this function used that to pick the next node. It then removes the chosen node and \
@@ -401,9 +342,9 @@ def abstract_trajectory_algorithm(graph, choice_function,visualize=False):
     optimal_trajectories = []
     if visualize:
         plt.figure()
-    while graph.number_of_nodes() != 0: #while there still are nodes left
+    while graph.number_of_nodes() != 0: 
         nodes = list(graph.nodes)
-        chosen_node = choice_function(graph) #choose most optimal node based on given choice function
+        chosen_node = choice_function(graph) 
         _node_colors = []
         if visualize:
             for i in range(len(nodes)): #color nodes for visual purposes
@@ -416,18 +357,13 @@ def abstract_trajectory_algorithm(graph, choice_function,visualize=False):
             nx.draw(graph, with_labels=True, node_color=_node_colors)
             plt.show()
         optimal_trajectories.append(chosen_node)
-        # for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
-        #     graph.remove_node(n)
         [graph.remove_node(n) for n in list(graph.neighbors(chosen_node))]
         graph.remove_node(chosen_node)
-        #print("added trajectory number: " + str(len(optimal_trajectories)))
-    #print("Algorithm: " + choice_function.__name__ + ' sum: ' +str(sum(n.value for n in optimal_trajectories))) #print sum of trajectories
     dictionary = {}
     dictionary['value'] = sum(n.value for n in optimal_trajectories)
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
 
-#Choice function for pseudogreedy algorithm. Finds the best node by scaling all values by dividing with the sum of blocked nodes.
 def weight_transformation(graph):
     '''
     Finds the most 'optimal' node by dividing each node with the value of the nodes it blocks, then picks the node \
@@ -448,13 +384,11 @@ def weight_transformation(graph):
     for i in range(len(nodes)):
         value_adjacent_nodes = 1
         for n in graph.neighbors(nodes[i]):
-            #print(type(nodes[i]))
             value_adjacent_nodes += n.value
         transformed_weights.append(nodes[i].value /value_adjacent_nodes)
     
     return nodes[transformed_weights.index(max(transformed_weights))]
 
-#Greedy algorithm choice function
 def greedy(graph):
     '''
     Finds the most 'optimal' picking the one with the highest value.
@@ -472,7 +406,6 @@ def greedy(graph):
     nodes = list(graph.nodes)
     return  max(nodes, key= lambda n : n.value)
 
-#Random choice function, used for benchmarks
 def random_choice(graph):
     '''
     Returns a random node. Used for benchmarks
@@ -490,7 +423,6 @@ def random_choice(graph):
     nodes = list(graph.nodes)
     return random.choice(nodes)
 
-#Scale weights by dividing every node with the amount of nodes it blocks.
 def NN_transformation(graph):
     '''
     Finds the most 'optimal' by scaling every value by the amount of nodes adjacent, then picking the node with \
@@ -516,7 +448,6 @@ def NN_transformation(graph):
     
     return nodes[transformed_weights.index(max(transformed_weights))]
 
-#Helper function to check for collisions given an optimal trajectory list. Used for determining if the algorithms work correctly.
 def check_for_collisions(optimal_trajectories):
     '''
     Helper function to ensure no trajectories collide in the final answer.
@@ -562,7 +493,7 @@ def timer(func, *args, **kwargs):
 
 def greedy_algorithm(trajectories, visualize=False):
     '''
-    Wrapper function for greedy algorithm, utilizing abstract_trajectory_algorithm internally
+    Wrapper function for greedy algorithm, utilizing general_trajectory_algorithm internally
 
     Parameters:
     -----------
@@ -576,11 +507,11 @@ def greedy_algorithm(trajectories, visualize=False):
         a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
             and 'trajectories' gives a list of the 'optimal' trajectory objects found.
     '''
-    return abstract_trajectory_algorithm(transform_graph(trajectories),greedy, visualize)
+    return general_trajectory_algorithm(transform_graph(trajectories),greedy, visualize)
 
 def NN_algorithm(trajectories, visualize=False):
     '''
-    Wrapper function for number-of-neighbours, utilizing abstract_trajectory_algorithm internally
+    Wrapper function for number-of-neighbours, utilizing general_trajectory_algorithm internally
 
     Parameters:
     -----------
@@ -594,11 +525,11 @@ def NN_algorithm(trajectories, visualize=False):
         a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
             and 'trajectories' gives a list of the 'optimal' trajectory objects found.
     '''
-    return abstract_trajectory_algorithm(transform_graph(trajectories),NN_transformation, visualize)
+    return general_trajectory_algorithm(transform_graph(trajectories),NN_transformation, visualize)
 
 def weight_transformation_algorithm(trajectories, visualize=False):
     '''
-    Wrapper function for weight-transformation algorithm, utilizing abstract_trajectory_algorithm internally
+    Wrapper function for weight-transformation algorithm, utilizing general_trajectory_algorithm internally
 
     Parameters:
     -----------
@@ -612,11 +543,11 @@ def weight_transformation_algorithm(trajectories, visualize=False):
         a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
             and 'trajectories' gives a list of the 'optimal' trajectory objects found.
     '''
-    return abstract_trajectory_algorithm(transform_graph(trajectories), weight_transformation)
+    return general_trajectory_algorithm(transform_graph(trajectories), weight_transformation)
 
 def random_algorithm(trajectories, visualize=False):
     '''
-    Wrapper function for the random algorithm, utilizing abstract_trajectory_algorithm internally
+    Wrapper function for the random algorithm, utilizing general_trajectory_algorithm internally
 
     Parameters:
     -----------
@@ -630,7 +561,7 @@ def random_algorithm(trajectories, visualize=False):
         a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
             and 'trajectories' gives a list of the 'optimal' trajectory objects found.
             '''
-    return abstract_trajectory_algorithm(transform_graph(trajectories), random_choice, visualize)
+    return general_trajectory_algorithm(transform_graph(trajectories), random_choice, visualize)
 
 #remove collisions with greedy algo, then do bipartite matching
 def bipartite_matching_removed_collisions(trajectories, visualize):
@@ -652,24 +583,20 @@ def bipartite_matching_removed_collisions(trajectories, visualize):
             and 'trajectories' gives a list of the 'optimal' trajectory objects found.
     '''
     G = nx.Graph()
-    #print(type(trajectories))
     G.add_nodes_from(trajectories)
-    # Add collisions from donors and targets
     for i in range(len(trajectories)):
         for j in range(i, len(trajectories)):
             if i != j:
                 if trajectories[i].id in  trajectories[j].collisions:
                     G.add_edge(trajectories[i], trajectories[j])
     
-    optimal_trajectories_for_matching = abstract_trajectory_algorithm(G, greedy, False)
+    optimal_trajectories_for_matching = general_trajectory_algorithm(G, greedy, False)
     donors, targets = get_donors_and_targets_from_trajectories(trajectories)
     bi_graph = bipartite_graph(donors, targets, optimal_trajectories_for_matching['trajectories'])
     matching = nx.max_weight_matching(bi_graph)
     
     optimal_trajectories =  get_trajectory_objects_from_matching(matching, trajectories)
     value = sum([t.value for t in optimal_trajectories])
-   # for t in optimal_trajectories:
-  #      print(t)
     dictionary = {}
     dictionary['value'] = value
     dictionary['trajectories'] = optimal_trajectories
@@ -791,7 +718,7 @@ def lonely_target_algorithm (trajectories, visualize=False):
             feasible_nodes = list(graph.nodes)
         chosen_node = max(feasible_nodes, key= lambda n : n.value)
         optimal_trajectories.append(chosen_node)
-        for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
+        for n in list(graph.neighbors(chosen_node)): 
             graph.remove_node(n)
         graph.remove_node(chosen_node)
     dictionary = {}
@@ -832,8 +759,6 @@ def reversed_greedy(trajectories, visualize=False, collision_rate = 0.05, last_c
             if highest_collision_trajectory == None or num_collisions > len(highest_collision_trajectory.collisions):
                 highest_collision_trajectory = tra
         graph.remove_node(highest_collision_trajectory)
-    #return greedy_algorithm(list(graph.nodes))
-    #return weight_transformation_algorithm(list(graph.nodes))
     return last_collisions(list(graph.nodes), False)
 
 def reversed_greedy_bipartite_matching(trajectories, visualize=False):
@@ -844,7 +769,6 @@ def reversed_greedy_regular_greedy(trajectories, visualize=False):
 
 def reversed_greedy_weight_transformation(trajectories, visualize=False):
     return reversed_greedy(trajectories, visualize, collision_rate = 0.05, last_collisions = weight_transformation_algorithm)
-
 
 def translate_trajectory_objects_to_dictionaries(trajectories):
     '''
@@ -893,7 +817,7 @@ def inverted_minimum_weighted_vertex_cover_algorithm(trajectory, visualize=False
             inverted minimum weighted vertex cover algorithm.
     
     '''
-    G = make_transformed_graph_from_trajectory_dictionaries(trajectory)
+    G = make_graph_with_dictionary_attributes(trajectory)
     trajectory_set = set(trajectory)
     independent_set_nodes = set()
     
@@ -1016,7 +940,7 @@ def invert_and_clique(trajectories, visualize = False):
             and 'trajectories' gives a list of the 'optimal' trajectory objects found.
     '''
 
-    G = make_transformed_graph_from_trajectory_dictionaries(trajectories)
+    G = make_graph_with_dictionary_attributes(trajectories)
     values = nx.get_node_attributes(G,'value')
     G = nx.complement(G)
     nx.set_node_attributes(G,values,'value')
@@ -1029,22 +953,9 @@ def invert_and_clique(trajectories, visualize = False):
 
     return dictionary
 
-'''
-# Pseudocode for the reversed greedy where we first do bipartite matching and then solve for collisions 
-def bipartite_first_collisions_seconds(trajectories, visualize=False)
-          
-    use bipartite_matching to solve for donors and targets
-    while there still are collisions in the picked trajectories: 
-        remove the colliding trajectories of lowest value and replace them with other trajectories with same donor and target,
-        so that there still are no collisions in donors or targets.
-        if the added trajectories, that replaced former colliding trajectories, don't collide with other picked trajectories:
-            break:
-    return trajectories
-'''
-
-def bipartite_matching_not_removed_collisions(trajectories, visualize):
+def bipartite_matching_not_removed_collisions(trajectories, visualize=False):
     '''
-    This function uses bipartite matching to find a list of trajectories not colliding in donors or targets.\
+    This function first uses bipartite matching to find a list of trajectories not colliding in donors or targets.\
         It then removes trajectories colliding in space, and adds new trajectories.
     
     Parameters:
@@ -1067,22 +978,13 @@ def bipartite_matching_not_removed_collisions(trajectories, visualize):
     optimal_trajectories =  get_trajectory_objects_from_matching(matching, trajectories)
     [trajectories.remove(tra) for tra in optimal_trajectories]
     
-   #Hjelp til fjern trajectories som kolliderer med hverandre fra optimal_trajectories med reversed greedy
-   
-   #legger til brønnbaner med donor og target som ikke allerede er plukket ut
     donors_already_picked = set()
     targets_already_picked = set()
     ids_already_picked = set()
     collisions = []
     
-    #collision_dict = dict()
     optimal_trajectories.sort(key = lambda n: n.value )
     for tra in optimal_trajectories:
-        #for id in tra.collisions:
-            # if id in collision_dict.keys:
-            #     collision_dict[str(id)] +=1
-            # else:
-            #     collision_dict[str(id)] = 0
         donors_already_picked.add(tra.donor)
         targets_already_picked.add(tra.target)
         ids_already_picked.add(tra.id)
@@ -1092,7 +994,6 @@ def bipartite_matching_not_removed_collisions(trajectories, visualize):
             if tra.id in collision_list:
                 optimal_trajectories.remove(tra)
                 collisions.remove(collision_list)
-    #Er trajectories en liste eller et dictionary. Om dictionary må nøklene sorteres mhp. value
     trajectories.sort(key = lambda n: n.value, reverse = True)
     for tra in trajectories:
         skip = False
@@ -1108,33 +1009,22 @@ def bipartite_matching_not_removed_collisions(trajectories, visualize):
     value = sum([t.value for t in optimal_trajectories])
     dictionary = {}
     dictionary['value'] = value
-    print(value)
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
 
 
 def bipartite_matching_v2(trajectories, collisions, *, visualize=False):
-    
     G = nx.Graph()
-    #print(type(trajectories))
     G.add_nodes_from(trajectories)
-    # Add collisions from donors and targets
-    # for i in range(len(trajectories)):
-    #     for j in range(i, len(trajectories)):
-    #         if i != j:
-    #             if trajectories[i].id in  trajectories[j].collisions:
-    #                 G.add_edge(trajectories[i], trajectories[j])
     G.add_edges_from(collisions)
     
-    optimal_trajectories_for_matching = abstract_trajectory_algorithm(G, greedy)
+    optimal_trajectories_for_matching = general_trajectory_algorithm(G, greedy)
     donors, targets = get_donors_and_targets_from_trajectories(trajectories)
     bi_graph = bipartite_graph(donors, targets, optimal_trajectories_for_matching['trajectories'])
     matching = nx.max_weight_matching(bi_graph)
     
     optimal_trajectories =  get_trajectory_objects_from_matching(matching, trajectories)
     value = sum([t.value for t in optimal_trajectories])
-   # for t in optimal_trajectories:
-  #      print(t)
     dictionary = {}
     dictionary['value'] = value
     dictionary['trajectories'] = optimal_trajectories
@@ -1147,7 +1037,6 @@ def greedy_v2(graph,*,visualize=False):
     while graph.number_of_nodes() != 0:
         chosen_node = nodes[-1]
         optimal_trajectories.append(chosen_node)
-        # print("started removing node")
         for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
             graph.remove_node(n)
             nodes.remove(n)
