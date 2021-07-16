@@ -21,7 +21,7 @@ def algorithm_testing_function(algorithm):
         dataset1_after = JSON_IO.read_trajectory_from_json(fullpath)
 
         for algorithm in test_functions:
-            answer = algorithm(dataset1_after, False)
+            answer = algorithm(dataset1_after)
             combined_results[algorithm.__name__].append(answer)
 
     for i in range(5):
