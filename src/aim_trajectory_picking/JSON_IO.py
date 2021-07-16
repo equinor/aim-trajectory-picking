@@ -4,7 +4,6 @@ import os
 #import functions as func
 from aim_trajectory_picking import functions as func
 
-print( "json dir" +os.getcwd())
 from networkx.algorithms.asteroidal import create_component_structure
 import pickle
 
@@ -86,12 +85,15 @@ def read_trajectory_from_json_v2(filename):
     '''
     input_data = read_data_from_json_file(filename)
     liste = []
-    collisions = set()
+    collision_ids = set()
     for trajectory in input_data["trajectories"]:
         tra = func.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
         liste.append(tra)
         for collision in trajectory["collisions"]:
-            collisions.add((tra.id,collision))
+            collision_ids.add((tra.id,collision))
+            tra.add_collision_by_id(collision)
+    
+    collisions = [(liste[pair[0]], liste[pair[1]]) for pair in collision_ids]
     return liste, collisions
 
 
