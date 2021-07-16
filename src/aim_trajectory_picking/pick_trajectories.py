@@ -34,7 +34,10 @@ def get_datasets(dataset_folders):
             no_targets = int(dataset_folders[2])
             no_trajectories = int(dataset_folders[3])
             collision_rate = float(dataset_folders[4])
-            no_datasets = int(dataset_folders[5])
+            if len(dataset_folders) < 5:
+                no_datasets = 1
+            else:
+                no_datasets = int(dataset_folders[5])
             for i in range(no_datasets):
                 print("making dataset nr: " + str(i))
                 _,_,tra = func.create_data(no_donors, no_targets, no_trajectories, collision_rate)
