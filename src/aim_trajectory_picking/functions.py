@@ -488,7 +488,7 @@ def timer(func, *args, **kwargs):
     retval = func(*args, **kwargs)
     stop = time.perf_counter()
     difference = stop-start
-    print(retval)
+    #print(retval)
     return retval, difference
 
 def greedy_algorithm(trajectories, *, visualize=False):
