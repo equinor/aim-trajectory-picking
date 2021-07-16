@@ -2,7 +2,6 @@ import argparse
 from warnings import catch_warnings
 from aim_trajectory_picking.integration_testing import plot_performances
 import functions as func
-import integration_testing as int_test
 import os
 import JSON_IO
 import igraph
@@ -42,11 +41,12 @@ def get_datasets(dataset_folders):
                 dataset_names.append('dataset_' + str(i)+ '.txt')
             return data, None
         else:
-            for filename in os.listdir(dataset_folders[0]):
-                print("else file")
-                fullpath = os.path.join(dataset_folders[0],filename)
-                data.append(JSON_IO.read_trajectory_from_json(fullpath))
-                dataset_names.append(filename)
+            for folder in dataset_folders:
+                for filename in os.listdir(folder):
+                    print("else file")
+                    fullpath = os.path.join(folder,filename)
+                    data.append(JSON_IO.read_trajectory_from_json(fullpath))
+                    dataset_names.append(filename)
     except:
         pass
     if len(data) == 0:
@@ -105,6 +105,7 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     fig, axs = plt.subplots(2,1)
     #fig.title('Performance of various algorithms on trajectory problem')
     means = []
+
     if _dataset_names == 0 or _dataset_names == None:
         dataset_names = [str(i) for i in range(len(results[algorithms[0].__name__]))]
     else:
@@ -125,9 +126,11 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
         means.append(np.mean(results_per_dataset))
     axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
     axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
-    #axs[1].plot(dataset_names, [x**3 for x in range(len(dataset_names))],'g', label='n^3')
+    axs[1].plot(dataset_names, [x*np.log(x) for x in range(len(dataset_names))],'g', label='n log n')
     axs[0].legend()
+    plt.xticks(rotation=45)
     axs[1].legend()
+    #axs[1].xticks(rotation=45)
     #axs[0,0].xticks(rotation=45)
     #plt.subplot(122)
     #axs[0,1].bar(algo_names, means)
@@ -168,7 +171,7 @@ def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _data
                     combined_results[algorithm.__name__][data_name] = prev_results[algorithm.__name__][data_name]
                     print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
                 else:
-                    answer, runtime = func.timer(algorithm, data, False)
+                    answer, runtime = func.timer(algorithm, data)
                     #print("answer:")
                     #print(answer)
                     answer['runtime'] = runtime

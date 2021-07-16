@@ -5,105 +5,12 @@ import matplotlib.pyplot as plt
 import time
 from itertools import combinations
 from aim_trajectory_picking import functions as func
+from aim_trajectory_picking.functions import Trajectory
 import time
 import JSON_IO
-# A class to define all the useful information pertaining a certain trajectory.
-class Trajectory:
-    '''
-    A class to represent a Trajectory.
+from aim_trajectory_picking import pick_trajectories as pt
+from sklearn.linear_model import LinearRegression
 
-    ...
-
-    Attributes:
-    -----------
-    id: int
-        unique id of this trajectory
-    donor: str
-        the donor (origin) of this particular trajectory
-    target: str
-        the target (endpoint) if this particular trajectory
-    value: int/double
-        the value of this particular trajectory in accordance to some cost function
-    collisions: List<int>
-        A list of trajectory id's with which this trajectory collides. 
-        Does not account for trajectories having the same donor/target
-
-    Methods:
-    --------
-    add_collision(self, trajectory):
-        Adds the trajectory to this objects collision list, and adds itself to the other trajectory objects collision list.
-    
-    add_collision_by_id(self, id):
-        Adds the given id to this trajectory's collision list. Does not add itself to the given trajectory id's collision list.
-
-
-    '''
-    def __init__(self,_id, _donor, _target, _value):
-        ''' 
-        Constructs a trajectory object with an empty collision list.
-
-        Parameters:
-        -----------
-        id: int
-            unique id of this trajectory
-        donor: str
-            the donor (origin) of this particular trajectory
-        target: str
-            the target (endpoint) if this particular trajectory
-        value: int/double
-            the value of this particular trajectory in accordance to some cost function
-        '''
-        self.id = _id
-        self.donor = _donor
-        self.target = _target
-        self.value = _value
-        self.collisions = set()
-    
-    #Add a collision to the trajectory object. Also adds self to the other trajectory's collision list.
-    def add_collision(self, trajectory):
-        '''
-        Add a collision to this trajectory object. Also adds self to the other trajectory's collision list.
-
-        Parameters:
-        -----------
-        trajectory: Trajectory
-            the trajectory to be added to this objects collision list.
-        
-        Returns:
-        --------
-        None
-        '''
-        if trajectory.id not in self.collisions:
-            self.collisions.add(trajectory.id)
-            trajectory.add_collision(self)
-
-    #Add a collision by id only, does not add itself to the other trajectory's collision list.
-    def add_collision_by_id(self, id):
-        '''
-        Add a collision to this trajectory object
-
-        Parameters:
-        -----------
-        id: int
-            the trajectory id to be added to this trajectory objects collission list
-        
-        Returns:
-        --------
-        None
-        '''
-        self.collisions.add(id)
- 
-    def __str__(self):
-        return str(self.id) + ": "+ self.donor + "-->" + self.target + "  Value " + str(self.value) + " "
-    
-    def __eq__(self, other):
-        if not isinstance(other, Trajectory):
-            # don't attempt to compare against unrelated types
-            return NotImplemented
-        return self.id == other.id and self.donor == other.donor and self.target == other.target and self.value == other.value and self.collisions == other.collisions
-
-    def __hash__(self):
-        return self.id #+ self.value
 
 def bipartite_graph_igraph(donors, targets, trajectories):
     '''
@@ -184,7 +91,7 @@ def transform_graph_igraph(trajectories):
     G.add_edges(collisions)
     return G
 
-def greedy_igraph(trajectories,*,visualize=False):
+def greedy_igraph(trajectories,visualize=False):
     g = transform_graph_igraph(trajectories)
     optimal_trajectories = []
     while len(g.vs) != 0:
@@ -296,18 +203,31 @@ def igraph_invert_and_clique(trajectories,*,visualize=False):
 # print("Nx bip value:" + str(answer_bip['value']))
 # print("NX bip time", end_bip-start_bip)
 
-trajectories, collisions = JSON_IO.read_trajectory_from_json_v2(r'even_datasets\even_test_10.txt')
+# trajectories, collisions = JSON_IO.read_trajectory_from_json_v2(r'even_datasets\even_test_10.txt')
 
-start = time.perf_counter()
-optimal_trajectories_new = func.bipartite_matching_v2(trajectories,collisions)
-stop = time.perf_counter()
-print("New bip matching done in:", stop-start, "with value" , optimal_trajectories_new['value'])
-func.check_for_collisions(optimal_trajectories_new['trajectories'])
+# start = time.perf_counter()
+# optimal_trajectories_new = func.bipartite_matching_v2(trajectories,collisions)
+# stop = time.perf_counter()
+# print("New bip matching done in:", stop-start, "with value" , optimal_trajectories_new['value'])
+# func.check_for_collisions(optimal_trajectories_new['trajectories'])
 
-start = time.perf_counter()
-optimal_trajectories_old = func.bipartite_matching_removed_collisions(trajectories, False)
-stop = time.perf_counter()
-print("Old bip matching done in:", stop-start, "with value" , optimal_trajectories_old['value'])
+# start = time.perf_counter()
+# optimal_trajectories_old = func.bipartite_matching_removed_collisions(trajectories, False)
+# stop = time.perf_counter()
+# print("Old bip matching done in:", stop-start, "with value" , optimal_trajectories_old['value'])
 
+algos = [#func.transform_graph,
+        #transform_graph_igraph,
+        func.greedy_algorithm,
+        greedy_igraph]
 
-
+data, data_names = pt.get_datasets([r'even_test_1',r'even_test_2', r'even_test_3'])
+results = pt.calculate_or_read_results(algos,data, _dataset_names =data_names)        
+input_data = np.array([1000*i for i in range(1,21)]).reshape(-1,1)
+output_data_igraph = np.array([ results['greedy_igraph'][item]['runtime'] for item in results['greedy_igraph']]).reshape(-1,1)
+output_data_nx = np.array([ results['greedy_algorithm'][item]['runtime'] for item in results['greedy_algorithm']]).reshape(-1,1)
+model_igraph = LinearRegression()
+model_nx = LinearRegression().fit(input_data, output_data_nx)
+model_igraph.fit(input_data, output_data_igraph)
+print("Igraph model coef: ", model_igraph.coef_, "nx model coef: ", model_nx.coef_)
+pt.plot_results_with_runtimes(algos, results, data_names)
