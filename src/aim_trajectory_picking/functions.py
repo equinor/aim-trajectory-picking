@@ -751,7 +751,7 @@ def reversed_greedy(trajectories, collision_rate = 0.05, last_collisions = bipar
             if highest_collision_trajectory == None or num_collisions > len(highest_collision_trajectory.collisions):
                 highest_collision_trajectory = tra
         graph.remove_node(highest_collision_trajectory)
-    return last_collisions(list(graph.nodes), False)
+    return last_collisions(list(graph.nodes))
 
 def reversed_greedy_bipartite_matching(trajectories):
     return reversed_greedy(trajectories, collision_rate = 0.05, last_collisions = bipartite_matching_removed_collisions)
