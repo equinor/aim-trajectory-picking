@@ -1,8 +1,1 @@
-networkx
 pytest
-argparse
-matplotlib
-numpy
-pandas
-.
-python-igraph
