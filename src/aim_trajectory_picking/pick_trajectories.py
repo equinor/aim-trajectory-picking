@@ -41,11 +41,12 @@ def get_datasets(dataset_folders):
                 dataset_names.append('dataset_' + str(i)+ '.txt')
             return data, None
         else:
-            for filename in os.listdir(dataset_folders[0]):
-                print("else file")
-                fullpath = os.path.join(dataset_folders[0],filename)
-                data.append(JSON_IO.read_trajectory_from_json(fullpath))
-                dataset_names.append(filename)
+            for folder in dataset_folders:
+                for filename in os.listdir(folder):
+                    print("else file")
+                    fullpath = os.path.join(folder,filename)
+                    data.append(JSON_IO.read_trajectory_from_json(fullpath))
+                    dataset_names.append(filename)
     except:
         pass
     if len(data) == 0:
@@ -70,31 +71,11 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     algorithms: List<Function>
         list of functions used to obtain results
 
-    results: dictionary{
-        'algorithm1.__name__' : list<dictionary> [
-            dictionary1{
-                'value' : int  
-                'trajectories': List<Trajectory>
-            }, 
-            dictionary2{
-                'value' : int  
-                'trajectories': List<Trajectory>
-            },
-            ...
-        ], 
-        'algorithm2.__name__' : list<dictionary> [
-            dictionary1{
-                'value' : int  
-                'trajectories': List<Trajectory>
-            }, 
-            dictionary2{
-                'value' : int  
-                'trajectories': List<Trajectory>
-            },
-            ...
-        ], 
-        ...
-    }
+    results: dictionary[algorithm.__name__][dataset] = {
+                'value': int
+                'trajectories: list<Trajectory>
+                'runtime':float
+    } 
 
     Returns:
     --------
@@ -110,14 +91,16 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     algo_names = [e.__name__ for e in algorithms]
     algo_runtimes = []
     for algorithm in algorithms:
-        results_per_dataset = [results[algorithm.__name__][item]['value'] for item in results[algorithm.__name__]]
-        algo_runtimes =  [results[algorithm.__name__][item]['runtime'] for item in results[algorithm.__name__]]
+        results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
+        algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in results[algorithm.__name__]]
+        print(results_per_dataset)
         axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
         axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
         means.append(np.mean(results_per_dataset))
     axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
     axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
     axs[0].legend()
+    plt.xticks(rotation=45)
     axs[1].legend()
     plt.show()
     plt.figure()
@@ -125,54 +108,70 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     plt.xticks(rotation=45)
     plt.show()
 
-def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _dataset_names=None):
-    combined_results = {}
-    if _dataset_names == None:
-        dataset_names = [str(i) for i in range(len(_datasets))]
-    else:
-        dataset_names = _dataset_names
-
+def get_previous_results(filename):
     try:
         prev_results = JSON_IO.read_value_trajectories_runtime_from_file(filename)
-        for algo in algos:
-            if algo.__name__ not in prev_results.keys():
-                prev_results[algo.__name__] = {}
     except:
         prev_results = {}
-        for algorithm in algos:
-            prev_results[algorithm.__name__] = {}
+    return prev_results
+
+def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _dataset_names=None):
+
+    dataset_names = [str(i) for i in range(len(_datasets))] if _dataset_names == None else _dataset_names
+
+    prev_results = get_previous_results(filename)
 
     for algorithm in algos:
-        combined_results[algorithm.__name__] = {}
+        if algorithm.__name__ not in prev_results.keys():
+            prev_results[algorithm.__name__] = {}
 
     for data in _datasets:
         data_name = dataset_names[_datasets.index(data)]
         for algorithm in algos:
-            try:
-                if _dataset_names != None and data_name in prev_results[algorithm.__name__].keys():
-                    combined_results[algorithm.__name__][data_name] = prev_results[algorithm.__name__][data_name]
-                    print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
-                else:
-                    answer, runtime = func.timer(algorithm, data)
-                    answer['runtime'] = runtime
-                    combined_results[algorithm.__name__][data_name] = answer
-                    prev_results[algorithm.__name__][data_name] = answer
-                    print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name)
-            except:
+            if algorithm.__name__ in prev_results.keys() and _dataset_names!=None and data_name in prev_results[algorithm.__name__].keys():
+                print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
+            else:
                 answer, runtime = func.timer(algorithm, data)
                 answer['runtime'] = runtime
-                combined_results[algorithm.__name__][data_name] = answer
                 prev_results[algorithm.__name__][data_name] = answer
                 print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name)
 
+    #check that trajectories are feasible
     for name in algos:
-        for key in combined_results[name.__name__]:
-            if func.check_for_collisions(combined_results[name.__name__][key]['trajectories']):
+        for dataset in prev_results[name.__name__]:
+            if func.check_for_collisions(prev_results[name.__name__][dataset]['trajectories']):
                 print("error in algorithm" + name.__name__)
 
     if _dataset_names != None:
         JSON_IO.write_value_trajectories_runtime_from_file( prev_results, filename)
-    return combined_results
+    return prev_results
+
+def translate_results_to_pandas_dict(results, algorithms):
+    pandas_dict = {}
+    for algo in algorithms:
+        name = algo.__name__
+        pandas_dict[name] = [d['value'] for d in results[name]]
+    return pandas_dict
+
+def plot_algorithm_values_per_dataset(algorithms, results, directory): 
+    results_dict = {}
+    for algorithm in algorithms: 
+        results_dict[algorithm.__name__ ] = 0
+
+    dataset_names = [i for i in range(4)]
+    pandas_dict = translate_results_to_pandas_dict(results, algorithms)
+    plotdata = pd.DataFrame(
+        pandas_dict, 
+        index=dataset_names
+    )
+
+    plotdata.plot(kind="bar", cmap =plt.get_cmap('Pastel1'))
+    plt.title("Performance of Algorithms on Datasets")
+    plt.xlabel("Dataset")
+    plt.ylabel("Value")
+    plt.show()
+
+
     
 
 
@@ -229,45 +228,37 @@ if __name__ == '__main__':
     # could potentially add optional arguments for running test sets instead, or average of X trials
 
     args = parser.parse_args()
+
+
     data, data_names = get_datasets(args.datasets)
 
-    g = igraph.Graph()
-    if args.alg == 'all':
-        algos = [algorithms[key] for key in algorithms]
-    elif args.alg[0] == 'all' and args.alg[1] == 'runnable':
+    if args.alg[0] == 'all':
         algos = [algorithms[key] for key in algorithms]
         for unrunnable in not_runnable:
             algos.remove(unrunnable)
+    elif args.alg[0] == 'all' and args.alg[1] == 'exact':
+        algos = [algorithms[key] for key in algorithms]
     else:
         algos = [algorithms[key] for key in args.alg]
+
+
+
 
     results = calculate_or_read_results(algos,data, _dataset_names =data_names)        
 
     plot_results_with_runtimes(algos, results, data_names)
 
 
-def translate_results_to_pandas_dict(results, algorithms):
-    pandas_dict = {}
-    for algo in algorithms:
-        name = algo.__name__
-        pandas_dict[name] = [d['value'] for d in results[name]]
-    return pandas_dict
 
-def plot_algorithm_values_per_dataset(algorithms, results, directory): 
-    results_dict = {}
-    for algorithm in algorithms: 
-        results_dict[algorithm.__name__ ] = 0
-
-    dataset_names = [i for i in range(4)]
-    pandas_dict = translate_results_to_pandas_dict(results, algorithms)
-    plotdata = pd.DataFrame(
-        pandas_dict, 
-        index=dataset_names
-    )
-
-    plotdata.plot(kind="bar", cmap =plt.get_cmap('Pastel1'))
-    plt.title("Performance of Algorithms on Datasets")
-    plt.xlabel("Dataset")
-    plt.ylabel("Value")
-    plt.show()
-
+'''
+ input <- from user
+ parse input
+ results = (algorithm, dataset):
+    if result not found
+        read/calculate dataset
+        save result
+    else
+        import result from file
+plot results
+ 
+'''
