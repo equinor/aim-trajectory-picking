@@ -179,16 +179,16 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
 if __name__ == '__main__':
     algorithms = {  'greedy' : func.greedy_algorithm, 
                 'NN' : func.NN_algorithm,
-                #'random' : func.random_algorithm,
+                'random' : func.random_algorithm,
                 'weight_trans' :func.weight_transformation_algorithm, 
                 'bipartite_matching' : func.bipartite_matching_removed_collisions,
                 'lonely_target' : func.lonely_target_algorithm,
                 'exact' : func.invert_and_clique,
-                # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
-                # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
-                # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
-                #'bipartite_matching_v2': func.bip
-                #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
+                'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
+                'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
+                'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
+                # 'bipartite_matching_v2': func.bip,
+                'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
                 }
     not_runnable = [func.invert_and_clique]
     algo_choices = [ key for key in algorithms]
@@ -245,7 +245,10 @@ if __name__ == '__main__':
         algos = [algorithms[key] for key in args.alg]
 
     random_chosen = False
-    if 'random' in args.datasets:
+    
+    if args.datasets == None:
+        random_chosen = False    
+    elif 'random' in args.datasets:
         random_chosen = True
 
     results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)        

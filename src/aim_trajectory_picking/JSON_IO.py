@@ -1,10 +1,6 @@
 import json
 import os
-
-#import functions as func
 from aim_trajectory_picking import functions as func
-
-from networkx.algorithms.asteroidal import create_component_structure
 import pickle
 
 
@@ -157,12 +153,12 @@ def generate_increasing_datasets(num_datasets,increase):
     donor = 0
     target = 0
     for i in range(1,num_datasets+1):
-        if increase**i > upper_limit_trajectories:
+        if increase*i > upper_limit_trajectories:
             break
         donor = donor + 5*i
         target = target + 5*i
-        print(increase**i)
-        _, _, trajectories = func.create_data(donor,target,increase**i,0.05)
+        print(increase*i)
+        _, _, trajectories = func.create_data(donor,target,increase*i,0.05)
         write_trajectory_to_json('timesets/increasing_set_'+str(i)+'.json',trajectories)
 
 def write_value_trajectories_runtime_from_file( combined_results,filename='results.txt',):
@@ -184,7 +180,7 @@ def read_value_trajectories_runtime_from_file(filename='results.txt'):
             input_data[key1][key2]["trajectories"] = liste
     return input_data
 
-if __name__ == '__main__':
+def generate_big_datasets():
     HIGH_DONORS = 50
     HIGH_TARGETS = 50
     LOW_DONORS = 5
@@ -211,3 +207,6 @@ if __name__ == '__main__':
     write_trajectory_to_json('big_datasets/lowD_highT_highT.txt', trajectories)
     _,_, trajectories = func.create_data(LOW_DONORS, LOW_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/lowD_lowT_highT.txt', trajectories)
+
+if __name__ == '__main__':
+    generate_big_datasets()
