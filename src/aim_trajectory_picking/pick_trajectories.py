@@ -1,9 +1,8 @@
 import argparse
 from warnings import catch_warnings
-import functions as func
+from aim_trajectory_picking import functions as func
+from aim_trajectory_picking import JSON_IO
 import os
-import JSON_IO
-import igraph
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -26,18 +25,18 @@ def get_datasets(dataset_folders):
         if dataset_folders[0] == 'random':
             print("random data generation chosen")
             data = []
-            no_donors = int(dataset_folders[1])
-            no_targets = int(dataset_folders[2])
-            no_trajectories = int(dataset_folders[3])
+            num_donors = int(dataset_folders[1])
+            num_targets = int(dataset_folders[2])
+            num_trajectories = int(dataset_folders[3])
             collision_rate = float(dataset_folders[4])
             if len(dataset_folders) < 5:
-                no_datasets = 1
+                num_datasets = 1
             else:
-                no_datasets = int(dataset_folders[5])
-            for i in range(no_datasets):
+                num_datasets = int(dataset_folders[5])
+            for i in range(num_datasets):
                 print("making dataset nr: " + str(i))
-                _,_,tra = func.create_data(no_donors, no_targets, no_trajectories, collision_rate)
-                data.append(tra)
+                _,_,trajectories = func.create_data(num_donors, num_targets, num_trajectories, collision_rate)
+                data.append(trajectories)
                 dataset_names.append('dataset_' + str(i)+ '.txt')
             return data, None
         else:
@@ -115,11 +114,13 @@ def get_previous_results(filename):
         prev_results = {}
     return prev_results
 
-def calculate_or_read_results(algos, _datasets, *, filename='results.txt', _dataset_names=None):
+def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='results.txt', _dataset_names=None):
 
     dataset_names = [str(i) for i in range(len(_datasets))] if _dataset_names == None else _dataset_names
 
-    prev_results = get_previous_results(filename)
+    prev_results = dict()
+    if not _is_random:
+        prev_results = get_previous_results(filename)
 
     for algorithm in algos:
         if algorithm.__name__ not in prev_results.keys():
@@ -232,19 +233,22 @@ if __name__ == '__main__':
 
     data, data_names = get_datasets(args.datasets)
 
-    if args.alg[0] == 'all':
+    print(args.alg[0])
+
+    if args.alg or args.alg[0] == 'all':
         algos = [algorithms[key] for key in algorithms]
         for unrunnable in not_runnable:
             algos.remove(unrunnable)
-    elif args.alg[0] == 'all' and args.alg[1] == 'exact':
+    elif args.alg or args.alg[0] == 'all' and args.alg[1] == 'exact':
         algos = [algorithms[key] for key in algorithms]
     else:
         algos = [algorithms[key] for key in args.alg]
 
+    random_chosen = False
+    if 'random' in args.datasets:
+        random_chosen = True
 
-
-
-    results = calculate_or_read_results(algos,data, _dataset_names =data_names)        
+    results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)        
 
     plot_results_with_runtimes(algos, results, data_names)
 
@@ -260,5 +264,4 @@ if __name__ == '__main__':
     else
         import result from file
 plot results
- 
 '''
