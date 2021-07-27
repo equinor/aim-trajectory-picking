@@ -791,9 +791,9 @@ def optimal_trajectories_to_return_dictionary(optimal_trajectories):
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
 
-def inverted_minimum_weighted_vertex_cover_algorithm(trajectory, *, visualize=False):
+def minimum_weighted_vertex_cover_algorithm(trajectory, *, visualize=False):
     '''
-    An approximation of a minimum weighted vertex cover performed on a inverted graph
+    An approximation of a minimum weighted vertex cover performed
 
     Parameters:
     -----------
