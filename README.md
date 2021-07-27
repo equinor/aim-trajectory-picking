@@ -29,6 +29,9 @@ This package works with Python 3.
 | benchmark      | Showing pre-generated  figure of expected performance |
 
 [![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://GitHub.com/Naereen/)
+## Known bugs:
+- ValueError: x and y must have same first dimension, but have shapes (8,) and (14,) \
+Solution: delete results.txt. Results will have to be recalculated, but at leas the plotting works.
 ### Authors: ## 
 Alexander Johnsgaard\
 Even Åge Smedshaug\
