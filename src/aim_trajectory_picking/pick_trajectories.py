@@ -20,7 +20,7 @@ def get_datasets(dataset_folders):
     if dataset_folders == None:
         print("None-type input file, bringing up runtime benchmarks")
         dataset_folders = []
-        dataset_folders.append('datasets')
+        dataset_folders.append('testsets')
     try:
         if dataset_folders[0] == 'random':
             print("random data generation chosen")
@@ -41,17 +41,17 @@ def get_datasets(dataset_folders):
             return data, None
         else:
             for folder in dataset_folders:
+                print("using data from folder")
                 for filename in os.listdir(folder):
-                    print("else file")
                     fullpath = os.path.join(folder,filename)
                     data.append(JSON_IO.read_trajectory_from_json(fullpath))
                     dataset_names.append(filename)
     except:
         pass
     if len(data) == 0:
-        print("Dataset arguments not recognized, reading from datasets instead.")
-        for filename in os.listdir('datasets'):
-            fullpath = os.path.join('datasets',filename)
+        print("Dataset arguments not recognized, reading from testsets folder instead.")
+        for filename in os.listdir('testsets'):
+            fullpath = os.path.join('testsets',filename)
             data.append(JSON_IO.read_trajectory_from_json(fullpath))
             dataset_names.append(filename)
     return data, dataset_names
@@ -92,7 +92,6 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     for algorithm in algorithms:
         results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
         algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in results[algorithm.__name__]]
-        print(results_per_dataset)
         axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
         axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
         means.append(np.mean(results_per_dataset))
@@ -117,7 +116,6 @@ def get_previous_results(filename):
 def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='results.txt', _dataset_names=None):
 
     dataset_names = [str(i) for i in range(len(_datasets))] if _dataset_names == None else _dataset_names
-
     prev_results = dict()
     if not _is_random:
         prev_results = get_previous_results(filename)
@@ -142,7 +140,6 @@ def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='r
         for dataset in prev_results[name.__name__]:
             if func.check_for_collisions(prev_results[name.__name__][dataset]['trajectories']):
                 print("error in algorithm" + name.__name__)
-
     if _dataset_names != None:
         JSON_IO.write_value_trajectories_runtime_from_file( prev_results, filename)
     return prev_results
@@ -188,7 +185,7 @@ if __name__ == '__main__':
                 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
                 # 'bipartite_matching_v2': func.bip,
-                'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
+                # 'approx_vertex_cover' :func.minimum_weighted_vertex_cover_algorithm # not working currently
                 }
     not_runnable = [func.invert_and_clique]
     algo_choices = [ key for key in algorithms]
@@ -229,11 +226,7 @@ if __name__ == '__main__':
     # could potentially add optional arguments for running test sets instead, or average of X trials
 
     args = parser.parse_args()
-
-
     data, data_names = get_datasets(args.datasets)
-
-    print(args.alg[0])
 
     if args.alg or args.alg[0] == 'all':
         algos = [algorithms[key] for key in algorithms]
@@ -246,16 +239,14 @@ if __name__ == '__main__':
 
     random_chosen = False
     
+    # To remove the default datasets from th erandom choice when using random datasets
     if args.datasets == None:
         random_chosen = False    
     elif 'random' in args.datasets:
         random_chosen = True
 
-    results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)        
-
+    results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)
     plot_results_with_runtimes(algos, results, data_names)
-
-
 
 '''
  input <- from user
