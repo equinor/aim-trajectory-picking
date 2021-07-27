@@ -108,6 +108,12 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     plt.show()
 
 def get_previous_results(filename):
+    '''
+    Function to collect all old results and return them as a dictionary.
+
+    Parameters:
+    filename: name of the file from which we read the old results.
+    '''
     try:
         prev_results = JSON_IO.read_value_trajectories_runtime_from_file(filename)
     except:
@@ -115,7 +121,18 @@ def get_previous_results(filename):
     return prev_results
 
 def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='results.txt', _dataset_names=None):
+    '''
+    Function which first uses the function get_previous_results() to collect old results, and then add
+    new algorithms to the file if they don't already exist. If the algorithms already exist in the file
+    or are not feasible, then a message of this is printed.
 
+    Parameters:
+    algos
+    _datasets
+    _is_random
+    filename
+    _dataset_names
+    '''
     dataset_names = [str(i) for i in range(len(_datasets))] if _dataset_names == None else _dataset_names
 
     prev_results = dict()
@@ -147,12 +164,19 @@ def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='r
         JSON_IO.write_value_trajectories_runtime_from_file( prev_results, filename)
     return prev_results
 
-def translate_results_to_pandas_dict(results, algorithms):
-    pandas_dict = {}
+def translate_results_to_dict(results, algorithms):
+    '''
+    Translates the results to a dictionary to make plotting.
+
+    Parameters:
+    results
+    algorithms
+    '''
+    results_as_dict = {}
     for algo in algorithms:
         name = algo.__name__
-        pandas_dict[name] = [d['value'] for d in results[name]]
-    return pandas_dict
+        results_as_dict[name] = [d['value'] for d in results[name]]
+    return results_as_dict
 
 def plot_algorithm_values_per_dataset(algorithms, results, directory): 
     results_dict = {}
@@ -160,9 +184,9 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
         results_dict[algorithm.__name__ ] = 0
 
     dataset_names = [i for i in range(4)]
-    pandas_dict = translate_results_to_pandas_dict(results, algorithms)
+    results_as_dict = translate_results_to_dict(results, algorithms)
     plotdata = pd.DataFrame(
-        pandas_dict, 
+        results_as_dict, 
         index=dataset_names
     )
 
