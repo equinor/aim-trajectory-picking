@@ -1,0 +1,81 @@
+{
+    "trajectories": [
+        {
+            "id": 0,
+            "donor": "D4",
+            "target": "T3",
+            "value": 10,
+            "collisions": []
+        },
+        {
+            "id": 1,
+            "donor": "D1",
+            "target": "T4",
+            "value": 7,
+            "collisions": []
+        },
+        {
+            "id": 2,
+            "donor": "D4",
+            "target": "T1",
+            "value": 3,
+            "collisions": []
+        },
+        {
+            "id": 3,
+            "donor": "D1",
+            "target": "T2",
+            "value": 10,
+            "collisions": []
+        },
+        {
+            "id": 4,
+            "donor": "D4",
+            "target": "T0",
+            "value": 3,
+            "collisions": []
+        },
+        {
+            "id": 5,
+            "donor": "D1",
+            "target": "T1",
+            "value": 1,
+            "collisions": []
+        },
+        {
+            "id": 6,
+            "donor": "D4",
+            "target": "T2",
+            "value": 8,
+            "collisions": [
+                7
+            ]
+        },
+        {
+            "id": 7,
+            "donor": "D2",
+            "target": "T3",
+            "value": 1,
+            "collisions": [
+                6,
+                8
+            ]
+        },
+        {
+            "id": 8,
+            "donor": "D3",
+            "target": "T2",
+            "value": 7,
+            "collisions": [
+                7
+            ]
+        },
+        {
+            "id": 9,
+            "donor": "D3",
+            "target": "T4",
+            "value": 0,
+            "collisions": []
+        }
+    ]
+}
