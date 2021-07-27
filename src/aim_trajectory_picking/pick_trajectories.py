@@ -44,7 +44,7 @@ def get_datasets(dataset_folders):
                 for filename in os.listdir(folder):
                     print("else file")
                     fullpath = os.path.join(folder,filename)
-                    data.append(JSON_IO.read_trajectory_from_json(fullpath))
+                    data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
                     dataset_names.append(filename)
     except:
         pass
@@ -52,7 +52,7 @@ def get_datasets(dataset_folders):
         print("Dataset arguments not recognized, reading from datasets instead.")
         for filename in os.listdir('datasets'):
             fullpath = os.path.join('datasets',filename)
-            data.append(JSON_IO.read_trajectory_from_json(fullpath))
+            data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
             dataset_names.append(filename)
     return data, dataset_names
 
@@ -93,11 +93,12 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
         results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
         algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in results[algorithm.__name__]]
         print(results_per_dataset)
+        print(dataset_names)
         axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
         axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
         means.append(np.mean(results_per_dataset))
-    axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
-    axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
+    #axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
+    #axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
     axs[0].legend()
     plt.xticks(rotation=45)
     axs[1].legend()
@@ -132,7 +133,8 @@ def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='r
             if algorithm.__name__ in prev_results.keys() and _dataset_names!=None and data_name in prev_results[algorithm.__name__].keys():
                 print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
             else:
-                answer, runtime = func.timer(algorithm, data)
+                #print(type(data))
+                answer, runtime = func.timer(algorithm, data[0], data[1])
                 answer['runtime'] = runtime
                 prev_results[algorithm.__name__][data_name] = answer
                 print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name)
@@ -178,8 +180,9 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
 
 if __name__ == '__main__':
     algorithms = {  'greedy' : func.greedy_algorithm, 
+                'modified_greedy': func.modified_greedy,
                 'NN' : func.NN_algorithm,
-                'random' : func.random_algorithm,
+                #'random' : func.random_algorithm,
                 'weight_trans' :func.weight_transformation_algorithm, 
                 'bipartite_matching' : func.bipartite_matching_removed_collisions,
                 'lonely_target' : func.lonely_target_algorithm,
@@ -188,7 +191,7 @@ if __name__ == '__main__':
                 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
                 # 'bipartite_matching_v2': func.bip,
-                'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
+                #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
                 }
     not_runnable = [func.invert_and_clique]
     algo_choices = [ key for key in algorithms]
@@ -235,7 +238,7 @@ if __name__ == '__main__':
 
     print(args.alg[0])
 
-    if args.alg or args.alg[0] == 'all':
+    if args.alg == 'all' or args.alg[0] == 'all':
         algos = [algorithms[key] for key in algorithms]
         for unrunnable in not_runnable:
             algos.remove(unrunnable)
