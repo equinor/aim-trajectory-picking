@@ -198,8 +198,8 @@ def translate_results_to_dict(results, algorithms):
     results_as_dict = {}
     for algo in algorithms:
         name = algo.__name__
-        pandas_dict[name] = [d['value'] for d in results[name]]
-    return pandas_dict
+        results_as_dict[name] = [d['value'] for d in results[name]]
+    return results_as_dict
 
 def plot_algorithm_values_per_dataset(algorithms, results, directory): 
     results_dict = {}
@@ -207,7 +207,7 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
         results_dict[algorithm.__name__ ] = 0
 
     dataset_names = [i for i in range(4)]
-    pandas_dict = translate_results_to_pandas_dict(results, algorithms)
+    pandas_dict = translate_results_to_dict(results, algorithms)
     plotdata = pd.DataFrame(
         pandas_dict, 
         index=dataset_names
@@ -222,86 +222,88 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
 
     
 
+def main():
+        algorithms = {  'greedy' : func.greedy_algorithm, 
+                    'modified_greedy': func.modified_greedy,
+                    'NN' : func.NN_algorithm,
+                    #'random' : func.random_algorithm,
+                    'weight_trans' :func.weight_transformation_algorithm, 
+                    'bipartite_matching' : func.bipartite_matching_removed_collisions,
+                    'lonely_target' : func.lonely_target_algorithm,
+                    'exact' : func.invert_and_clique,
+                    # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
+                    # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
+                    # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
+                    # 'bipartite_matching_v2': func.bip,
+                    #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
+                    }
+        not_runnable = [func.invert_and_clique]
+        algo_choices = [ key for key in algorithms]
+        algo_choices.append('all')
+        algo_choices.append('runnable')
+
+        parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+            description=('''\
+                Trajectory picking algorithm for the AI for Maturation project
+                Example of use:
+                python pick_trajectories -datasets big_datasets -alg all 
+                python pick_trajectories -datasets random 15 15 1000 0.05 3 -alg greedy weight_trans bipartite
+                --------------------------------------------------------------
+                JSON inputfile format:
+                {
+                    "trajectories": [
+                        {
+                        "id": str,
+                        "donor": str,
+                        "target": str,
+                        "value": int,
+                        "collisions": [
+                            id, ...
+                            ]
+                        },
+                        ...    
+                    ]
+                }''')
+                ,epilog='This is the epilog',
+                add_help=True)
+
+        parser.add_argument('-alg',default='all',type=str,choices=algo_choices, nargs='*',help='Type of algorithm used (default: greedy)',)
+        parser.add_argument('-datasets',metavar='Datasets',nargs='*',type=str,help='String of the input data set folder, JSON format. \
+            Default is datasets, and the algorithm will be run on datasets if the argument is not recognized. \
+                Can also be random, with specified number of donors, targets and trajectories, in addition to collision rate and number of datasets\
+                    ex: random 10 10 100 0.05 10')
+        parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='trajectories.txt',help='Filename string of output data result, JSON format')
+        # could potentially add optional arguments for running test sets instead, or average of X trials
+
+        args = parser.parse_args()
+
+
+        data, data_names = get_datasets(args.datasets)
+
+        print(args.alg[0])
+
+        if args.alg == 'all' or args.alg[0] == 'all':
+            algos = [algorithms[key] for key in algorithms]
+            for unrunnable in not_runnable:
+                algos.remove(unrunnable)
+        elif args.alg[0] == 'all' and args.alg[1] == 'exact':
+            algos = [algorithms[key] for key in algorithms]
+        else:
+            algos = [algorithms[key] for key in args.alg]
+
+        random_chosen = False
+        
+        if args.datasets == None:
+            random_chosen = False    
+        elif 'random' in args.datasets:
+            random_chosen = True
+
+
+        results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)
+        find_best_performing_algorithm(results, algos)
+
+        plot_results_with_runtimes(algos, results, data_names)
 
 if __name__ == '__main__':
-    algorithms = {  'greedy' : func.greedy_algorithm, 
-                'modified_greedy': func.modified_greedy,
-                'NN' : func.NN_algorithm,
-                #'random' : func.random_algorithm,
-                'weight_trans' :func.weight_transformation_algorithm, 
-                'bipartite_matching' : func.bipartite_matching_removed_collisions,
-                'lonely_target' : func.lonely_target_algorithm,
-                'exact' : func.invert_and_clique,
-                # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
-                # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
-                # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
-                # 'bipartite_matching_v2': func.bip,
-                #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
-                }
-    not_runnable = [func.invert_and_clique]
-    algo_choices = [ key for key in algorithms]
-    algo_choices.append('all')
-    algo_choices.append('runnable')
-
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=('''\
-            Trajectory picking algorithm for the AI for Maturation project
-            Example of use:
-            python pick_trajectories -datasets big_datasets -alg all 
-            python pick_trajectories -datasets random 15 15 1000 0.05 3 -alg greedy weight_trans bipartite
-            --------------------------------------------------------------
-            JSON inputfile format:
-            {
-                "trajectories": [
-                    {
-                    "id": str,
-                    "donor": str,
-                    "target": str,
-                    "value": int,
-                    "collisions": [
-                        id, ...
-                        ]
-                    },
-                    ...    
-                ]
-            }''')
-            ,epilog='This is the epilog',
-            add_help=True)
-
-    parser.add_argument('-alg',default='all',type=str,choices=algo_choices, nargs='*',help='Type of algorithm used (default: greedy)',)
-    parser.add_argument('-datasets',metavar='Datasets',nargs='*',type=str,help='String of the input data set folder, JSON format. \
-        Default is datasets, and the algorithm will be run on datasets if the argument is not recognized. \
-            Can also be random, with specified number of donors, targets and trajectories, in addition to collision rate and number of datasets\
-                ex: random 10 10 100 0.05 10')
-    parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='trajectories.txt',help='Filename string of output data result, JSON format')
-    # could potentially add optional arguments for running test sets instead, or average of X trials
-
-    args = parser.parse_args()
-
-
-    data, data_names = get_datasets(args.datasets)
-
-    print(args.alg[0])
-
-    if args.alg == 'all' or args.alg[0] == 'all':
-        algos = [algorithms[key] for key in algorithms]
-        for unrunnable in not_runnable:
-            algos.remove(unrunnable)
-    elif args.alg[0] == 'all' and args.alg[1] == 'exact':
-        algos = [algorithms[key] for key in algorithms]
-    else:
-        algos = [algorithms[key] for key in args.alg]
-
-    random_chosen = False
-    
-    if args.datasets == None:
-        random_chosen = False    
-    elif 'random' in args.datasets:
-        random_chosen = True
-
-
-    results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)
-    find_best_performing_algorithm(results, algos)
-
-    plot_results_with_runtimes(algos, results, data_names)
+    main()
 
