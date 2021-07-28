@@ -20,7 +20,7 @@ def get_datasets(dataset_folders):
     if dataset_folders == None:
         print("None-type input file, bringing up runtime benchmarks")
         dataset_folders = []
-        dataset_folders.append('testsets')
+        dataset_folders.append('datasets')
     try:
         if dataset_folders[0] == 'random':
             print("random data generation chosen")
@@ -41,8 +41,8 @@ def get_datasets(dataset_folders):
             return data, None
         else:
             for folder in dataset_folders:
-                print("using data from folder")
                 for filename in os.listdir(folder):
+                    print("else file")
                     fullpath = os.path.join(folder,filename)
                     data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
                     dataset_names.append(filename)
@@ -58,7 +58,7 @@ def get_datasets(dataset_folders):
     return data, dataset_names
 
 
-def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
+def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     '''
     Fully automatic function that plots the results per algorithm. 
 
@@ -81,6 +81,7 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
     --------
     None
     '''
+    fig, axs = plt.subplots(2,1)
     means = []
     if _dataset_names == 0 or _dataset_names == None:
         dataset_names = [str(i) for i in range(len(results[algorithms[0].__name__]))]
@@ -89,41 +90,29 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
 
     algo_names = [e.__name__ for e in algorithms]
     algo_runtimes = []
-    if len(dataset_names) > 1:
-        fig, axs = plt.subplots(2,1)
-        for algorithm in algorithms:
-            results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
-            algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in results[algorithm.__name__]]
-            axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
-            axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
-            means.append(np.mean(results_per_dataset))
-        axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
-        axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
-        axs[0].legend()
-        plt.xticks(rotation=45)
-        axs[1].legend()
-        plt.show()
-        plt.figure()
-        plt.bar(algo_names, means)
-        plt.xticks(rotation=45)
-        plt.show()
-    else:
-        for algorithm in algorithms:
-            results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
-            means.append(np.mean(results_per_dataset))
-        plt.figure()
-        plt.bar(algo_names, means)
-        plt.xticks(rotation=45)
-        plt.show()
-
+    for algorithm in algorithms:
+        # results_per_dataset = []
+        # algo_runtimes =[]
+        # for name in dataset_names:
+        #     results_per_dataset.append(results[algorithm.__name__][name]['value'])
+        #     algo_runtimes.appebd
+        results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
+        algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
+        axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
+        axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
+        means.append(np.mean(results_per_dataset))
+    #axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
+    #axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
+    axs[0].legend()
+    plt.xticks(rotation=45)
+    axs[1].legend()
+    plt.show()
+    plt.figure()
+    plt.bar(algo_names, means)
+    plt.xticks(rotation=45)
+    plt.show()
 
 def get_previous_results(filename):
-    '''
-    Function to collect all old results and return them as a dictionary.
-
-    Parameters:
-    filename: name of the file from which we read the old results.
-    '''
     try:
         prev_results = JSON_IO.read_value_trajectories_runtime_from_file(filename)
     except:
@@ -131,19 +120,9 @@ def get_previous_results(filename):
     return prev_results
 
 def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='results.txt', _dataset_names=None):
-    '''
-    Function which first uses the function get_previous_results() to collect old results, and then add
-    new algorithms to the file if they don't already exist. If the algorithms already exist in the file
-    or are not feasible, then a message of this is printed.
 
-    Parameters:
-    algos
-    _datasets
-    _is_random
-    filename
-    _dataset_names
-    '''
     dataset_names = [str(i) for i in range(len(_datasets))] if _dataset_names == None else _dataset_names
+
     prev_results = dict()
     if not _is_random:
         prev_results = get_previous_results(filename)
@@ -162,30 +141,24 @@ def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='r
                 answer, runtime = func.timer(algorithm, data[0], data[1])
                 answer['runtime'] = runtime
                 prev_results[algorithm.__name__][data_name] = answer
-                print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name + "in time: " + str(runtime))
+                print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name)
 
     #check that trajectories are feasible
     for name in algos:
         for dataset in prev_results[name.__name__]:
             if func.check_for_collisions(prev_results[name.__name__][dataset]['trajectories']):
                 print("error in algorithm" + name.__name__)
+
     if _dataset_names != None:
         JSON_IO.write_value_trajectories_runtime_from_file( prev_results, filename)
     return prev_results
 
-def translate_results_to_dict(results, algorithms):
-    '''
-    Translates the results to a dictionary to make plotting.
-
-    Parameters:
-    results
-    algorithms
-    '''
-    results_as_dict = {}
+def translate_results_to_pandas_dict(results, algorithms):
+    pandas_dict = {}
     for algo in algorithms:
         name = algo.__name__
-        results_as_dict[name] = [d['value'] for d in results[name]]
-    return results_as_dict
+        pandas_dict[name] = [d['value'] for d in results[name]]
+    return pandas_dict
 
 def plot_algorithm_values_per_dataset(algorithms, results, directory): 
     results_dict = {}
@@ -193,9 +166,9 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
         results_dict[algorithm.__name__ ] = 0
 
     dataset_names = [i for i in range(4)]
-    results_as_dict = translate_results_to_dict(results, algorithms)
+    pandas_dict = translate_results_to_pandas_dict(results, algorithms)
     plotdata = pd.DataFrame(
-        results_as_dict, 
+        pandas_dict, 
         index=dataset_names
     )
 
@@ -205,7 +178,11 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
     plt.ylabel("Value")
     plt.show()
 
-def main():
+
+    
+
+
+if __name__ == '__main__':
     algorithms = {  'greedy' : func.greedy_algorithm, 
                 'modified_greedy': func.modified_greedy,
                 'NN' : func.NN_algorithm,
@@ -218,7 +195,7 @@ def main():
                 # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                 # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
                 # 'bipartite_matching_v2': func.bip,
-                # 'approx_vertex_cover' :func.minimum_weighted_vertex_cover_algorithm # not working currently
+                #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
                 }
     not_runnable = [func.invert_and_clique]
     algo_choices = [ key for key in algorithms]
@@ -259,8 +236,9 @@ def main():
     # could potentially add optional arguments for running test sets instead, or average of X trials
 
     args = parser.parse_args()
-    data, data_names = get_datasets(args.datasets)
 
+
+    data, data_names = get_datasets(args.datasets)
 
     print(args.alg[0])
 
@@ -268,32 +246,19 @@ def main():
         algos = [algorithms[key] for key in algorithms]
         for unrunnable in not_runnable:
             algos.remove(unrunnable)
-    elif args.alg or args.alg[0] == 'all' and args.alg[1] == 'exact':
+    elif args.alg[0] == 'all' and args.alg[1] == 'exact':
+        algos = [algorithms[key] for key in algorithms]
     else:
         algos = [algorithms[key] for key in args.alg]
 
     random_chosen = False
     
-    # To remove the default datasets from th erandom choice when using random datasets
     if args.datasets == None:
         random_chosen = False    
     elif 'random' in args.datasets:
         random_chosen = True
 
-    results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)
+    results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)        
+
     plot_results_with_runtimes(algos, results, data_names)
 
-if __name__ == '__main__':
-    main()
-
-'''
- input <- from user
- parse input
- results = (algorithm, dataset):
-    if result not found
-        read/calculate dataset
-        save result
-    else
-        import result from file
-plot results
-'''

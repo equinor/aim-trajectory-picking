@@ -589,7 +589,6 @@ def bipartite_matching_removed_collisions(trajectories, collisions):
     G.add_nodes_from(trajectories)
     G.add_edges_from(collisions)
 
-    
     optimal_trajectories_for_matching = general_trajectory_algorithm(G, weight_transformation)
     donors, targets = get_donors_and_targets_from_trajectories(trajectories)
     bi_graph = bipartite_graph(donors, targets, optimal_trajectories_for_matching['trajectories'], collisions)
@@ -874,9 +873,13 @@ def modified_greedy(trajectories,collisions):
         chosen_node = nodes[-1]
         #chosen_node = max(node_set, key=lambda t : t.value)
         optimal_trajectories.append(chosen_node)
-        nodes_to_be_removed =list(graph.neighbors(chosen_node)) + [chosen_node]
-        graph.remove_nodes_from(nodes_to_be_removed )
-        
+        for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
+            graph.remove_node(n)
+            nodes.remove(n)
+        #print("finished removing node")
+        graph.remove_node(chosen_node)
+        nodes.remove(chosen_node)
+        #print("added trajectory number: " + str(len(optimal_trajectories)))
     #print("Algorithm: " + choice_function.__name__ + ' sum: ' +str(sum(n.value for n in optimal_trajectories))) #print sum of trajectories
     dictionary = {}
     dictionary['value'] = sum(n.value for n in optimal_trajectories)
@@ -1005,22 +1008,26 @@ def bipartite_matching_not_removed_collisions(trajectories, collisons):
     return dictionary
 
 
-def bipartite_matching_v2(trajectories, collisions):
+def create_graph(trajectories, collisions):
     G = nx.Graph()
     G.add_nodes_from(trajectories)
     G.add_edges_from(collisions)
-    
-    optimal_trajectories_for_matching = general_trajectory_algorithm(G, greedy)
-    donors, targets = get_donors_and_targets_from_trajectories(trajectories)
-    bi_graph = bipartite_graph(donors, targets, optimal_trajectories_for_matching['trajectories'])
-    matching = nx.max_weight_matching(bi_graph)
-    
-    optimal_trajectories =  get_trajectory_objects_from_matching(matching, trajectories)
-    value = sum([t.value for t in optimal_trajectories])
-    dictionary = {}
-    dictionary['value'] = value
-    dictionary['trajectories'] = optimal_trajectories
-    return dictionary
+    donor_dict = {}
+    target_dict = {}
+    for t in trajectories:
+        if t.donor in donor_dict:
+            donor_dict[t.donor].append(t)
+        else:
+            donor_dict[t.donor] = [t]
+        if t.target in target_dict:
+            target_dict[t.target].append(t)
+        else:
+            target_dict[t.target] = [t]
+    for donor in donor_dict:
+        G.add_edges_from([item for item in itertools.permutations(donor_dict[donor],2) ])
+    for target in target_dict:
+        G.add_edges_from([item for item in itertools.permutations(target_dict[target],2) ])
+    return G
 
 
 def create_graph(trajectories, collisions):
@@ -1056,3 +1063,4 @@ if __name__ == '__main__':
     print("modified greedy time:" , _time)
     result, _time = timer(greedy_algorithm, traj,col)
     print('greedy time:',_time)
+
