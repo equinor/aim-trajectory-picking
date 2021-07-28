@@ -914,7 +914,7 @@ def invert_graph(graph):
     return graph 
 
 
-def invert_and_clique(trajectories):
+def invert_and_clique(trajectories, collisions):
     '''
     This function uses clique algorithm to solve the maximal independent weighted set problem, after inverting the graph. Very expensive\
         computationally! Probably infeasible for problem sizes above 200 trajectories.
