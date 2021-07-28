@@ -58,7 +58,7 @@ def get_datasets(dataset_folders):
     return data, dataset_names
 
 
-def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
+def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
     '''
     Fully automatic function that plots the results per algorithm. 
 
@@ -81,7 +81,6 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     --------
     None
     '''
-    fig, axs = plt.subplots(2,1)
     means = []
     if _dataset_names == 0 or _dataset_names == None:
         dataset_names = [str(i) for i in range(len(results[algorithms[0].__name__]))]
@@ -90,24 +89,41 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
 
     algo_names = [e.__name__ for e in algorithms]
     algo_runtimes = []
-    for algorithm in algorithms:
-        results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
-        algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in results[algorithm.__name__]]
-        axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
-        axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
-        means.append(np.mean(results_per_dataset))
-    #axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
-    #axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
-    axs[0].legend()
-    plt.xticks(rotation=45)
-    axs[1].legend()
-    plt.show()
-    plt.figure()
-    plt.bar(algo_names, means)
-    plt.xticks(rotation=45)
-    plt.show()
+    if len(dataset_names) > 1:
+        fig, axs = plt.subplots(2,1)
+        for algorithm in algorithms:
+            results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
+            algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in results[algorithm.__name__]]
+            axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
+            axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
+            means.append(np.mean(results_per_dataset))
+        axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
+        axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
+        axs[0].legend()
+        plt.xticks(rotation=45)
+        axs[1].legend()
+        plt.show()
+        plt.figure()
+        plt.bar(algo_names, means)
+        plt.xticks(rotation=45)
+        plt.show()
+    else:
+        for algorithm in algorithms:
+            results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
+            means.append(np.mean(results_per_dataset))
+        plt.figure()
+        plt.bar(algo_names, means)
+        plt.xticks(rotation=45)
+        plt.show()
+
 
 def get_previous_results(filename):
+    '''
+    Function to collect all old results and return them as a dictionary.
+
+    Parameters:
+    filename: name of the file from which we read the old results.
+    '''
     try:
         prev_results = JSON_IO.read_value_trajectories_runtime_from_file(filename)
     except:
@@ -115,7 +131,18 @@ def get_previous_results(filename):
     return prev_results
 
 def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='results.txt', _dataset_names=None):
+    '''
+    Function which first uses the function get_previous_results() to collect old results, and then add
+    new algorithms to the file if they don't already exist. If the algorithms already exist in the file
+    or are not feasible, then a message of this is printed.
 
+    Parameters:
+    algos
+    _datasets
+    _is_random
+    filename
+    _dataset_names
+    '''
     dataset_names = [str(i) for i in range(len(_datasets))] if _dataset_names == None else _dataset_names
     prev_results = dict()
     if not _is_random:
@@ -135,7 +162,7 @@ def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='r
                 answer, runtime = func.timer(algorithm, data[0], data[1])
                 answer['runtime'] = runtime
                 prev_results[algorithm.__name__][data_name] = answer
-                print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name)
+                print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name + "in time: " + str(runtime))
 
     #check that trajectories are feasible
     for name in algos:
@@ -146,12 +173,19 @@ def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='r
         JSON_IO.write_value_trajectories_runtime_from_file( prev_results, filename)
     return prev_results
 
-def translate_results_to_pandas_dict(results, algorithms):
-    pandas_dict = {}
+def translate_results_to_dict(results, algorithms):
+    '''
+    Translates the results to a dictionary to make plotting.
+
+    Parameters:
+    results
+    algorithms
+    '''
+    results_as_dict = {}
     for algo in algorithms:
         name = algo.__name__
-        pandas_dict[name] = [d['value'] for d in results[name]]
-    return pandas_dict
+        results_as_dict[name] = [d['value'] for d in results[name]]
+    return results_as_dict
 
 def plot_algorithm_values_per_dataset(algorithms, results, directory): 
     results_dict = {}
@@ -159,9 +193,9 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
         results_dict[algorithm.__name__ ] = 0
 
     dataset_names = [i for i in range(4)]
-    pandas_dict = translate_results_to_pandas_dict(results, algorithms)
+    results_as_dict = translate_results_to_dict(results, algorithms)
     plotdata = pd.DataFrame(
-        pandas_dict, 
+        results_as_dict, 
         index=dataset_names
     )
 
@@ -170,9 +204,6 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
     plt.xlabel("Dataset")
     plt.ylabel("Value")
     plt.show()
-
-
-    
 
 def main():
     algorithms = {  'greedy' : func.greedy_algorithm, 
@@ -230,6 +261,7 @@ def main():
     args = parser.parse_args()
     data, data_names = get_datasets(args.datasets)
 
+
     print(args.alg[0])
 
     if args.alg == 'all' or args.alg[0] == 'all':
@@ -237,7 +269,6 @@ def main():
         for unrunnable in not_runnable:
             algos.remove(unrunnable)
     elif args.alg or args.alg[0] == 'all' and args.alg[1] == 'exact':
-        algos = [algorithms[key] for key in algorithms]
     else:
         algos = [algorithms[key] for key in args.alg]
 
