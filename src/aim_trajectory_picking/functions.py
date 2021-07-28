@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import time
 from networkx.algorithms import approximation as aprox
 from itertools import combinations
-import JSON_IO
+from aim_trajectory_picking import JSON_IO
 
 class Trajectory:
     '''
