@@ -385,7 +385,7 @@ def weight_transformation(graph):
     for i in range(len(nodes)):
         value_adjacent_nodes = 1
         for n in graph.neighbors(nodes[i]):
-            value_adjacent_nodes += n.value
+            value_adjacent_nodes += n.value 
         transformed_weights.append(nodes[i].value /value_adjacent_nodes)
     
     return nodes[transformed_weights.index(max(transformed_weights))]
