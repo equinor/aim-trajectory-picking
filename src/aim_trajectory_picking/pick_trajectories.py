@@ -91,10 +91,13 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     algo_names = [e.__name__ for e in algorithms]
     algo_runtimes = []
     for algorithm in algorithms:
-        results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
-        algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in results[algorithm.__name__]]
-        print(results_per_dataset)
-        print(dataset_names)
+        # results_per_dataset = []
+        # algo_runtimes =[]
+        # for name in dataset_names:
+        #     results_per_dataset.append(results[algorithm.__name__][name]['value'])
+        #     algo_runtimes.appebd
+        results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
+        algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
         axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
         axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
         means.append(np.mean(results_per_dataset))
