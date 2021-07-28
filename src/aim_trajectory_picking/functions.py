@@ -883,8 +883,9 @@ def modified_greedy(trajectories,collisions):
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
 
+# Skal denne slettes??
+def maximum_independent_set_algorithm(trajectory):
 
-def maximum_independent_set_algorithm(trajectory, collisions):
     G = transform_graph(trajectory)
     max_ind_set = aprox.maximum_independent_set(G)
     trajectory = translate_trajectory_objects_to_dictionaries(max_ind_set)
