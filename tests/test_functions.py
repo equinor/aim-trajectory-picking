@@ -18,10 +18,10 @@ def algorithm_testing_function(algorithm):
     for filename in os.listdir(directory):
         dataset_names.append(filename)
         fullpath = os.path.join(directory,filename)
-        dataset1_after = JSON_IO.read_trajectory_from_json(fullpath)
+        dataset1_after = JSON_IO.read_trajectory_from_json_v2(fullpath)
 
         for algorithm in test_functions:
-            answer = algorithm(dataset1_after)
+            answer = algorithm(dataset1_after[0],dataset1_after[1] )
             combined_results[algorithm.__name__].append(answer)
 
     for i in range(5):
@@ -46,10 +46,10 @@ def test_add_collision():
 # Test whether the convertion of data to and from JSON-format results in the same result
 # NB: the documentation does not garantee the result to be equal if there are non-string keys
 def test_JSON_IO():
-    _, _, trajectories = func.create_data(3,3,10,0.2)
+    _, _, trajectories, collisions = func.create_data(3,3,10,0.2)
     filename = 'JSON_test.txt'
     JSON_IO.write_trajectory_to_json(filename, trajectories)
-    read_trajectories = JSON_IO.read_trajectory_from_json(filename)
+    read_trajectories, coll = JSON_IO.read_trajectory_from_json_v2(filename)
     for i in range(len(read_trajectories)):
         print(trajectories[i])
         print(read_trajectories[i])

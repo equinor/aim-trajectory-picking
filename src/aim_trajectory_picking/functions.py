@@ -588,11 +588,9 @@ def bipartite_matching_removed_collisions(trajectories, collisions):
     G = nx.Graph()
     G.add_nodes_from(trajectories)
     G.add_edges_from(collisions)
-    # for id in trajectories.id:
-    #     if id in trajectories.collisions:
-    #         G.add_edge(trajectories)
+
     
-    optimal_trajectories_for_matching = general_trajectory_algorithm(G, greedy)
+    optimal_trajectories_for_matching = general_trajectory_algorithm(G, weight_transformation)
     donors, targets = get_donors_and_targets_from_trajectories(trajectories)
     bi_graph = bipartite_graph(donors, targets, optimal_trajectories_for_matching['trajectories'], collisions)
     matching = nx.max_weight_matching(bi_graph)
@@ -865,22 +863,19 @@ def modified_greedy(trajectories,collisions):
         'trajectories': list of trajectory objects
     
     '''
-    
     graph = create_graph(trajectories, collisions)
     optimal_trajectories = []
     nodes = list(graph.nodes)
     nodes.sort(key = lambda n: n.value )
     while graph.number_of_nodes() != 0:
+        nodes = list(graph.nodes)
+        nodes.sort(key = lambda n: n.value)
         chosen_node = nodes[-1]
+        #chosen_node = max(node_set, key=lambda t : t.value)
         optimal_trajectories.append(chosen_node)
-        #print("started removing node")
-        for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
-            graph.remove_node(n)
-            nodes.remove(n)
-        #print("finished removing node")
-        graph.remove_node(chosen_node)
-        nodes.remove(chosen_node)
-        print("added trajectory number: " + str(len(optimal_trajectories)))
+        nodes_to_be_removed =list(graph.neighbors(chosen_node)) + [chosen_node]
+        graph.remove_nodes_from(nodes_to_be_removed )
+        
     #print("Algorithm: " + choice_function.__name__ + ' sum: ' +str(sum(n.value for n in optimal_trajectories))) #print sum of trajectories
     dictionary = {}
     dictionary['value'] = sum(n.value for n in optimal_trajectories)
@@ -1025,35 +1020,14 @@ def bipartite_matching_v2(trajectories, collisions):
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
 
-def greedy_v2(graph):
-    optimal_trajectories = []
-    nodes = list(graph.nodes)
-    nodes.sort(key = lambda n: n.value )
-    while graph.number_of_nodes() != 0:
-        chosen_node = nodes[-1]
-        optimal_trajectories.append(chosen_node)
-        for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
-            graph.remove_node(n)
-            nodes.remove(n)
-        # print("finished removing node")
-        graph.remove_node(chosen_node)
-        nodes.remove(chosen_node)
-        # print("added trajectory number: " + str(len(optimal_trajectories)))
-    #print("Algorithm: " + choice_function.__name__ + ' sum: ' +str(sum(n.value for n in optimal_trajectories))) #print sum of trajectories
-    dictionary = {}
-    dictionary['value'] = sum(n.value for n in optimal_trajectories)
-    dictionary['trajectories'] = optimal_trajectories
-    return dictionary
-
 
 def create_graph(trajectories, collisions):
     G = nx.Graph()
-    G.add_nodes_from(trajectories)
-    G.add_edges_from(collisions)
+   # G.add_nodes_from(trajectories)
     donor_dict = {}
     target_dict = {}
-    # the idea between try and catch is that its faster to fail once in a while than check if the key is there every time
     for t in trajectories:
+        G.add_node(t)
         if t.donor in donor_dict:
             donor_dict[t.donor].append(t)
         else:
@@ -1063,14 +1037,20 @@ def create_graph(trajectories, collisions):
         else:
             target_dict[t.target] = [t]
     for donor in donor_dict:
-        G.add_edges_from([item for item in itertools.permutations(donor_dict[donor],2) ])
+        G.add_edges_from(itertools.combinations(donor_dict[donor],2) )
     for target in target_dict:
-        G.add_edges_from([item for item in itertools.permutations(target_dict[target],2) ])
+        G.add_edges_from(itertools.combinations(target_dict[target],2))
+    G.add_edges_from(collisions)
     return G
 
 if __name__ == '__main__':
-    traj, col = JSON_IO.read_trajectory_from_json_v2('datasets2\even_test_4.txt')
+    traj, col = JSON_IO.read_trajectory_from_json_v2(r'even_datasets\even_test_5.txt')
+    # graph, time_ = timer(create_graph, traj, col)
+    # print("time to create graph w collisions", time_)
+    # _graph, time_ = timer(transform_graph, traj)
+    # print("time to create graph without collisions", time_)
+    
     result, _time = timer( modified_greedy,traj, col)
     print("modified greedy time:" , _time)
-    result, _time = timer(greedy_algorithm, traj)
+    result, _time = timer(greedy_algorithm, traj,col)
     print('greedy time:',_time)
