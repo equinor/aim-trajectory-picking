@@ -196,8 +196,7 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
 
     
 
-
-if __name__ == '__main__':
+def main():
     algorithms = {  'greedy' : func.greedy_algorithm, 
                 'NN' : func.NN_algorithm,
                 'random' : func.random_algorithm,
@@ -271,6 +270,9 @@ if __name__ == '__main__':
 
     results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)
     plot_results_with_runtimes(algos, results, data_names)
+
+if __name__ == '__main__':
+    main()
 
 '''
  input <- from user
