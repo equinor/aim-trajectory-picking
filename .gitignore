@@ -137,6 +137,7 @@ JSON_not_test_set.txt
 Scripts
 pyvenv.cfg
 pycache
+share
 
 results.txt
 JSON_test.txt
