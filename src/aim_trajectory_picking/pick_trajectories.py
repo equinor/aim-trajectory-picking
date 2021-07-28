@@ -150,7 +150,7 @@ def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='r
                 answer, runtime = func.timer(algorithm, data)
                 answer['runtime'] = runtime
                 prev_results[algorithm.__name__][data_name] = answer
-                print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name)
+                print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name + "in time: " + str(runtime))
 
     #check that trajectories are feasible
     for name in algos:
@@ -208,7 +208,7 @@ def main():
                 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
                 # 'bipartite_matching_v2': func.bip,
-                # 'approx_vertex_cover' :func.minimum_weighted_vertex_cover_algorithm # not working currently
+                'approx_vertex_cover' :func.minimum_weighted_vertex_cover_algorithm # not working currently
                 }
     not_runnable = [func.invert_and_clique]
     algo_choices = [ key for key in algorithms]
@@ -251,12 +251,11 @@ def main():
     args = parser.parse_args()
     data, data_names = get_datasets(args.datasets)
 
-    if args.alg or args.alg[0] == 'all':
+    if args.alg == 'all' or args.alg[0] == 'all':
         algos = [algorithms[key] for key in algorithms]
-        for unrunnable in not_runnable:
-            algos.remove(unrunnable)
-    elif args.alg or args.alg[0] == 'all' and args.alg[1] == 'exact':
-        algos = [algorithms[key] for key in algorithms]
+        if 'exact' not in args.alg:
+            for unrunnable in not_runnable:
+                algos.remove(unrunnable)
     else:
         algos = [algorithms[key] for key in args.alg]
 
