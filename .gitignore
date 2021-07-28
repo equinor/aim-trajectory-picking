@@ -143,5 +143,7 @@ results.txt
 JSON_test.txt
 timesets
 even_*
+big_datasets
+profile_results.txt
 
 .my_venv
