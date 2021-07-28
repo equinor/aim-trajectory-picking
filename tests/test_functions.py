@@ -9,14 +9,14 @@ from aim_trajectory_picking import JSON_IO
 
 def algorithm_testing_function(algorithm):
     targeted_result_list = []
-    directory = r'./datasets'
+    directory = r'./testsets'
     test_functions = [algorithm]
     combined_results = {}
     for algorithm in test_functions:
         combined_results[algorithm.__name__] = []
-    dataset_names = []
+    testset_names = []
     for filename in os.listdir(directory):
-        dataset_names.append(filename)
+        testset_names.append(filename)
         fullpath = os.path.join(directory,filename)
         dataset1_after = JSON_IO.read_trajectory_from_json_v2(fullpath)
 
@@ -56,28 +56,35 @@ def test_JSON_IO():
     print(trajectories[0] == read_trajectories[0])
     assert all([a == b for a, b in zip(trajectories, read_trajectories)])
 
-def test_greedy_on_datasets_0_to_4():
+def test_greedy_on_testsets_0_to_4():
     targeted_result_list = algorithm_testing_function(func.greedy_algorithm)
     assert targeted_result_list.sort() == [32, 20, 26, 31, 23].sort()
 
-def test_NN_on_datasets_0_to_4():
+def test_NN_on_testsets_0_to_4():
     targeted_result_list = algorithm_testing_function(func.NN_algorithm)
     assert targeted_result_list.sort() == [32, 24, 20, 32, 26].sort()#[32, 20, 26, 32, 24]
 
-def test_weight_on_datasets_0_to_4():
+def test_weight_on_testsets_0_to_4():
     targeted_result_list = algorithm_testing_function(func.weight_transformation_algorithm)
     assert targeted_result_list.sort() ==  [31, 24, 24, 29, 26].sort()#[29, 24, 26, 31, 24]
 
-def test_bipartite_removed_collision_on_datasets_0_to_4():
+def test_bipartite_removed_collision_on_testsets_0_to_4():
     targeted_result_list = algorithm_testing_function(func.bipartite_matching_removed_collisions)
     assert targeted_result_list.sort() == [32, 23, 24, 32, 26].sort()#[32, 24, 26, 32, 23]
 
-def test_lonely_target_on_datasets_0_to_4():
+def test_lonely_target_on_testsets_0_to_4():
     targeted_result_list = algorithm_testing_function(func.lonely_target_algorithm)
     assert targeted_result_list.sort() == [32, 24, 11, 32, 23].sort()#[32, 11, 23, 32, 24]
 
-def test_reverse_greedy_on_datasets_0_to_4():
+def test_reverse_greedy_on_testsets_0_to_4():
     targeted_result_list = algorithm_testing_function(func.reversed_greedy)
-
     assert targeted_result_list.sort() == [31, 23, 24, 29, 26].sort()#[29, 24, 26, 31, 23]
 
+def test_exact_algorithm_0_to_4():
+    exact_results = algorithm_testing_function(func.invert_and_clique)
+    greedy_results = algorithm_testing_function(func.greedy_algorithm)
+    assert exact_results >= greedy_results
+
+def test_timer():
+    _, time_used = func.timer(algorithm_testing_function,func.greedy_algorithm)
+    assert time_used >= 0
