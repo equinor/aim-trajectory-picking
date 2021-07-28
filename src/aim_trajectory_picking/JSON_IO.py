@@ -146,6 +146,9 @@ def generate_datasets_as_json_files(num_datasets):
         write_trajectory_to_json('datasets/dataset_'+str(i)+'.txt',trajectories)
 
 def generate_increasing_datasets(num_datasets,increase):
+    '''
+    Function used to generate datasets of increasing number of trajectories. 
+    '''
     upper_limit_trajectories = 11000
     if increase**num_datasets > upper_limit_trajectories: # this is an assumption on the high end of expected number of trajectories
         print("Final datasets will become to large, fewer sets will be generated than the desired amount")
@@ -162,12 +165,18 @@ def generate_increasing_datasets(num_datasets,increase):
         write_trajectory_to_json('timesets/increasing_set_'+str(i)+'.json',trajectories)
 
 def write_value_trajectories_runtime_from_file( combined_results,filename='results.txt',):
+    '''
+    Function used to write values from trajectories to a file (results.txt as default).
+    '''
     for key1 in combined_results:
         for key2 in combined_results[key1]:
             combined_results[key1][key2]['trajectories'] = [e.__dict__ for e in combined_results[key1][key2]['trajectories']]
     write_data_to_json_file(filename,combined_results)
 
 def read_value_trajectories_runtime_from_file(filename='results.txt'):
+    '''
+    Function used to read values from trajectories to a file (results.txt as default).
+    '''
     input_data = read_data_from_json_file(filename)
     for key1 in input_data:
         for key2 in input_data[key1]:
@@ -181,6 +190,10 @@ def read_value_trajectories_runtime_from_file(filename='results.txt'):
     return input_data
 
 def generate_big_datasets():
+    '''
+    Function used to create 2^3 = 8 datasets, which includes all the combinations of 
+    many/few donors, many/few targets and many/few trajectories.
+    '''
     HIGH_DONORS = 50
     HIGH_TARGETS = 50
     LOW_DONORS = 5
