@@ -57,7 +57,7 @@ def get_datasets(dataset_folders):
     return data, dataset_names
 
 
-def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
+def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
     '''
     Fully automatic function that plots the results per algorithm. 
 
@@ -80,7 +80,6 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     --------
     None
     '''
-    fig, axs = plt.subplots(2,1)
     means = []
     if _dataset_names == 0 or _dataset_names == None:
         dataset_names = [str(i) for i in range(len(results[algorithms[0].__name__]))]
@@ -89,22 +88,33 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
 
     algo_names = [e.__name__ for e in algorithms]
     algo_runtimes = []
-    for algorithm in algorithms:
-        results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
-        algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in results[algorithm.__name__]]
-        axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
-        axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
-        means.append(np.mean(results_per_dataset))
-    axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
-    axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
-    axs[0].legend()
-    plt.xticks(rotation=45)
-    axs[1].legend()
-    plt.show()
-    plt.figure()
-    plt.bar(algo_names, means)
-    plt.xticks(rotation=45)
-    plt.show()
+    if len(dataset_names) > 1:
+        fig, axs = plt.subplots(2,1)
+        for algorithm in algorithms:
+            results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
+            algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in results[algorithm.__name__]]
+            axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
+            axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
+            means.append(np.mean(results_per_dataset))
+        axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
+        axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
+        axs[0].legend()
+        plt.xticks(rotation=45)
+        axs[1].legend()
+        plt.show()
+        plt.figure()
+        plt.bar(algo_names, means)
+        plt.xticks(rotation=45)
+        plt.show()
+    else:
+        for algorithm in algorithms:
+            results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
+            means.append(np.mean(results_per_dataset))
+        plt.figure()
+        plt.bar(algo_names, means)
+        plt.xticks(rotation=45)
+        plt.show()
+
 
 def get_previous_results(filename):
     '''
@@ -193,9 +203,6 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
     plt.ylabel("Value")
     plt.show()
 
-
-    
-
 def main():
     algorithms = {  'greedy' : func.greedy_algorithm, 
                 'NN' : func.NN_algorithm,
@@ -208,7 +215,7 @@ def main():
                 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
                 # 'bipartite_matching_v2': func.bip,
-                'approx_vertex_cover' :func.minimum_weighted_vertex_cover_algorithm # not working currently
+                # 'approx_vertex_cover' :func.minimum_weighted_vertex_cover_algorithm # not working currently
                 }
     not_runnable = [func.invert_and_clique]
     algo_choices = [ key for key in algorithms]
