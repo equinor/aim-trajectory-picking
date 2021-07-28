@@ -153,8 +153,49 @@ def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='r
         JSON_IO.write_value_trajectories_runtime_from_file( prev_results, filename)
     return prev_results
 
-def translate_results_to_pandas_dict(results, algorithms):
-    pandas_dict = {}
+
+def find_best_performing_algorithm(results, algorithms):
+    best_result = 0
+    algorithm_finder = 0
+    best_algorithm_name_list = []
+    matrix_list = []
+
+    for algorithm in algorithms:
+        results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]        
+        
+        matrix_list.append(results_per_dataset)
+
+        if sum(results_per_dataset) > best_result:
+            best_result = sum(results_per_dataset)
+            for key in results.keys():
+                best_algorithm_name_list.append(key)
+            best_algorithm_name = best_algorithm_name_list[algorithm_finder]
+        algorithm_finder += 1
+    
+    map_matrix = list(map(max, zip(*matrix_list)))
+    algorithm_finder_per_dataset = 0
+    best_performing_algorithms = [[] for x in range(len(map_matrix))]
+    for algorithm in algorithms:
+        check_results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
+        for i in range(len(map_matrix)):
+            if map_matrix[i] == check_results_per_dataset[i]:
+                best_performing_algorithms[i].append(best_algorithm_name_list[algorithm_finder_per_dataset])
+        algorithm_finder_per_dataset += 1
+    
+    for j in range(len(best_performing_algorithms)):
+        for b in range(len(best_performing_algorithms[j])):
+            print('On dataset', j+1, ',', best_performing_algorithms[j][b])
+    print('Highest total value across all datasets: ', best_algorithm_name, ': value: ', best_result)
+
+def translate_results_to_dict(results, algorithms):
+    '''
+    Translates the results to a dictionary to make plotting.
+
+    Parameters:
+    results
+    algorithms
+    '''
+    results_as_dict = {}
     for algo in algorithms:
         name = algo.__name__
         pandas_dict[name] = [d['value'] for d in results[name]]
@@ -258,7 +299,9 @@ if __name__ == '__main__':
     elif 'random' in args.datasets:
         random_chosen = True
 
-    results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)        
+
+    results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)
+    find_best_performing_algorithm(results, algos)
 
     plot_results_with_runtimes(algos, results, data_names)
 
