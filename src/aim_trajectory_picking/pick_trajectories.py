@@ -246,7 +246,7 @@ if __name__ == '__main__':
         algos = [algorithms[key] for key in algorithms]
         for unrunnable in not_runnable:
             algos.remove(unrunnable)
-    elif args.alg or args.alg[0] == 'all' and args.alg[1] == 'exact':
+    elif args.alg[0] == 'all' and args.alg[1] == 'exact':
         algos = [algorithms[key] for key in algorithms]
     else:
         algos = [algorithms[key] for key in args.alg]
@@ -262,16 +262,3 @@ if __name__ == '__main__':
 
     plot_results_with_runtimes(algos, results, data_names)
 
-
-
-'''
- input <- from user
- parse input
- results = (algorithm, dataset):
-    if result not found
-        read/calculate dataset
-        save result
-    else
-        import result from file
-plot results
-'''

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import time
 from networkx.algorithms import approximation as aprox
 from itertools import combinations
-import JSON_IO
+from aim_trajectory_picking import JSON_IO
 
 class Trajectory:
     '''
@@ -385,7 +385,7 @@ def weight_transformation(graph):
     for i in range(len(nodes)):
         value_adjacent_nodes = 1
         for n in graph.neighbors(nodes[i]):
-            value_adjacent_nodes += n.value
+            value_adjacent_nodes += n.value 
         transformed_weights.append(nodes[i].value /value_adjacent_nodes)
     
     return nodes[transformed_weights.index(max(transformed_weights))]
@@ -588,11 +588,8 @@ def bipartite_matching_removed_collisions(trajectories, collisions):
     G = nx.Graph()
     G.add_nodes_from(trajectories)
     G.add_edges_from(collisions)
-    # for id in trajectories.id:
-    #     if id in trajectories.collisions:
-    #         G.add_edge(trajectories)
-    
-    optimal_trajectories_for_matching = general_trajectory_algorithm(G, greedy)
+
+    optimal_trajectories_for_matching = general_trajectory_algorithm(G, weight_transformation)
     donors, targets = get_donors_and_targets_from_trajectories(trajectories)
     bi_graph = bipartite_graph(donors, targets, optimal_trajectories_for_matching['trajectories'], collisions)
     matching = nx.max_weight_matching(bi_graph)
@@ -801,7 +798,8 @@ def optimal_trajectories_to_return_dictionary(optimal_trajectories):
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
 
-def minimum_weighted_vertex_cover_algorithm(trajectory, *, visualize=False):
+
+def inverted_minimum_weighted_vertex_cover_algorithm(trajectory,collisons, *, visualize=False):
     '''
     An approximation of a minimum weighted vertex cover performed
 
@@ -865,15 +863,16 @@ def modified_greedy(trajectories,collisions):
         'trajectories': list of trajectory objects
     
     '''
-    
     graph = create_graph(trajectories, collisions)
     optimal_trajectories = []
     nodes = list(graph.nodes)
     nodes.sort(key = lambda n: n.value )
     while graph.number_of_nodes() != 0:
+        nodes = list(graph.nodes)
+        nodes.sort(key = lambda n: n.value)
         chosen_node = nodes[-1]
+        #chosen_node = max(node_set, key=lambda t : t.value)
         optimal_trajectories.append(chosen_node)
-        #print("started removing node")
         for n in list(graph.neighbors(chosen_node)): #remove chosen node and neighbours, given that they are mutually exclusive
             graph.remove_node(n)
             nodes.remove(n)
@@ -919,7 +918,7 @@ def invert_graph(graph):
     return graph 
 
 
-def invert_and_clique(trajectories):
+def invert_and_clique(trajectories, collisions):
     '''
     This function uses clique algorithm to solve the maximal independent weighted set problem, after inverting the graph. Very expensive\
         computationally! Probably infeasible for problem sizes above 200 trajectories.
@@ -1030,9 +1029,38 @@ def create_graph(trajectories, collisions):
         G.add_edges_from([item for item in itertools.permutations(target_dict[target],2) ])
     return G
 
+
+def create_graph(trajectories, collisions):
+    G = nx.Graph()
+   # G.add_nodes_from(trajectories)
+    donor_dict = {}
+    target_dict = {}
+    for t in trajectories:
+        G.add_node(t)
+        if t.donor in donor_dict:
+            donor_dict[t.donor].append(t)
+        else:
+            donor_dict[t.donor] = [t]
+        if t.target in target_dict:
+            target_dict[t.target].append(t)
+        else:
+            target_dict[t.target] = [t]
+    for donor in donor_dict:
+        G.add_edges_from(itertools.combinations(donor_dict[donor],2) )
+    for target in target_dict:
+        G.add_edges_from(itertools.combinations(target_dict[target],2))
+    G.add_edges_from(collisions)
+    return G
+
 if __name__ == '__main__':
-    traj, col = JSON_IO.read_trajectory_from_json_v2('datasets2\even_test_4.txt')
+    traj, col = JSON_IO.read_trajectory_from_json_v2(r'even_datasets\even_test_5.txt')
+    # graph, time_ = timer(create_graph, traj, col)
+    # print("time to create graph w collisions", time_)
+    # _graph, time_ = timer(transform_graph, traj)
+    # print("time to create graph without collisions", time_)
+    
     result, _time = timer( modified_greedy,traj, col)
     print("modified greedy time:" , _time)
-    result, _time = timer(greedy_algorithm, traj)
+    result, _time = timer(greedy_algorithm, traj,col)
     print('greedy time:',_time)
+
