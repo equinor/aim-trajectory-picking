@@ -35,8 +35,8 @@ def get_datasets(dataset_folders):
                 num_datasets = int(dataset_folders[5])
             for i in range(num_datasets):
                 print("making dataset nr: " + str(i))
-                _,_,trajectories = func.create_data(num_donors, num_targets, num_trajectories, collision_rate)
-                data.append(trajectories)
+                _,_,trajectories, collisions = func.create_data(num_donors, num_targets, num_trajectories, collision_rate)
+                data.append((trajectories, collisions))
                 dataset_names.append('dataset_' + str(i)+ '.txt')
             return data, None
         else:
@@ -44,15 +44,16 @@ def get_datasets(dataset_folders):
                 print("using data from folder")
                 for filename in os.listdir(folder):
                     fullpath = os.path.join(folder,filename)
-                    data.append(JSON_IO.read_trajectory_from_json(fullpath))
+                    data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
                     dataset_names.append(filename)
-    except:
+    except Exception as e:
         pass
+        print("exception thrown:", e)
     if len(data) == 0:
-        print("Dataset arguments not recognized, reading from testsets folder instead.")
-        for filename in os.listdir('testsets'):
-            fullpath = os.path.join('testsets',filename)
-            data.append(JSON_IO.read_trajectory_from_json(fullpath))
+        print("Dataset arguments not recognized, reading from datasets instead.")
+        for filename in os.listdir('datasets'):
+            fullpath = os.path.join('datasets',filename)
+            data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
             dataset_names.append(filename)
     return data, dataset_names
 
@@ -157,7 +158,8 @@ def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='r
             if algorithm.__name__ in prev_results.keys() and _dataset_names!=None and data_name in prev_results[algorithm.__name__].keys():
                 print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
             else:
-                answer, runtime = func.timer(algorithm, data)
+                #print(type(data))
+                answer, runtime = func.timer(algorithm, data[0], data[1])
                 answer['runtime'] = runtime
                 prev_results[algorithm.__name__][data_name] = answer
                 print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name + "in time: " + str(runtime))
@@ -205,15 +207,16 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
 
 def main():
     algorithms = {  'greedy' : func.greedy_algorithm, 
+                'modified_greedy': func.modified_greedy,
                 'NN' : func.NN_algorithm,
-                'random' : func.random_algorithm,
+                #'random' : func.random_algorithm,
                 'weight_trans' :func.weight_transformation_algorithm, 
                 'bipartite_matching' : func.bipartite_matching_removed_collisions,
                 'lonely_target' : func.lonely_target_algorithm,
                 'exact' : func.invert_and_clique,
-                'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
-                'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
-                'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
+                # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
+                # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
+                # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
                 # 'bipartite_matching_v2': func.bip,
                 # 'approx_vertex_cover' :func.minimum_weighted_vertex_cover_algorithm # not working currently
                 }
@@ -258,11 +261,14 @@ def main():
     args = parser.parse_args()
     data, data_names = get_datasets(args.datasets)
 
+
+    print(args.alg[0])
+
     if args.alg == 'all' or args.alg[0] == 'all':
         algos = [algorithms[key] for key in algorithms]
-        if 'exact' not in args.alg:
-            for unrunnable in not_runnable:
-                algos.remove(unrunnable)
+        for unrunnable in not_runnable:
+            algos.remove(unrunnable)
+    elif args.alg or args.alg[0] == 'all' and args.alg[1] == 'exact':
     else:
         algos = [algorithms[key] for key in args.alg]
 
