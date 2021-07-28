@@ -35,8 +35,8 @@ def get_datasets(dataset_folders):
                 num_datasets = int(dataset_folders[5])
             for i in range(num_datasets):
                 print("making dataset nr: " + str(i))
-                _,_,trajectories = func.create_data(num_donors, num_targets, num_trajectories, collision_rate)
-                data.append(trajectories)
+                _,_,trajectories, collisions = func.create_data(num_donors, num_targets, num_trajectories, collision_rate)
+                data.append((trajectories, collisions))
                 dataset_names.append('dataset_' + str(i)+ '.txt')
             return data, None
         else:
@@ -46,8 +46,9 @@ def get_datasets(dataset_folders):
                     fullpath = os.path.join(folder,filename)
                     data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
                     dataset_names.append(filename)
-    except:
+    except Exception as e:
         pass
+        print("exception thrown:", e)
     if len(data) == 0:
         print("Dataset arguments not recognized, reading from datasets instead.")
         for filename in os.listdir('datasets'):
@@ -187,9 +188,9 @@ if __name__ == '__main__':
                 'bipartite_matching' : func.bipartite_matching_removed_collisions,
                 'lonely_target' : func.lonely_target_algorithm,
                 'exact' : func.invert_and_clique,
-                'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
-                'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
-                'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
+                # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
+                # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
+                # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
                 # 'bipartite_matching_v2': func.bip,
                 #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
                 }

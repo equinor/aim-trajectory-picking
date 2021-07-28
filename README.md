@@ -6,9 +6,9 @@
 
 <em>Trajectory picking package for the AI for Maturation project. Created by summer interns 2021</em>
 
-##  Introduction
-This trajectory picking package is a tool for determining sets of wellbore trajectories which optimizes different variables, using different algorithms.
-The trajectory picking task is operationalized as a graph problem, where each trajectory has a donor, a target and a non-negative value, in addition to a list of other trajectories it collides with. Given that no trajectories should share the same donor, nor target, and not collide with other trajectories, different algorithms are implemented which attempt to pick optimal trajectories.
+##  Description
+This trajectory picking package is a tool for determining sets of optimal wellbore trajectories, using different algorithms.
+The trajectory picking task is operationalized as a graph problem, where each trajectory has a donor, a target and a non-negative value, in addition to a list of trajectories it collides with. Given that no trajectories should share the same donor, nor target, and not collide with other trajectories, different algorithms are implemented which attempt to pick optimal trajectories. The goal of the project was to explore the problem space and implement an algorithm with better performance than the greedy algorithm.
 
 
 ## Getting started 
@@ -18,14 +18,27 @@ pip install -r test_requirements.txt
 pip install .
 pytest
 ```
-This package works with Python 3.
+This package is built using NetworkX and Python 3.
 
+## How to use the package
+The package can be run from the command line. The input file should contain a list of trajectory dictionaries, which is examplified below:  
+
+```
+{"trajectories": [
+        {"id": 0,
+         "donor": "D0",
+         "target": "T0",
+         "value": 10,
+         "collisions": [1, 2, 3, 4, 5]},
+         
+         {...]}}
+```
 ### Console script commands 
 
 | Command        | Action                                                |
 |----------------|-------------------------------------------------------|
-| run <filename> | --                                                    |
-| pytest         | --                                                    |
+| run            | --                                                    |
+| pytest         | Running all available tests                           |
 | benchmark      | Showing pre-generated  figure of expected performance |
 
 [![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://GitHub.com/Naereen/)

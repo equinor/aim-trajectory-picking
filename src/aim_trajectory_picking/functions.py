@@ -801,9 +801,9 @@ def optimal_trajectories_to_return_dictionary(optimal_trajectories):
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
 
-def inverted_minimum_weighted_vertex_cover_algorithm(trajectory,collisons, *, visualize=False):
+def minimum_weighted_vertex_cover_algorithm(trajectory, *, visualize=False):
     '''
-    An approximation of a minimum weighted vertex cover performed on a inverted graph
+    An approximation of a minimum weighted vertex cover performed
 
     Parameters:
     -----------
@@ -887,8 +887,9 @@ def modified_greedy(trajectories,collisions):
     dictionary['trajectories'] = optimal_trajectories
     return dictionary
 
+# Skal denne slettes??
+def maximum_independent_set_algorithm(trajectory):
 
-def maximum_independent_set_algorithm(trajectory, collisions):
     G = transform_graph(trajectory)
     max_ind_set = aprox.maximum_independent_set(G)
     trajectory = translate_trajectory_objects_to_dictionaries(max_ind_set)
