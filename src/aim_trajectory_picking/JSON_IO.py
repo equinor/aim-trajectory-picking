@@ -148,6 +148,17 @@ def generate_datasets_as_json_files(num_datasets):
 def generate_increasing_datasets(num_datasets,increase):
     '''
     Function used to generate datasets of increasing number of trajectories. 
+    Writes the datasets directly to file in folder timesets.
+
+    Parameters:
+    -----------
+    num_datasets: int
+        number og datasets to be created
+    increase: int/float
+        how much the amount of trajectories will increase per dataset. First dataset has increase amount of trajectories
+    
+    Returns:
+    Nine
     '''
     upper_limit_trajectories = 11000
     if increase**num_datasets > upper_limit_trajectories: # this is an assumption on the high end of expected number of trajectories
@@ -161,12 +172,25 @@ def generate_increasing_datasets(num_datasets,increase):
         donor = donor + 5*i
         target = target + 5*i
         print(increase*i)
-        _, _, trajectories = func.create_data(donor,target,increase*i,0.05)
+        _, _, trajectories, collisions = func.create_data(donor,target,increase*i,0.05)
         write_trajectory_to_json('timesets/increasing_set_'+str(i)+'.json',trajectories)
 
 def write_value_trajectories_runtime_from_file( combined_results,filename='results.txt',):
     '''
     Function used to write values from trajectories to a file (results.txt as default).
+    Translates trajectory objects from combined results to dictionaries so json can save them.
+
+    Parameters:
+    -----------
+    combined_results: dictionary[algorithm.__name__][dataset_name] = dictionary {
+                                                                        'trajectories' : List<Trajectory> , list of 'optimal' trajectories in dataset found by algorithm
+                                                                        'value': int, sum of values of trajectories
+                                                                        'runtime' : float, runtime of algorithm on dataset
+                                                                    }
+
+    Returns:
+    --------
+    None
     '''
     for key1 in combined_results:
         for key2 in combined_results[key1]:
@@ -176,6 +200,25 @@ def write_value_trajectories_runtime_from_file( combined_results,filename='resul
 def read_value_trajectories_runtime_from_file(filename='results.txt'):
     '''
     Function used to read values from trajectories to a file (results.txt as default).
+    Needs the file to be comprised of dictionaries on the format:
+    combined_results: dictionary[algorithm.__name__][dataset_name] = dictionary {
+                                                                        'trajectories' : List<Trajectory.__dict__> , list of 'optimal' trajectories in dataset found by algorithm
+                                                                        'value': int, sum of values of trajectories
+                                                                        'runtime' : float, runtime of algorithm on dataset
+                                                                    }
+
+    Parameters:
+    -----------
+    filename: str, default='results.txt'
+        filename to be read from
+    
+    Returns:
+    --------
+    input_data: dictionary[algorithm.__name__][dataset_name] = dictionary {
+                                                                        'trajectories' : List<Trajectory> , list of 'optimal' trajectories in dataset found by algorithm
+                                                                        'value': int, sum of values of trajectories
+                                                                        'runtime' : float, runtime of algorithm on dataset
+                                                                    }
     '''
     input_data = read_data_from_json_file(filename)
     for key1 in input_data:
@@ -193,6 +236,14 @@ def generate_big_datasets():
     '''
     Function used to create 2^3 = 8 datasets, which includes all the combinations of 
     many/few donors, many/few targets and many/few trajectories.
+
+    Parameters:
+    -----------
+    None
+
+    Returns:
+    --------
+    None
     '''
     HIGH_DONORS = 50
     HIGH_TARGETS = 50

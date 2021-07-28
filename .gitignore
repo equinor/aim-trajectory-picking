@@ -142,5 +142,6 @@ share
 results.txt
 JSON_test.txt
 timesets
+even_*
 
 .my_venv
