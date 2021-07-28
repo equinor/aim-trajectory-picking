@@ -193,7 +193,7 @@ def write_value_trajectories_runtime_from_file( combined_results,filename='resul
     None
     '''
     for algorithm_name in combined_results:
-        for dataset_name in combined_results[key1]:
+        for dataset_name in combined_results[algorithm_name]:
             combined_results[algorithm_name][dataset_name]['trajectories'] = [e.__dict__ for e in combined_results[algorithm_name][dataset_name]['trajectories']]
     write_data_to_json_file(filename,combined_results)
 
