@@ -20,7 +20,7 @@ def get_datasets(dataset_folders):
     if dataset_folders == None:
         print("None-type input file, bringing up runtime benchmarks")
         dataset_folders = []
-        dataset_folders.append('datasets')
+        dataset_folders.append('testsets')
     try:
         if dataset_folders[0] == 'random':
             print("random data generation chosen")
