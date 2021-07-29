@@ -57,6 +57,9 @@ def get_datasets(dataset_folders):
             dataset_names.append(filename)
     return data, dataset_names
 
+def addlabels(x,y):
+    for i in range(len(x)):
+        plt.text(i,y[i],y[i])
 
 def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     '''
@@ -81,8 +84,18 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     --------
     None
     '''
-    fig, axs = plt.subplots(2,1)
-    
+
+    fig, axs = plt.subplots(2,1, figsize=(10,5))
+    ax1 = axs[0]
+    ax2 = axs[1]
+    ax1.set_xlabel('Datasets')
+    ax2.set_xlabel('Datasets')
+    ax1.set_ylabel('Value')
+    ax2.set_ylabel('Runtime')
+    ax1.title.set_text('Algorithm Performance')
+    ax2.title.set_text('Algorithm Runtime')
+    fig.tight_layout(pad=3)
+
     means = []
     if _dataset_names == 0 or _dataset_names == None:
         dataset_names = [str(i) for i in range(len(results[algorithms[0].__name__]))]
@@ -99,27 +112,30 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
         #     algo_runtimes.appebd
         results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
         algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
-        axs[0].plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
-        axs[1].plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
+        ax1.plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
+        ax2.plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
         means.append(np.mean(results_per_dataset))
     #axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
     #axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
-    axs[0].legend()
-    plt.xticks(rotation=45)
-    axs[1].legend()
-    axs[0].set_xlabel('dataset')
-    axs[0].set_ylabel('total value')
-    axs[0].set_title('Comparison of algorithm performance and runtime')
-    axs[1].set_xlabel('dataset')
-    axs[1].set_ylabel('time (s)')
+
+    leg1 = ax1.legend()
+    leg1.set_draggable(state=True)
+    # plt.xticks(rotation=45)
+    leg2 = ax2.legend()
+    leg2.set_draggable(state=True)
     plt.show()
-    plt.figure()
-    plt.bar(algo_names, means)
-    plt.xticks(rotation=45)
-    plt.title('Average algorithm performance')
-    plt.ylabel('average value on datasets')
-    plt.xlabel('algorithm')
+    plt.figure(figsize=(12, 6))
+    plt.bar(algo_names, means, color=(0.2, 0.4, 0.6, 0.6))
+    addlabels(algo_names, means)
+    for i, (name, height) in enumerate(zip(algo_names,  means)):
+        plt.text(i, height/2, ' ' + name,
+            ha='center', va='center', rotation=-90, fontsize=10)
+    plt.xticks([])
+    plt.title('Average Algorithm Performance')
+    plt.xlabel('Algorithm Name')
+    plt.ylabel('Average Value')
     plt.show()
+
 
 def get_previous_results(filename):
     try:
@@ -190,10 +206,10 @@ def find_best_performing_algorithm(results, algorithms):
             if map_matrix[i] == check_results_per_dataset[i]:
                 best_performing_algorithms[i].append(best_algorithm_name_list[algorithm_finder_per_dataset])
         algorithm_finder_per_dataset += 1
-    
+
     for j in range(len(best_performing_algorithms)):
-        for b in range(len(best_performing_algorithms[j])):
-            print('On dataset', j+1, ',', best_performing_algorithms[j][b])
+        listToStr = ' '.join(map(str, best_performing_algorithms[j]))
+        print('On dataset', j+1, ',', listToStr, 'with value: ', map_matrix[j])
     print('Highest total value across all datasets: ', best_algorithm_name, ': value: ', best_result)
 
 def translate_results_to_dict(results, algorithms):
