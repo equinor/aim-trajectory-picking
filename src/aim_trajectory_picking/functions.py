@@ -478,7 +478,7 @@ def check_for_collisions(optimal_trajectories):
             return True
         donors.append(t.donor)
         targets.append(t.target)
-        ids += t.collisions
+        ids.append(t.collisions)
     return False
 
 def timer(func, *args, **kwargs):

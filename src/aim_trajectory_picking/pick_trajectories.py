@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
+from aim_trajectory_picking import ortools_solver
 
 def get_datasets(dataset_folders):
     '''
@@ -82,6 +82,7 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     None
     '''
     fig, axs = plt.subplots(2,1)
+    
     means = []
     if _dataset_names == 0 or _dataset_names == None:
         dataset_names = [str(i) for i in range(len(results[algorithms[0].__name__]))]
@@ -106,10 +107,18 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     axs[0].legend()
     plt.xticks(rotation=45)
     axs[1].legend()
+    axs[0].set_xlabel('dataset')
+    axs[0].set_ylabel('total value')
+    axs[0].set_title('Comparison of algorithm performance and runtime')
+    axs[1].set_xlabel('dataset')
+    axs[1].set_ylabel('time (s)')
     plt.show()
     plt.figure()
     plt.bar(algo_names, means)
     plt.xticks(rotation=45)
+    plt.title('Average algorithm performance')
+    plt.ylabel('average value on datasets')
+    plt.xlabel('algorithm')
     plt.show()
 
 def get_previous_results(filename):
@@ -231,6 +240,7 @@ def main():
                     'bipartite_matching' : func.bipartite_matching_removed_collisions,
                     'lonely_target' : func.lonely_target_algorithm,
                     'exact' : func.invert_and_clique,
+                    'ilp' : ortools_solver.ILP,
                     # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
                     # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                     # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
@@ -284,10 +294,9 @@ def main():
 
         if args.alg == 'all' or args.alg[0] == 'all':
             algos = [algorithms[key] for key in algorithms]
-            for unrunnable in not_runnable:
-                algos.remove(unrunnable)
-        elif args.alg[0] == 'all' and args.alg[1] == 'exact':
-            algos = [algorithms[key] for key in algorithms]
+            if 'exact' not in args.alg:
+                for unrunnable in not_runnable:
+                    algos.remove(unrunnable)
         else:
             algos = [algorithms[key] for key in args.alg]
 
