@@ -42,8 +42,19 @@ The package can be run from the command line. The input file should contain a li
 | benchmark      | Showing pre-generated  figure of expected performance |
 
 [![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://GitHub.com/Naereen/)
+
+## Useful links
+networkx: https://networkx.org/
+OR-Tools: https://developers.google.com/optimization
+JSON: https://docs.python.org/3/library/json.html
+argparse: https://docs.python.org/3/library/argparse.html
+igraph: https://igraph.org/python/doc/tutorial/tutorial.html
+
 ## Known bugs:
 - None
+
+## Further ideas
+
 ### Authors: ## 
 Alexander Johnsgaard\
 Even Åge Smedshaug\
