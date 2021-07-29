@@ -115,9 +115,9 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
         algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
 
         ax1.plot(dataset_names, results_per_dataset, label=algorithm.__name__)
-        ax1.scatter(dataset_names, results_per_dataset, s=5, alpha=0.5) 
+        ax1.scatter(dataset_names, results_per_dataset, s=10, alpha=0.5) 
         ax2.plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
-        ax2.scatter(dataset_names, algo_runtimes, s=5, alpha=0.5)
+        ax2.scatter(dataset_names, algo_runtimes, s=10, alpha=0.5)
 
         means.append(np.mean(results_per_dataset))
     #axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
