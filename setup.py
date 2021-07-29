@@ -16,7 +16,9 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/equinor/aim-trajectory-picking/issues",
     },
     entry_points = {
-        'console_scripts': ['funniest-joke=aim_trajectory_picking.command_line:main', 'run=aim_trajectory_picking.pick_trajectories:main'],
+        'console_scripts': ['funniest-joke=aim_trajectory_picking.command_line:main', 
+            'run=aim_trajectory_picking.pick_trajectories:main', 
+            'ortools=aim_trajectory_picking.ortools_solver:main'],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -25,6 +27,6 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(where='src'),
     package_dir={"": "src"},
-    install_requires=["networkx", "matplotlib", "numpy", "pandas", "python-igraph","argparse"],
+    install_requires=["networkx", "matplotlib", "numpy", "pandas", "python-igraph","argparse","ortools"],
     python_requires=">=3.6",
 )
