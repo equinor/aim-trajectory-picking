@@ -40,21 +40,23 @@ This bipartite matching algorithm is very similar to the one described above. Th
 ### 3.5 Reversed Bipartite Matching
 This algorithm is similar to the Bipartite Matching algorithm, but works in the opposite direction. This function first solves for donors and targets by using bipartite matching, and afterwards solves for collisions. If any of the trajectories chosen from the bipartite matching collides, then the ones of lowest value are removed. Then, the algorithm looks for the trajectories of highest value which can replace the removed trajectories.
 
+## 4 Alternatives (OR-Tools)
+An alternative to the algorithms we have developed is to solve this problem by integer-linear-programming. This could be done by usng OR-Tools which we have implemented in this project. This worked better than our algorithms, but on the other hand, the runtime was higher. However, for small problems with sufficiently few trajectories, we recommend ILP to be used.
 
-## 4 Exact solutions
+## 5 Exact solutions
 
-### 4.1 Maximum (Weighted) Independent Set
+### 5.1 Maximum (Weighted) Independent Set
 The problem of picking the best trajectories can be considered a maximum weighted independent set problem, and is a so called strictly NP-hard problem. Since there are no solution to such a problem in polynomial time, it would be unrealistic to use this algorithm for a full sized dataset. Instead, testing has been done to determine how large of a dataset one could reasonably use such an algorithm on. \todo{må oppdatere her underveis som vi tester denne algoritmen} Other approaches could be to solve the minimum weighted vertex cover and take the trajectories not in the vertex cover or the maximum weighted clique problem on the complimentary graph. These are also so called NP-hard problems, so the runtime may not see much improvement when solved exact. The maximum clique algorithm from Networkx
 
-### 4.2 Approximations to the MIS algorithm
+### 5.2 Approximations to the MIS algorithm
 Approximations of the afore mentioned problems may result in exact or near-exact results at a fraction of the runtime that the exact methon would use. 
 
-## 5 Implementation
+## 6 Implementation
 The program was built using NetworkX, but other graph tools were considered. The Python module \textit{graph-tool} was quickly shelved as it turned out that it only works for Linux. Next, \textit{igraph} was also tested with the hope that it would decrease the time complexity of the program. Graph building was tested using igraph, and it was twice as fast as using NetworkX. However, igraph is less developed than NetworkX, with less internal functionality. After implementing a few algorithms in igraph and comparing the results to the outcome of equivalent algorithms built with NetworkX, other weaknesses became evident, as the results of algorithms for the exact solution differed, as well as the outcomes of the bipartite matching algorithms. This may reflect flaws in igraph's functions, or be due to different understandings of how a graph should be created before applying the algorithms. Because of this uncertainty and general underdevelopment of igraph, we decided to continue developing the program using NetworkX.
 
-## 6 Testing
+## 7 Testing
 
-### 6.1 Pytest
+### 7.1 Pytest
 The automatic tests for our program are run with the pytest framework. The pytest framework is used to write small tests in python programs. These tests are used through development to showcase potential errors in the program and to show that algorithms and functions run as expected.
 
 Our tests-file includes:
@@ -64,21 +66,28 @@ Our tests-file includes:
 
 All of these tests need to pass for new developments to be merged into the main branch on GitHub.
 
-### 6.2 Solving for algorithms by hand
+### 7.2 Solving for algorithms by hand
 In the beginning of the project, five small datasets were made, on which all of the upcoming heuristics were to be tested. The first three greedy algorithms and the bipartite matching were implemented and used on these datasets, and the expected solutions of each of these algorithms were found by hand as a test, and then aved for future comparison. As it turned out, both the greedy algorithm considering value blocked and the one considering number of nodes blocked had been implemented wrongly. The issues were then fixed.
 
-## 7 Results
+## 8 Results
 
-### 7.1 Value/Performance
+### 8.1 Value/Performance
 The results of a selection of the algorithms described above are shown in the excel-document in the Appendix section. The algorithms are run on datasets with different combinations of number of donors, targets and trajectories. Here one can see that the weight transformation algorithm clearly gives the best results, and that the reversed greedy utilizing weight transformation also is significantly better than the original greedy algorithm. It is also interesting to see that the bipartite matching algorithms actually perform worse than the greedy algorithm. The results are discussed in more detail in the discussion section.
 
-### 7.2 Runtime
+### 8.2 Runtime
 The figure below shows the runtime of the algorithms. Here it is clear that the greedy algorithm and it's variants (such as the weight transformation) are not efficient and demand relatively much time. On the oter hand, the bipartite matching algorithm works fast in comparison to the others. However, this might be because the bipartite matching used is imported from networkx, and is therefore expected to be faster than the greedy algorithms we have implemented on our own.
 ![runtime_analysis](https://user-images.githubusercontent.com/86296731/127311069-48c84c07-6764-4541-b9b4-67663cab91ec.png)
 
-## 8 Discussion
+## 9 Further ideas
+In the end of the internship we had some ideas we unfortunately did not have time to implement.
 
-## 9 Conclusion
+Firstly, it would have been interesting to make a heuristic which cluster trajectories in space. Here a suggestion is that every donor and target could contain information about where it is located in space by, for instance, x-, y- and z-coordinates. Then the computer would know where each trajectory starts (donor coordinates) and ends (target coordinates). If the donor and target associated with one trajectory is far away from the donor and target associated with another trajectory, the idea is that those two trajectories are not likely to collide in space. In other words, if one implements a clustering algorithm which clusters trajectories which are relatively close to each other in space, then our algorithms can be run on each of these clusters. This would be under the assumption that trajectories in different clusters don't collide with each other, since they would have different donors and targets, adn the donors and targets are far away from each other, so that collisions in space also are highly unlikely. Since all of the clusters now can be considered as independent sets of trajectories, the algorithms could be run on each of these smaller sets, resulting in less computations and lower runtimes.      
 
-## Appendix
+Secondly, it would be smart to try out another package from python than networkx, as it seems to take much time. We tried to use igraph instead of networkx, and this needed only minor changes in the code for networkx. The result was lower runtimes. However, the results when using igraphs was actually worse than the ones using networkx, and despite the improvements in runtime, we therefore decided not to go on with igraph. However, the improvements show that it could be interesting to try out outher graphical tools than networkx.
+
+## 10 Discussion
+
+## 11 Conclusion
+
+## 12 Appendix
 [resultater_for_mange_random_sett.xlsx](https://github.com/equinor/aim-trajectory-picking/files/6892701/resultater_for_mange_random_sett.xlsx)
