@@ -85,17 +85,6 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     None
     '''
 
-    fig, axs = plt.subplots(2,1, figsize=(10,5))
-    ax1 = axs[0]
-    ax2 = axs[1]
-    ax1.set_xlabel('Datasets')
-    ax2.set_xlabel('Datasets')
-    ax1.set_ylabel('Value')
-    ax2.set_ylabel('Runtime')
-    ax1.title.set_text('Algorithm Performance')
-    ax2.title.set_text('Algorithm Runtime')
-    fig.tight_layout(pad=3)
-
     means = []
     if _dataset_names == 0 or _dataset_names == None:
         dataset_names = [str(i) for i in range(len(results[algorithms[0].__name__]))]
@@ -104,26 +93,47 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
 
     algo_names = [e.__name__ for e in algorithms]
     algo_runtimes = []
-    for algorithm in algorithms:
-        # results_per_dataset = []
-        # algo_runtimes =[]
-        # for name in dataset_names:
-        #     results_per_dataset.append(results[algorithm.__name__][name]['value'])
-        #     algo_runtimes.appebd
-        results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
-        algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
-        ax1.plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
-        ax2.plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
-        means.append(np.mean(results_per_dataset))
-    #axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
-    #axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
+    if len(dataset_names) > 1: 
+        fig, axs = plt.subplots(2,1, figsize=(10,5))
+        ax1 = axs[0]
+        ax2 = axs[1]
+        ax1.set_xlabel('Datasets')
+        ax2.set_xlabel('Datasets')
+        ax1.set_ylabel('Value')
+        ax2.set_ylabel('Runtime')
+        ax1.title.set_text('Algorithm Performance')
+        ax2.title.set_text('Algorithm Runtime')
+        fig.tight_layout(pad=3)
+        for algorithm in algorithms:
+            # results_per_dataset = []
+            # algo_runtimes =[]
+            # for name in dataset_names:
+            #     results_per_dataset.append(results[algorithm.__name__][name]['value'])
+            #     algo_runtimes.appebd
+            results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
+            algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
+            ax1.plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
+            ax2.plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
+        #axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
+        #axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
 
-    leg1 = ax1.legend()
-    leg1.set_draggable(state=True)
-    # plt.xticks(rotation=45)
-    leg2 = ax2.legend()
-    leg2.set_draggable(state=True)
-    plt.show()
+        leg1 = ax1.legend()
+        leg1.set_draggable(state=True)
+        leg2 = ax2.legend()
+        leg2.set_draggable(state=True)
+        plt.show()
+    
+    else: 
+        for data in results:
+            data_name = dataset_names[results.index(data)]
+            answer, runtime = func.timer(algorithms, data[0], data[1])
+            answer['runtime'] = runtime
+            print(runtime)
+            
+    for algorithm in algorithms: 
+        results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
+        means.append(np.mean(results_per_dataset))
+
     plt.figure(figsize=(12, 6))
     plt.bar(algo_names, means, color=(0.2, 0.4, 0.6, 0.6))
     addlabels(algo_names, means)
@@ -162,7 +172,6 @@ def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='r
             if algorithm.__name__ in prev_results.keys() and _dataset_names!=None and data_name in prev_results[algorithm.__name__].keys():
                 print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
             else:
-                #print(type(data))
                 answer, runtime = func.timer(algorithm, data[0], data[1])
                 answer['runtime'] = runtime
                 prev_results[algorithm.__name__][data_name] = answer
@@ -256,7 +265,7 @@ def main():
                     'bipartite_matching' : func.bipartite_matching_removed_collisions,
                     'lonely_target' : func.lonely_target_algorithm,
                     'exact' : func.invert_and_clique,
-                    'ilp' : ortools_solver.ILP,
+                    #'ilp' : ortools_solver.ILP,
                     # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
                     # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                     # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
