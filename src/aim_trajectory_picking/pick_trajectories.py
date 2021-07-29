@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
+from aim_trajectory_picking import ortools_solver
 
 def get_datasets(dataset_folders):
     '''
@@ -20,7 +20,7 @@ def get_datasets(dataset_folders):
     if dataset_folders == None:
         print("None-type input file, bringing up runtime benchmarks")
         dataset_folders = []
-        dataset_folders.append('datasets')
+        dataset_folders.append('testsets')
     try:
         if dataset_folders[0] == 'random':
             print("random data generation chosen")
@@ -84,6 +84,7 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     --------
     None
     '''
+
     fig, axs = plt.subplots(2,1, figsize=(10,5))
     ax1 = axs[0]
     ax2 = axs[1]
@@ -94,6 +95,7 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
     ax1.title.set_text('Algorithm Performance')
     ax2.title.set_text('Algorithm Runtime')
     fig.tight_layout(pad=3)
+
     means = []
     if _dataset_names == 0 or _dataset_names == None:
         dataset_names = [str(i) for i in range(len(results[algorithms[0].__name__]))]
@@ -115,6 +117,7 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
         means.append(np.mean(results_per_dataset))
     #axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
     #axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
+
     leg1 = ax1.legend()
     leg1.set_draggable(state=True)
     # plt.xticks(rotation=45)
@@ -253,6 +256,7 @@ def main():
                     'bipartite_matching' : func.bipartite_matching_removed_collisions,
                     'lonely_target' : func.lonely_target_algorithm,
                     'exact' : func.invert_and_clique,
+                    'ilp' : ortools_solver.ILP,
                     # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
                     # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                     # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
@@ -306,10 +310,9 @@ def main():
 
         if args.alg == 'all' or args.alg[0] == 'all':
             algos = [algorithms[key] for key in algorithms]
-            for unrunnable in not_runnable:
-                algos.remove(unrunnable)
-        elif args.alg[0] == 'all' and args.alg[1] == 'exact':
-            algos = [algorithms[key] for key in algorithms]
+            if 'exact' not in args.alg:
+                for unrunnable in not_runnable:
+                    algos.remove(unrunnable)
         else:
             algos = [algorithms[key] for key in args.alg]
 

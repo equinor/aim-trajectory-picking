@@ -18,10 +18,10 @@ def algorithm_testing_function(algorithm):
     for filename in os.listdir(directory):
         testset_names.append(filename)
         fullpath = os.path.join(directory,filename)
-        dataset1_after = JSON_IO.read_trajectory_from_json_v2(fullpath)
+        testset1_after = JSON_IO.read_trajectory_from_json_v2(fullpath)
 
         for algorithm in test_functions:
-            answer = algorithm(dataset1_after[0],dataset1_after[1] )
+            answer = algorithm(testset1_after[0],testset1_after[1] )
             combined_results[algorithm.__name__].append(answer)
 
     for i in range(5):
