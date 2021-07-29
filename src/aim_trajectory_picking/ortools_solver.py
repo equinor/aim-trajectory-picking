@@ -226,8 +226,11 @@ def ILP_formatter(trajectories):
     data['num_constraints'] = len(data['constraint_coeffs'])
     return data, total_value, trajectories
 
-if __name__ == '__main__':
-    folder_name = 'datasets2'
+def main():
+    folder_name = 'testsets'
     for filename in os.listdir(folder_name):
         fullname = os.path.join(folder_name,filename)
         func.check_for_collisions(integer_linear_program(fullname)['trajectories'])
+
+if __name__ == '__main__':
+    main()
