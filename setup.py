@@ -27,6 +27,6 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(where='src'),
     package_dir={"": "src"},
-    install_requires=["networkx", "matplotlib", "numpy", "pandas", "python-igraph","argparse"],
+    install_requires=["networkx", "matplotlib", "numpy", "pandas", "python-igraph","argparse","ortools"],
     python_requires=">=3.6",
 )
