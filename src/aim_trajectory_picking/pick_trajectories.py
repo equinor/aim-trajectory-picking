@@ -6,8 +6,8 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-# from aim_trajectory_picking import ortools_solver
-# from aim_trajectory_picking import cp_sat_solver
+from aim_trajectory_picking import ortools_solver
+from aim_trajectory_picking import cp_sat_solver
 
 def get_datasets(dataset_folders):
     '''
@@ -101,7 +101,7 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
         ax1.set_xlabel('Datasets')
         ax2.set_xlabel('Datasets')
         ax1.set_ylabel('Value')
-        ax2.set_ylabel('Runtime')
+        ax2.set_ylabel('Runtime (seconds)')
         ax1.title.set_text('Algorithm Performance')
         ax2.title.set_text('Algorithm Runtime')
         fig.tight_layout(pad=3)
@@ -130,9 +130,18 @@ def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
         leg2.set_draggable(state=True)
         plt.show()
     else:
+        plt.figure()
         for algorithm in algorithms:
             results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
+            algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
             means.append(np.mean(results_per_dataset))
+            plt.scatter(dataset_names, algo_runtimes, s=10, alpha=0.5)
+        plt.xlabel('Algorithm Name')
+        plt.ylabel('Runtime (seconds)')
+        plt.title('Runtime graph')
+        leg = plt.legend(algo_names)
+        leg.set_draggable(state=True)
+        plt.show()
     plt.figure(figsize=(12, 6))
     plt.bar(algo_names, means, color=(0.2, 0.4, 0.6, 0.6))
     addlabels(algo_names, means)
@@ -265,8 +274,8 @@ def main():
                     #'bipartite_matching' : func.bipartite_matching_removed_collisions,
                     'lonely_target' : func.lonely_target_algorithm,
                     'exact' : func.invert_and_clique,
-                    # 'ilp' : ortools_solver.ILP,
-                    # 'cp-sat' : cp_sat_solver.cp_sat_solver,
+                    'ilp' : ortools_solver.ILP,
+                    'cp-sat' : cp_sat_solver.cp_sat_solver,
                     # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
                     # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                     # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
