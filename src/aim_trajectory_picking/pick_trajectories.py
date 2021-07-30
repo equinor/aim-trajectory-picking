@@ -40,6 +40,26 @@ def get_datasets(dataset_folders):
                 data.append((trajectories, collisions))
                 dataset_names.append('dataset_' + str(i)+ '.txt')
             return data, None
+        elif dataset_folders[0] == 'increasing':
+            upper_limit_trajectories = 10000
+            print("increasing data generation chosen")
+            data = []
+            num_donors = int(dataset_folders[1])
+            num_targets = int(dataset_folders[2])
+            initial_num_trajectories = int(dataset_folders[3])
+            collision_rate = float(dataset_folders[4])
+            if len(dataset_folders) < 5:
+                num_datasets = 1
+            else:
+                num_datasets = int(dataset_folders[5])
+            for i in range(num_datasets):
+                if initial_num_trajectories * (i+1) > upper_limit_trajectories:
+                    break
+                print("making dataset nr: " + str(i))
+                _,_,trajectories, collisions = func.create_data(num_donors, num_targets, initial_num_trajectories * (i + 1), collision_rate)
+                data.append((trajectories, collisions))
+                dataset_names.append('increasing_set_' + str(i)+ '.txt')
+            return data, None
         else:
             for folder in dataset_folders:
                 for filename in os.listdir(folder):
