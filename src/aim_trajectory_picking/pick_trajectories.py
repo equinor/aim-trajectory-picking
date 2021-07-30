@@ -9,7 +9,7 @@ import pandas as pd
 from aim_trajectory_picking import ortools_solver
 from aim_trajectory_picking import cp_sat_solver
 
-def get_datasets(dataset_folders, algorithms, filename='results.txt'):
+def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
     '''
     Function to find and/or create the given data and return it as a list.
 
@@ -45,14 +45,14 @@ def get_datasets(dataset_folders, algorithms, filename='results.txt'):
             for folder in dataset_folders:
                 for filename in os.listdir(folder):
                     print("else file")
-                    if not all(filename in prev_results[algo.__name__].keys() for algo in algorithms):
-                        print("file not in results, reading it")
+                    if refresh or not all(filename in prev_results[algo.__name__].keys() for algo in algorithms):
+                        #print("file not in results, reading it")
                         fullpath = os.path.join(folder,filename)
                         data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
                         dataset_names.append(filename)
                     else:
                         dataset_names.append(filename)
-                        
+
     except Exception as e:
         print("exception thrown:", str(e))
         if len(data) == 0:
@@ -67,7 +67,7 @@ def addlabels(x,y):
     for i in range(len(x)):
         plt.text(i,y[i],y[i])
 
-def plot_results_with_runtimes(algorithms, results,_dataset_names=0):
+def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
     '''
     Fully automatic function that plots the results per algorithm. 
 
@@ -150,7 +150,7 @@ def get_previous_results(filename):
         prev_results = {}
     return prev_results
 
-def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='results.txt', _dataset_names=None):
+def calculate_or_read_results(algos, _datasets,refresh, *, _is_random=False, filename='results.txt', _dataset_names=None):
 
     dataset_names = [str(i) for i in range(len(_datasets))] if _dataset_names == None else _dataset_names
 
@@ -165,7 +165,7 @@ def calculate_or_read_results(algos, _datasets, *, _is_random=False, filename='r
     for data in _datasets:
         data_name = dataset_names[_datasets.index(data)]
         for algorithm in algos:
-            if algorithm.__name__ in prev_results.keys() and _dataset_names!=None and data_name in prev_results[algorithm.__name__].keys():
+            if not refresh and algorithm.__name__ in prev_results.keys() and _dataset_names!=None and data_name in prev_results[algorithm.__name__].keys():
                 print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
             else:
                 #print(type(data))
@@ -307,9 +307,11 @@ def main():
                     ex: random 10 10 100 0.05 10')
         parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='trajectories.txt',help='Filename string of output data result, JSON format')
         # could potentially add optional arguments for running test sets instead, or average of X trials
+        parser.add_argument('-refresh', metavar='refresh', type = str, default='False', help='If true, ignores previous results and calculates the specified algorithms again')
 
         args = parser.parse_args()
-
+        print(args.refresh)
+        refresh = True if args.refresh == 'True' else False
         if args.alg == 'all' or args.alg[0] == 'all':
             algos = [algorithms[key] for key in algorithms]
             if 'exact' not in args.alg:
@@ -318,18 +320,16 @@ def main():
         else:
             algos = [algorithms[key] for key in args.alg]
 
-        data, data_names = get_datasets(args.datasets, algos)
+        data, data_names = get_datasets(args.datasets, algos, refresh)
 
         random_chosen = False
         
         if args.datasets == None:
             random_chosen = False    
         elif 'random' in args.datasets:
-            random_chosen = True
-
-
-        results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)
-        find_best_performing_algorithm(results, algos)
+            random_chosen = Truew
+        results = calculate_or_read_results(algos,data,refresh, _is_random=random_chosen, _dataset_names =data_names)
+        find_best_performing_algorithm(results,algos)
 
         plot_results_with_runtimes(algos, results, data_names)
 
