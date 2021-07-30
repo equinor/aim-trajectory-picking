@@ -48,6 +48,7 @@ As shown below the id's start at 0
 |----------------|--------------------------------------------------------------------------------------|
 | -alg           | specify algorithms to run. "all" runs all algorithms                                 |
 | -datasets      | specify datasets to run algorithm on. full path of folder with datasets is required  |
+| -refresh True  | Ignores if the result have already been calculated and does a new calculation        |
 
 #### Examples:
 run -alg all -datasets full_path_of_datasetsfolder  
@@ -56,8 +57,8 @@ Explanation: Runs all the algorithms on specified datasets
 run -alg greedy -datasets full_path_of_datasetsfolder  
 Explanation: Runs greedy algorithm on specified datasets
 
-run -alg greedy wheight_trans lonely_target -datasets random 15 15 5000 0.05 5  
-Explanation: Runs greedy-, wheight_transformation- and lonely_target algorithm on 5 randomly generated datasets with 15 donors, 15 targets, 5000 trajectories, 5% collision rate
+run -alg greedy weight_trans lonely_target -datasets random 15 15 5000 0.05 5  
+Explanation: Runs greedy-, weight_transformation- and lonely_target algorithm on 5 randomly generated datasets with 15 donors, 15 targets, 5000 trajectories, 5% collision rate
 
 [![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://GitHub.com/Naereen/)
 
