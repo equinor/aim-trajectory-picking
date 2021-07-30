@@ -22,6 +22,7 @@ This package is built using NetworkX and Python 3.
 
 ## How to use the package
 The package can be run from the command line. The input file should contain a list of trajectory dictionaries, which is examplified below:  
+As shown below the id's start at 0  
 
 ```
 {"trajectories": [
@@ -49,13 +50,13 @@ The package can be run from the command line. The input file should contain a li
 | -datasets      | specify datasets to run algorithm on. full path of folder with datasets is required  |
 
 #### Examples:
-run -alg all -datasets full_path_of_datasetsfolder
+run -alg all -datasets full_path_of_datasetsfolder  
 Explanation: Runs all the algorithms on specified datasets
 
-run -alg greedy -datasets full_path_of_datasetsfolder
+run -alg greedy -datasets full_path_of_datasetsfolder  
 Explanation: Runs greedy algorithm on specified datasets
 
-run -alg greedy wheight_trans lonely_target -datasets random 15 15 5000 0.05 5
+run -alg greedy wheight_trans lonely_target -datasets random 15 15 5000 0.05 5  
 Explanation: Runs greedy-, wheight_transformation- and lonely_target algorithm on 5 randomly generated datasets with 15 donors, 15 targets, 5000 trajectories, 5% collision rate
 
 [![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://GitHub.com/Naereen/)
