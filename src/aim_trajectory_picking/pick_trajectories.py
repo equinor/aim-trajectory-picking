@@ -9,7 +9,7 @@ import pandas as pd
 from aim_trajectory_picking import ortools_solver
 from aim_trajectory_picking import cp_sat_solver
 
-def get_datasets(dataset_folders):
+def get_datasets(dataset_folders, algorithms, filename='results.txt'):
     '''
     Function to find and/or create the given data and return it as a list.
 
@@ -41,21 +41,26 @@ def get_datasets(dataset_folders):
                 dataset_names.append('dataset_' + str(i)+ '.txt')
             return data, None
         else:
+            prev_results = get_previous_results(filename)
             for folder in dataset_folders:
                 for filename in os.listdir(folder):
                     print("else file")
-                    fullpath = os.path.join(folder,filename)
-                    data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
-                    dataset_names.append(filename)
+                    if not all(filename in prev_results[algo.__name__].keys() for algo in algorithms):
+                        print("file not in results, reading it")
+                        fullpath = os.path.join(folder,filename)
+                        data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
+                        dataset_names.append(filename)
+                    else:
+                        dataset_names.append(filename)
+                        
     except Exception as e:
-        pass
-        print("exception thrown:", e)
-    if len(data) == 0:
-        print("Dataset arguments not recognized, reading from datasets instead.")
-        for filename in os.listdir('datasets'):
-            fullpath = os.path.join('datasets',filename)
-            data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
-            dataset_names.append(filename)
+        print("exception thrown:", str(e))
+        if len(data) == 0:
+            print("Dataset arguments not recognized, reading from datasets instead.")
+            for filename in os.listdir('datasets'):
+                fullpath = os.path.join('datasets',filename)
+                data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
+                dataset_names.append(filename)
     return data, dataset_names
 
 
@@ -234,14 +239,14 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
 
 def main():
         algorithms = {  'greedy' : func.greedy_algorithm, 
-                    'modified_greedy': func.modified_greedy,
+                    #'modified_greedy': func.modified_greedy,
                     'NN' : func.NN_algorithm,
                     #'random' : func.random_algorithm,
                     'weight_trans' :func.weight_transformation_algorithm, 
-                    #'bipartite_matching' : func.bipartite_matching_removed_collisions,
-                    'lonely_target' : func.lonely_target_algorithm,
+                    'bipartite_matching' : func.bipartite_matching_removed_collisions,
+                   'lonely_target' : func.lonely_target_algorithm,
                     'exact' : func.invert_and_clique,
-                    'ilp' : ortools_solver.ILP,
+                    #'ilp' : ortools_solver.ILP,
                     'cp-sat' : cp_sat_solver.cp_sat_solver,
                     # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
                     # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
@@ -289,11 +294,6 @@ def main():
 
         args = parser.parse_args()
 
-
-        data, data_names = get_datasets(args.datasets)
-
-        print(args.alg[0])
-
         if args.alg == 'all' or args.alg[0] == 'all':
             algos = [algorithms[key] for key in algorithms]
             if 'exact' not in args.alg:
@@ -301,6 +301,8 @@ def main():
                     algos.remove(unrunnable)
         else:
             algos = [algorithms[key] for key in args.alg]
+
+        data, data_names = get_datasets(args.datasets, algos)
 
         random_chosen = False
         

@@ -358,7 +358,9 @@ def general_trajectory_algorithm(graph, choice_function, *, visualize=False):
             nx.draw(graph, with_labels=True, node_color=_node_colors)
             plt.show()
         optimal_trajectories.append(chosen_node)
-        [graph.remove_node(n) for n in list(graph.neighbors(chosen_node))]
+        for n in list(graph.neighbors(chosen_node)):
+            if n != chosen_node:
+                graph.remove_node(n)
         graph.remove_node(chosen_node)
     dictionary = {}
     dictionary['value'] = sum(n.value for n in optimal_trajectories)
