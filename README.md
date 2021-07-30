@@ -38,11 +38,34 @@ The package can be run from the command line. The input file should contain a li
 
 | Command        | Action                                                |
 |----------------|-------------------------------------------------------|
-| run            | --                                                    |
-| pytest         | Running all available tests                           |
+| run            | Runs the program and gives outputs in text and graph  |
+| pytest         | Running all available tests (read "testing")          |
 | benchmark      | Showing pre-generated  figure of expected performance |
 
+#### Command specifications:
+| run            | Explanation                                                                          |
+|----------------|--------------------------------------------------------------------------------------|
+| -alg           | specify algorithms to run. "all" runs all algorithms                                 |
+| -datasets      | specify datasets to run algorithm on. full path of folder with datasets is required  |
+
+#### Examples:
+run -alg all -datasets full_path_of_datasetsfolder
+Explanation: Runs all the algorithms on specified datasets
+
+run -alg greedy -datasets full_path_of_datasetsfolder
+Explanation: Runs greedy algorithm on specified datasets
+
+run -alg greedy wheight_trans lonely_target -datasets random 15 15 5000 0.05 5
+Explanation: Runs greedy-, wheight_transformation- and lonely_target algorithm on 5 randomly generated datasets with 15 donors, 15 targets, 5000 trajectories, 5% collision rate
+
 [![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://GitHub.com/Naereen/)
+
+### Testing
+
+| Command                               | Action                                        |
+|---------------------------------------|-----------------------------------------------|
+| pip install -r test_requirements.txt  | Installs the required packages to run tests   |
+| pytest                                | Runs all available tests                      |
 
 ## Useful links
 networkx: https://networkx.org/
