@@ -364,7 +364,7 @@ def main():
         if args.datasets == None:
             random_chosen = False    
         elif 'random' in args.datasets:
-            random_chosen = Truew
+            random_chosen = True
         results = calculate_or_read_results(algos,data,refresh, _is_random=random_chosen, _dataset_names =data_names)
         find_best_performing_algorithm(results,algos)
 
