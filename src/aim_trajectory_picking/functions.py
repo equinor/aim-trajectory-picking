@@ -103,7 +103,7 @@ class Trajectory:
         return self.id 
 
 
-def create_data(num_donors, num_targets, num_trajectories, collision_rate=0.05,data_range=100 ):
+def create_data(num_donors, num_targets, num_trajectories, collision_rate=0.05,data_range=10000 ):
     '''
     Creates a dataset of the correct format for the trajectory picking problem.
 
