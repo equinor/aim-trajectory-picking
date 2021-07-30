@@ -40,6 +40,26 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
                 data.append((trajectories, collisions))
                 dataset_names.append('dataset_' + str(i)+ '.txt')
             return data, None
+        elif dataset_folders[0] == 'increasing':
+            upper_limit_trajectories = 10000
+            print("increasing data generation chosen")
+            data = []
+            num_donors = int(dataset_folders[1])
+            num_targets = int(dataset_folders[2])
+            initial_num_trajectories = int(dataset_folders[3])
+            collision_rate = float(dataset_folders[4])
+            if len(dataset_folders) < 5:
+                num_datasets = 1
+            else:
+                num_datasets = int(dataset_folders[5])
+            for i in range(num_datasets):
+                if initial_num_trajectories * (i+1) > upper_limit_trajectories:
+                    break
+                print("making dataset nr: " + str(i))
+                _,_,trajectories, collisions = func.create_data(num_donors, num_targets, initial_num_trajectories * (i + 1), collision_rate)
+                data.append((trajectories, collisions))
+                dataset_names.append('increasing_set_' + str(i)+ '.txt')
+            return data, None
         else:
             prev_results = get_previous_results(filename)
             for folder in dataset_folders:
@@ -90,18 +110,6 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
     --------
     None
     '''
-
-    fig, axs = plt.subplots(2,1, figsize=(10,5))
-    ax1 = axs[0]
-    ax2 = axs[1]
-    ax1.set_xlabel('Datasets')
-    ax2.set_xlabel('Datasets')
-    ax1.set_ylabel('Value')
-    ax2.set_ylabel('Runtime')
-    ax1.title.set_text('Algorithm Performance')
-    ax2.title.set_text('Algorithm Runtime')
-    fig.tight_layout(pad=3)
-
     means = []
     if _dataset_names == 0 or _dataset_names == None:
         dataset_names = [str(i) for i in range(len(results[algorithms[0].__name__]))]
@@ -110,26 +118,55 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
 
     algo_names = [e.__name__ for e in algorithms]
     algo_runtimes = []
-    for algorithm in algorithms:
-        # results_per_dataset = []
-        # algo_runtimes =[]
-        # for name in dataset_names:
-        #     results_per_dataset.append(results[algorithm.__name__][name]['value'])
-        #     algo_runtimes.appebd
-        results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
-        algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
-        ax1.plot(dataset_names, results_per_dataset, label=algorithm.__name__) 
-        ax2.plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
-        means.append(np.mean(results_per_dataset))
-    #axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
-    #axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
 
-    leg1 = ax1.legend()
-    leg1.set_draggable(state=True)
-    # plt.xticks(rotation=45)
-    leg2 = ax2.legend()
-    leg2.set_draggable(state=True)
-    plt.show()
+    if len(dataset_names) > 1:
+        fig, axs = plt.subplots(2,1, figsize=(10,5))
+        ax1 = axs[0]
+        ax2 = axs[1]
+        ax1.set_xlabel('Datasets')
+        ax2.set_xlabel('Datasets')
+        ax1.set_ylabel('Value')
+        ax2.set_ylabel('Runtime (seconds)')
+        ax1.title.set_text('Algorithm Performance')
+        ax2.title.set_text('Algorithm Runtime')
+        fig.tight_layout(pad=3)
+        for algorithm in algorithms:
+            # results_per_dataset = []
+            # algo_runtimes =[]
+            # for name in dataset_names:
+            #     results_per_dataset.append(results[algorithm.__name__][name]['value'])
+            #     algo_runtimes.appebd
+            results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
+            algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
+
+            ax1.plot(dataset_names, results_per_dataset, label=algorithm.__name__)
+            ax1.scatter(dataset_names, results_per_dataset, s=5, alpha=0.5) 
+            ax2.plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
+            ax2.scatter(dataset_names, algo_runtimes, s=5, alpha=0.5)
+
+            means.append(np.mean(results_per_dataset))
+        #axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
+        #axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
+
+        leg1 = ax1.legend()
+        leg1.set_draggable(state=True)
+        # plt.xticks(rotation=45)
+        leg2 = ax2.legend()
+        leg2.set_draggable(state=True)
+        plt.show()
+    else:
+        plt.figure()
+        for algorithm in algorithms:
+            results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
+            algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
+            means.append(np.mean(results_per_dataset))
+            plt.scatter(dataset_names, algo_runtimes, s=10, alpha=0.5)
+        plt.xlabel('Algorithm Name')
+        plt.ylabel('Runtime (seconds)')
+        plt.title('Runtime graph')
+        leg = plt.legend(algo_names)
+        leg.set_draggable(state=True)
+        plt.show()
     plt.figure(figsize=(12, 6))
     plt.bar(algo_names, means, color=(0.2, 0.4, 0.6, 0.6))
     addlabels(algo_names, means)
