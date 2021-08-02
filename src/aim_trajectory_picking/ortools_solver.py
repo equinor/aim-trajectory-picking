@@ -7,17 +7,8 @@ def format_data_from_file(fullname):
     trajectories = JSON_IO.read_trajectory_from_json(fullname)
     
     data = {}
-    donor_dict = {}
-    target_dict = {}
-    for t in trajectories:
-        if t.donor in donor_dict:
-            donor_dict[t.donor].append(t)
-        else:
-            donor_dict[t.donor] = [t]
-        if t.target in target_dict:
-            target_dict[t.target].append(t)
-        else:
-            target_dict[t.target] = [t]
+    donor_dict, target_dict = get_donor_and_target_collisions(trajectories)
+
     
     
     data['constraint_coeffs'] = []

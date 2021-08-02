@@ -145,5 +145,6 @@ timesets
 even_*
 big_datasets
 profile_results.txt
+GULLFAKS*
 
 .my_venv
