@@ -22,8 +22,7 @@ This package is built using NetworkX and Python 3.
 
 ## How to use the package
 The package can be run from the command line. The input file should contain a list of trajectory dictionaries, which is examplified below:  
-As shown below, the id's start at 0 and incrementally increase by 1, which is crucial for the program's functions using indexing.
-
+The optimal trajectories for each dataset are written to a file (default='optimal_trajectories.json') in the form of a list of trajectory id's per dataset.
 ```
 {"trajectories": [
         {"id": 0,
