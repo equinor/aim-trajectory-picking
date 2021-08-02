@@ -1,13 +1,12 @@
 import argparse
 from warnings import catch_warnings
-from aim_trajectory_picking import functions as func
+from aim_trajectory_picking import algorithms as func
 from aim_trajectory_picking import JSON_IO
 import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from aim_trajectory_picking import ortools_solver
-from aim_trajectory_picking import cp_sat_solver
+
 
 def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
     '''
@@ -299,8 +298,8 @@ def main():
                     'bipartite_matching' : func.bipartite_matching_removed_collisions,
                    'lonely_target' : func.lonely_target_algorithm,
                     'exact' : func.invert_and_clique,
-                    #'ilp' : ortools_solver.ILP,
-                    'cp-sat' : cp_sat_solver.cp_sat_solver,
+                    #'ilp' : func.ILP,
+                    'cp-sat' : func.cp_sat_solver,
                     # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
                     # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                     # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
@@ -318,22 +317,7 @@ def main():
                 Example of use:
                 python pick_trajectories -datasets big_datasets -alg all 
                 python pick_trajectories -datasets random 15 15 1000 0.05 3 -alg greedy weight_trans bipartite
-                --------------------------------------------------------------
-                JSON inputfile format:
-                {
-                    "trajectories": [
-                        {
-                        "id": str,
-                        "donor": str,
-                        "target": str,
-                        "value": int,
-                        "collisions": [
-                            id, ...
-                            ]
-                        },
-                        ...    
-                    ]
-                }''')
+                ''')
                 ,epilog='This is the epilog',
                 add_help=True)
 

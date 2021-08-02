@@ -6,7 +6,6 @@ import os
 
 from aim_trajectory_picking import util
 from aim_trajectory_picking import JSON_IO
-from aim_trajectory_picking import ortools_solver
 from aim_trajectory_picking import algorithms
 
 def algorithm_testing_function(algorithm):
@@ -92,7 +91,7 @@ def test_timer():
     assert time_used >= 0
 
 def test_ILP():
-    ilp_result = algorithm_testing_function(ortools_solver.ILP)
+    ilp_result = algorithm_testing_function(algorithms.ILP)
     greedy_result = algorithm_testing_function(algorithms.greedy_algorithm)
     exact_result = algorithm_testing_function(algorithms.invert_and_clique)
     assert ilp_result == exact_result and ilp_result >= greedy_result
