@@ -14,7 +14,25 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
     Function to find and/or create the given data and return it as a list.
 
     Parameters:
-    dataset_folders:list
+    dataset_folders: list<str>
+    list of folders if which the datasets will be read and added to the list.
+
+    algorithms: list<Function>
+    list of algorithms which will be run on the given datasets. They exist to reduce runtime by not reading datasets which already have saved results
+
+    refresh: bool
+    bool to indicate if previously saved data will be ignored (if True) and results recalculated
+
+    filename: str
+    filename of the file to be read from
+
+    Returns:
+    --------
+    data: list< Tuple( list<Trajectory>, list< Tuple(Trajectory, Trajectory)>)
+    list of trajectories and their collisions
+
+    dataset_names: list<str>
+    list of dataset_names, either read (when reading from file) or None (when random data is chosen)
     '''
     data = []
     dataset_names = []
@@ -131,11 +149,6 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
         ax2.title.set_text('Algorithm Runtime')
         fig.tight_layout(pad=3)
         for algorithm in algorithms:
-            # results_per_dataset = []
-            # algo_runtimes =[]
-            # for name in dataset_names:
-            #     results_per_dataset.append(results[algorithm.__name__][name]['value'])
-            #     algo_runtimes.appebd
             results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
             algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
 
@@ -145,9 +158,6 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
             ax2.scatter(dataset_names, algo_runtimes, s=5, alpha=0.5)
 
             means.append(np.mean(results_per_dataset))
-        #axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
-        #axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
-
         leg1 = ax1.legend()
         leg1.set_draggable(state=True)
         # plt.xticks(rotation=45)
@@ -181,6 +191,21 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
 
 
 def get_previous_results(filename):
+    '''
+    Function to read previous results from given file, if found.
+
+    Parameters:
+    -----------
+    filename: str
+    name of file previous results are located in
+
+    Returns:
+    prev_results: dictionary[algorithm.__name__][dataset] = {
+                'value': int
+                'trajectories: list<Trajectory>
+                'runtime':float
+    } 
+    '''
     try:
         prev_results = JSON_IO.read_value_trajectories_runtime_from_file(filename)
     except:
@@ -188,6 +213,37 @@ def get_previous_results(filename):
     return prev_results
 
 def calculate_or_read_results(algos, _datasets,refresh, *, _is_random=False, filename='results.txt', _dataset_names=None):
+    '''
+    Function to either calculate the specified results or read them from file (if they have been calculated before)
+
+    Parameters:
+    algos: list<Function>
+    list of functions to be ran on _datasets. Must accept list<Trajectory> and list<Tuple(Trajectory, Trajectory)> (collisions) and return\
+        a result dictionary.
+
+    _datasets: list< Tuple( list<Trajectory>, list< Tuple(Trajectory, Trajectory)>)
+    list of trajectories and their collisions
+    
+    refresh: bool
+    bool to indicate whether to recalculate results even if previously calculated.
+
+    _is_random: bool
+    bool to indicate if dataset is randomly generated or not, and therefore does not need to be saved to file
+
+    filename: str
+    file to read previous results from
+
+    _dataset_names: list<str>
+    list of dataset names, to be used in indexing dictionary. If random data generation is chosen, this will be None.
+
+    Returns:
+    --------
+    results: dictionary[algorithm.__name__][dataset] = {
+                'value': int
+                'trajectories: list<Trajectory>
+                'runtime':float
+    } 
+    '''
 
     dataset_names = [str(i) for i in range(len(_datasets))] if _dataset_names == None else _dataset_names
 
@@ -350,6 +406,7 @@ def main():
             if 'random' in args.datasets or 'increasing' in args.datasets: # Sets that would not have results saved from previous runs
                 random_chosen = True   
         
+
             results = calculate_or_read_results(algos,data, refresh,_is_random=random_chosen, _dataset_names =data_names)
             find_best_performing_algorithm(results, algos)
 
@@ -364,6 +421,7 @@ def main():
         #         for key2 in benchmark[key1]:
         #             benchmark[key1][key2].pop("trajectories")
         #     JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
+
 
         plot_results_with_runtimes(algos, results, data_names)
         
