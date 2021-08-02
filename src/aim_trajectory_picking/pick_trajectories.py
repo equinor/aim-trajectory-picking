@@ -410,7 +410,7 @@ def main():
             results = calculate_or_read_results(algos,data, refresh,_is_random=random_chosen, _dataset_names =data_names)
             find_best_performing_algorithm(results, algos)
 
-            optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results, args.outputfile)
+            optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results, args.outputfile, data_names)
             for dataset_name in optimal_trajectory_dict:
                 print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name] )
         
