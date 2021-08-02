@@ -36,13 +36,15 @@ class Trajectory:
 
 
     '''
-    def __init__(self,_id, _donor, _target, _value):
+    def __init__(self,_id, _true_id, _donor, _target, _value):
         ''' 
         Constructs a trajectory object with an empty collision list.
 
         Parameters:
         -----------
         id: int
+            id for this trajectory used for list indexing
+        true_id: int
             unique id of this trajectory
         donor: str
             the donor (origin) of this particular trajectory
@@ -52,6 +54,7 @@ class Trajectory:
             the value of this particular trajectory in accordance to some cost function
         '''
         self.id = _id
+        self.true_id = _true_id
         self.donor = _donor
         self.target = _target
         self.value = _value
@@ -158,7 +161,7 @@ def create_data(num_donors, num_targets, num_trajectories, collision_rate=0.05, 
     for i in range(num_targets):
         targets.append("T"+str(i)) 
     for i in range(num_trajectories):
-        trajectories.append(Trajectory(i, random.choice(donors), random.choice(targets),random.randint(0,data_range))) 
+        trajectories.append(Trajectory(i,i, random.choice(donors), random.choice(targets),random.randint(0,data_range))) 
     collisions = []
     for i in range(int(num_trajectories*collision_rate)):
         collisions.append((trajectories[np.random.randint(0,num_trajectories)],trajectories[np.random.randint(0,num_trajectories)]))
@@ -202,7 +205,7 @@ def create_realistic_data(num_donors, num_targets, num_trajectories, collision_r
         donors.append(donor)
         target = random .randint(max(0, donor - num_targets//5), min(donor + num_targets//5, num_targets-1))
         targets.append(target)
-        trajectories.append(Trajectory(i, donor, target,random.randint(0,data_range))) 
+        trajectories.append(Trajectory(i,i, donor, target,random.randint(0,data_range))) 
     for i in range(num_trajectories):
         for j in range(i, num_trajectories):
             if i !=j and trajectories[i].donor != trajectories[j].donor and trajectories[i].target != trajectories[j].target:
@@ -446,7 +449,7 @@ def translate_trajectory_objects_to_dictionaries(trajectories):
     '''
     node_set = []
     for element in trajectories:
-        node_set.append(Trajectory(element.id, element.donor, element.target,element.value))
+        node_set.append(Trajectory(element.id,element.id, element.donor, element.target,element.value))
     dictionary = {}
     dictionary['value'] = sum(n.value for n in node_set)
     dictionary['trajectories'] = node_set

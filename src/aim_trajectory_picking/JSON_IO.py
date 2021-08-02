@@ -54,8 +54,10 @@ def read_trajectory_from_json(filename):
     '''
     input_data = read_data_from_json_file(filename)
     liste = []
+    list_id = 0
     for trajectory in input_data["trajectories"]:
-        tra = util.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
+        tra = util.Trajectory(list_id, trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
+        list_id += 1
         for collision in trajectory["collisions"]:
             tra.add_collision_by_id(collision)
         liste.append(tra)
@@ -82,8 +84,10 @@ def read_trajectory_from_json_v2(filename):
     input_data = read_data_from_json_file(filename)
     liste = []
     collision_ids = set()
+    list_id = 0
     for trajectory in input_data["trajectories"]:
-        tra = util.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
+        tra = util.Trajectory(list_id, trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
+        list_id +=1
         for collision in trajectory["collisions"]:
             collision_ids.add((tra.id,collision))
             tra.add_collision_by_id(collision)
@@ -221,11 +225,13 @@ def read_value_trajectories_runtime_from_file(filename='results.txt'):
                                                                     }
     '''
     input_data = read_data_from_json_file(filename)
+    list_id = 0
     for key1 in input_data:
         for key2 in input_data[key1]:
             liste = []
             for trajectory in input_data[key1][key2]["trajectories"]:
-                tra = util.Trajectory(trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
+                tra = util.Trajectory(list_id,trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
+                list_id +=1
                 for collision in trajectory["collisions"]:
                     tra.add_collision_by_id(collision)
                 liste.append(tra)

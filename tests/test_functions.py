@@ -30,14 +30,14 @@ def algorithm_testing_function(algorithm):
 # Test the mutually exclusive function on three different arbitrary sets
 @pytest.mark.parametrize("test_input1,test_input2,test_input3,test_input4,expected", [("T1","D1","T1","D2",True), ("T1","D1","T2","D1",True), ("T1","D1","T2","D2",False)])
 def test_mutually_exclusive_trajectories(test_input1,test_input2,test_input3,test_input4, expected):
-    t1 = util.Trajectory(0, test_input1, test_input2, 5)
-    t2 = util.Trajectory(1, test_input3, test_input4, 5)
+    t1 = util.Trajectory(0,0, test_input1, test_input2, 5)
+    t2 = util.Trajectory(1,0, test_input3, test_input4, 5)
     assert util.mutually_exclusive_trajectories(t1, t2) == expected
 
 # Test if a collision is correctly added and detected
 def test_add_collision():
-    t1 = util.Trajectory(2, 'D1', 'T1', 5)
-    t2 = util.Trajectory(2, 'D2', 'T2', 5)
+    t1 = util.Trajectory(2,2, 'D1', 'T1', 5)
+    t2 = util.Trajectory(2,2, 'D2', 'T2', 5)
     t1.add_collision(t2)
     assert util.mutually_exclusive_trajectories(t2,t1) == True
 
