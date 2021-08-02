@@ -1,7 +1,4 @@
 import pytest
-# import src.aim_trajectory_picking.functions as func
-# import src.aim_trajectory_picking.JSON_IO as JSON_IO
-# import src.aim_trajectory_picking.integration_testing as int_test
 import os
 
 from aim_trajectory_picking import util
