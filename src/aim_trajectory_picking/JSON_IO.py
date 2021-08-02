@@ -137,6 +137,7 @@ def write_trajectory_to_json(filename,list_of_trajectories):
         trajectory['target'] = list_of_trajectories[x].target
         trajectory['value'] = list_of_trajectories[x].value
         trajectory['collisions'] = list_of_trajectories[x].collisions
+        trajectory['true_id'] = list_of_trajectories[x].true_id
         JSON_trajectories['trajectories'].append(trajectory)
     write_data_to_json_file(filename,JSON_trajectories)
 

@@ -626,6 +626,18 @@ def get_donor_and_target_collisions(trajectories):
 
     
 def ILP_formatter(trajectories):
+    '''
+    Function to format data correctly for the ILP solver. 
+
+    Parameters:
+    -----------
+    trajectories: List<Trajectory>
+    list of trajectory objects of which the optimal will be found
+
+    Returns:
+    -------
+    None
+    '''
     data = {}
     donor_dict , target_dict = get_donor_and_target_collisions(trajectories)
     
@@ -647,11 +659,7 @@ def ILP_formatter(trajectories):
         for trajectory in target_dict[target]:
             target_constraint[trajectory.id] = -1
         data['constraint_coeffs'].append(target_constraint)
-    '''
-    dictionary {
-        'D1': [2, 4, 6]
-    }
-    '''
+
     for donor in donor_dict:
         if len(donor_dict[donor]) < 2:
             continue
@@ -671,17 +679,37 @@ def ILP_formatter(trajectories):
     data['num_constraints'] = len(data['constraint_coeffs'])
     return data, total_value, trajectories
 
-def save_optimal_trajectories_to_file(results, filename):
+def save_optimal_trajectories_to_file(results, filename,data_names):
+    '''
+    Function to sift through a results dictionary and save the optimal trajectory set to a file.
+
+    Parameters:
+    -----------
+    results: dictionary[algorithm.__name__][dataset] = {
+                'value': int
+                'trajectories: list<Trajectory>
+                'runtime':float
+    filename: str
+    Filename of file to store result in
+
+    Returns:
+    -------
+    optimal_trajectories: dictionary{str : list<Int>}
+    Dictionary in which the dataset name are the keys and the corresponding most optimal trajectories are the values.
+    '''
     max_value = 0
     optimal_trajectories = {}
     max_value_dataset = {}
     for algorithm_name in results:
-        for dataset_name in results[algorithm_name]:
+        for dataset_name in data_names:
             if dataset_name not in max_value_dataset.keys():
                 max_value_dataset[dataset_name] = 0
             if dataset_name in results[algorithm_name].keys() and results[algorithm_name][dataset_name]['value'] > max_value_dataset[dataset_name]:
                 max_value_dataset[dataset_name] =results[algorithm_name][dataset_name]['value']
-                optimal_trajectories[dataset_name] = [e.true_id for e in results[algorithm_name][dataset_name]['trajectories']]
+                if  isinstance(results[algorithm_name][dataset_name]['trajectories'][0], dict):
+                     optimal_trajectories[dataset_name] = [e['true_id'] for e in results[algorithm_name][dataset_name]['trajectories']]
+                else:
+                    optimal_trajectories[dataset_name] = [e.true_id for e in results[algorithm_name][dataset_name]['trajectories']]
     for dataset_name in max_value_dataset:
         if max_value_dataset[dataset_name] == 0:
             print("Optimal trajectories not found for dataset: ", dataset_name)

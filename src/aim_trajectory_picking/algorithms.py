@@ -514,6 +514,20 @@ def bipartite_matching_not_removed_collisions(trajectories, collisons):
     return dictionary
 
 def cp_sat_solver(trajectories, collisions):
+    '''
+    Function to calculate optimal trajectories for the trajectory picking problem, using the google ortools library internally.
+    Method used is integer linear programming, which restates the problem in terms of an objective function, variables, and constraints.
+    Parameters:
+    -----------
+    trajectories: List<Trajectory>
+        list of trajectories to constitute the trajectory picking problem
+    
+    Returns:
+    --------
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects found.
+    '''
     model = cp_model.CpModel()
     num_trajectories = len(trajectories)
     donor_dict, target_dict = get_donor_and_target_collisions(trajectories)
@@ -550,6 +564,21 @@ def cp_sat_solver(trajectories, collisions):
 
 
 def ILP(trajectories, collisions):
+    '''
+    Function to calculate optimal trajectories for the trajectory picking problem, using the google ortools library internally.
+    Method used is linear optimization, which restates the problem in terms of an objective function, variables, and constraints.
+    
+    Parameters:
+    -----------
+    trajectories: List<Trajectory>
+        list of trajectories to constitute the trajectory picking problem
+    
+    Returns:
+    --------
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects found.
+    '''
     
     # retval, _time = func.timer(ILP_formatter,trajectories)
     # print('time to format data: ', _time)
