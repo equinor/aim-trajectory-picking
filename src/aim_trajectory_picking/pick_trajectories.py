@@ -1,20 +1,38 @@
 import argparse
 from warnings import catch_warnings
-from aim_trajectory_picking import functions as func
+from aim_trajectory_picking import algorithms as func
+from aim_trajectory_picking import util
 from aim_trajectory_picking import JSON_IO
 import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from aim_trajectory_picking import ortools_solver
-from aim_trajectory_picking import cp_sat_solver
+
 
 def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
     '''
     Function to find and/or create the given data and return it as a list.
 
     Parameters:
-    dataset_folders:list
+    dataset_folders: list<str>
+    list of folders if which the datasets will be read and added to the list.
+
+    algorithms: list<Function>
+    list of algorithms which will be run on the given datasets. They exist to reduce runtime by not reading datasets which already have saved results
+
+    refresh: bool
+    bool to indicate if previously saved data will be ignored (if True) and results recalculated
+
+    filename: str
+    filename of the file to be read from
+
+    Returns:
+    --------
+    data: list< Tuple( list<Trajectory>, list< Tuple(Trajectory, Trajectory)>)
+    list of trajectories and their collisions
+
+    dataset_names: list<str>
+    list of dataset_names, either read (when reading from file) or None (when random data is chosen)
     '''
     data = []
     dataset_names = []
@@ -58,7 +76,7 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
                 print("making dataset nr: " + str(i))
                 _,_,trajectories, collisions = func.create_data(num_donors, num_targets, initial_num_trajectories * (i + 1), collision_rate)
                 data.append((trajectories, collisions))
-                dataset_names.append('increasing_set_' + str(i)+ '.txt')
+                dataset_names.append('dataset_' + str(i)+ '.txt')
             return data, None
         else:
             prev_results = get_previous_results(filename)
@@ -136,11 +154,6 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
         ax2.title.set_text('Algorithm Runtime')
         fig.tight_layout(pad=3)
         for algorithm in algorithms:
-            # results_per_dataset = []
-            # algo_runtimes =[]
-            # for name in dataset_names:
-            #     results_per_dataset.append(results[algorithm.__name__][name]['value'])
-            #     algo_runtimes.appebd
             results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
             algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
 
@@ -150,9 +163,6 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
             ax2.scatter(dataset_names, algo_runtimes, s=5, alpha=0.5)
 
             means.append(np.mean(results_per_dataset))
-        #axs[1].plot(dataset_names, [x**2 for x in range(len(dataset_names))],'k', label='n^2')
-        #axs[1].plot(dataset_names, [x for x in range(len(dataset_names))],'b', label='n')
-
         leg1 = ax1.legend()
         leg1.set_draggable(state=True)
         # plt.xticks(rotation=45)
@@ -186,6 +196,21 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
 
 
 def get_previous_results(filename):
+    '''
+    Function to read previous results from given file, if found.
+
+    Parameters:
+    -----------
+    filename: str
+    name of file previous results are located in
+
+    Returns:
+    prev_results: dictionary[algorithm.__name__][dataset] = {
+                'value': int
+                'trajectories: list<Trajectory>
+                'runtime':float
+    } 
+    '''
     try:
         prev_results = JSON_IO.read_value_trajectories_runtime_from_file(filename)
     except:
@@ -193,6 +218,37 @@ def get_previous_results(filename):
     return prev_results
 
 def calculate_or_read_results(algos, _datasets,refresh, *, _is_random=False, filename='results.txt', _dataset_names=None):
+    '''
+    Function to either calculate the specified results or read them from file (if they have been calculated before)
+
+    Parameters:
+    algos: list<Function>
+    list of functions to be ran on _datasets. Must accept list<Trajectory> and list<Tuple(Trajectory, Trajectory)> (collisions) and return\
+        a result dictionary.
+
+    _datasets: list< Tuple( list<Trajectory>, list< Tuple(Trajectory, Trajectory)>)
+    list of trajectories and their collisions
+    
+    refresh: bool
+    bool to indicate whether to recalculate results even if previously calculated.
+
+    _is_random: bool
+    bool to indicate if dataset is randomly generated or not, and therefore does not need to be saved to file
+
+    filename: str
+    file to read previous results from
+
+    _dataset_names: list<str>
+    list of dataset names, to be used in indexing dictionary. If random data generation is chosen, this will be None.
+
+    Returns:
+    --------
+    results: dictionary[algorithm.__name__][dataset] = {
+                'value': int
+                'trajectories: list<Trajectory>
+                'runtime':float
+    } 
+    '''
 
     dataset_names = [str(i) for i in range(len(_datasets))] if _dataset_names == None else _dataset_names
 
@@ -311,73 +367,81 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
     
 
 def main():
-    algorithms = {  'greedy' : func.greedy_algorithm, 
-                #'modified_greedy': func.modified_greedy,
-                'NN' : func.NN_algorithm,
-                #'random' : func.random_algorithm,
-                'weight_trans' :func.weight_transformation_algorithm, 
-                'bipartite_matching' : func.bipartite_matching_removed_collisions,
-                'lonely_target' : func.lonely_target_algorithm,
-                'exact' : func.invert_and_clique,
-                #'ilp' : ortools_solver.ILP,
-                'cp-sat' : cp_sat_solver.cp_sat_solver,
-                # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
-                # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
-                # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
-                # 'bipartite_matching_v2': func.bip,
-                #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
-                }
-    not_runnable = [func.invert_and_clique]
-    algo_choices = [ key for key in algorithms]
-    algo_choices.append('all')
-    algo_choices.append('runnable')
+        algorithms = {  'greedy' : func.greedy_algorithm, 
+                    'modified_greedy': func.modified_greedy,
+                    'NN' : func.NN_algorithm,
+                    # 'random' : func.random_algorithm,
+                    'weight_trans' :func.weight_transformation_algorithm, 
+                    # 'bipartite_matching' : func.bipartite_matching_removed_collisions,
+                    'lonely_target' : func.lonely_target_algorithm,
+                    'exact' : func.invert_and_clique,
+                    'ilp' : func.ILP,
+                    'cp-sat' : func.cp_sat_solver,
+                    # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
+                    # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
+                    # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
+                    # 'bipartite_matching_v2': func.bip,
+                    #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
+                    }
+        not_runnable = [func.invert_and_clique]
+        algo_choices = [ key for key in algorithms]
+        algo_choices.append('all')
+        algo_choices.append('runnable')
 
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=('''\
-            Trajectory picking algorithm for the AI for Maturation project
-            Example of use:
-            python pick_trajectories -datasets big_datasets -alg all 
-            python pick_trajectories -datasets random 15 15 1000 0.05 3 -alg greedy weight_trans bipartite
-            --------------------------------------------------------------
-            JSON inputfile format:
-            {
-                "trajectories": [
-                    {
-                    "id": str,
-                    "donor": str,
-                    "target": str,
-                    "value": int,
-                    "collisions": [
-                        id, ...
-                        ]
-                    },
-                    ...    
-                ]
-            }''')
-            ,epilog='This is the epilog',
-            add_help=True)
+        parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+            description=('''
+                Trajectory picking algorithm for the AI for Maturation project
+                Example of use:
+                python run -datasets big_datasets -alg all
+                python run -datasets random 15 15 1000 0.05 3 -alg greedy weight_trans bipartite''')
+                ,epilog='This is the epilog',
+                add_help=True)
 
-    parser.add_argument('-alg',default='all',type=str,choices=algo_choices, nargs='*',help='Type of algorithm used (default: greedy)',)
-    parser.add_argument('-datasets',metavar='Datasets',nargs='*',type=str,help='String of the input data set folder, JSON format. \
-        Default is datasets, and the algorithm will be run on datasets if the argument is not recognized. \
-            Can also be random, with specified number of donors, targets and trajectories, in addition to collision rate and number of datasets\
-                ex: random 10 10 100 0.05 10')
-    parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='trajectories.txt',help='Filename string of output data result, JSON format')
-    # could potentially add optional arguments for running test sets instead, or average of X trials
-    parser.add_argument('-refresh', metavar='refresh', type = str, default='False', help='If true, ignores previous results and calculates the specified algorithms again')
+        parser.add_argument('-alg',default='all',type=str,choices=algo_choices, nargs='*',help='Type of algorithm used',)
+        parser.add_argument('-datasets',default='benchmark',nargs='*',type=str,help='String of the input data set folder, JSON format. \
+            Default is datasets, and the algorithm will be run on datasets if the argument is not recognized. \
+                Can also be random, with specified number of donors, targets and trajectories, in addition to collision rate and number of datasets\
+                    ex: random 10 10 100 0.05 10')
+        parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='optimal_trajectories.json',help='Filename string of output data result, JSON format')
+        # could potentially add optional arguments for running test sets instead, or average of X trials
+        parser.add_argument('-refresh', metavar='refresh', type = str, default='False', help='If true, ignores previous results and calculates the specified algorithms again')
 
-    args = parser.parse_args()
-    print(args.refresh)
-    refresh = True if args.refresh == 'True' else False
-    if args.alg == 'all' or args.alg[0] == 'all':
-        algos = [algorithms[key] for key in algorithms]
-        if 'exact' not in args.alg:
-            for unrunnable in not_runnable:
-                algos.remove(unrunnable)
-    else:
-        algos = [algorithms[key] for key in args.alg]
+        args = parser.parse_args()
+  
+        refresh = True if args.refresh == 'True' or args.refresh == 'true' else False
+        if args.alg == 'all' or args.alg[0] == 'all':
+            algos = [algorithms[key] for key in algorithms]
+            if 'exact' not in args.alg:
+                for unrunnable in not_runnable:
+                    algos.remove(unrunnable)
+        else:
+            algos = [algorithms[key] for key in args.alg]
 
-    data, data_names, empty_folder = get_datasets(args.datasets, algos, refresh)
+        if 'benchmark' in args.datasets:
+            results = JSON_IO.read_data_from_json_file('benchmark.txt')
+            data_names = None
+        else:
+            data, data_names, empty_folder = get_datasets(args.datasets,algos,refresh)
+            random_chosen = False
+            if 'random' in args.datasets or 'increasing' in args.datasets: # Sets that would not have results saved from previous runs
+                random_chosen = True   
+        
+
+            results = calculate_or_read_results(algos,data, refresh,_is_random=random_chosen, _dataset_names =data_names)
+            find_best_performing_algorithm(results, algos)
+
+            optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results,args.outputfile,data_names)
+            # for dataset_name in optimal_trajectory_dict:
+            #     print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name] )
+        
+        # Make a separate file for benchmark of algorithms
+        # if 'increasing' in args.datasets:
+        #     benchmark = results
+        #     for key1 in benchmark:
+        #         for key2 in benchmark[key1]:
+        #             benchmark[key1][key2].pop("trajectories")
+        #     JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
+
 
     random_chosen = False
     
@@ -389,6 +453,7 @@ def main():
     if empty_folder == False:
         find_best_performing_algorithm(results,algos,data_names)
         plot_results_with_runtimes(algos, results, data_names)
+
     else:
         print('No datasets found in datasetfolder')
 
