@@ -1,13 +1,13 @@
 import argparse
 from warnings import catch_warnings
-from aim_trajectory_picking import functions as func
+from aim_trajectory_picking import algorithms as func
+from aim_trajectory_picking import util
 from aim_trajectory_picking import JSON_IO
 import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from aim_trajectory_picking import ortools_solver
-from aim_trajectory_picking import cp_sat_solver
+
 
 def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
     '''
@@ -304,6 +304,7 @@ def main():
                     'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
                     'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                     'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
+
                     # 'bipartite_matching_v2': func.bip,
                     #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
                     }
@@ -326,13 +327,13 @@ def main():
             Default is datasets, and the algorithm will be run on datasets if the argument is not recognized. \
                 Can also be random, with specified number of donors, targets and trajectories, in addition to collision rate and number of datasets\
                     ex: random 10 10 100 0.05 10')
-        parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='optimal_trajectories.txt',help='Filename string of output data result, JSON format')
+        parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='optimal_trajectories.json',help='Filename string of output data result, JSON format')
         # could potentially add optional arguments for running test sets instead, or average of X trials
         parser.add_argument('-refresh', metavar='refresh', type = str, default='False', help='If true, ignores previous results and calculates the specified algorithms again')
 
         args = parser.parse_args()
-        print(args.refresh)
-        refresh = True if args.refresh == 'True' else False
+  
+        refresh = True if args.refresh == 'True' or args.refresh == 'true' else False
         if args.alg == 'all' or args.alg[0] == 'all':
             algos = [algorithms[key] for key in algorithms]
             if 'exact' not in args.alg:
@@ -351,10 +352,16 @@ def main():
             if 'random' in args.datasets or 'increasing' in args.datasets: # Sets that would not have results saved from previous runs
                 random_chosen = True   
         
-            results = calculate_or_read_results(algos,data, _is_random=random_chosen, _dataset_names =data_names)
-            find_best_performing_algorithm(results, algos)
-        # if 'increasing' in args.datasets:
-        #     JSON_IO.write_data_to_json_file('benchmark.txt',results)
+        if args.datasets == None:
+            random_chosen = False    
+        elif 'random' in args.datasets:
+            random_chosen = True
+        results = calculate_or_read_results(algos,data,refresh, _is_random=random_chosen, _dataset_names =data_names)
+        find_best_performing_algorithm(results,algos)
+        optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results, args.outputfile)
+        for dataset_name in optimal_trajectory_dict:
+            print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name] )
+
         plot_results_with_runtimes(algos, results, data_names)
         
 
