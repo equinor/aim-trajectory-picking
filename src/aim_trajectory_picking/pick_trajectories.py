@@ -292,19 +292,18 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
 
 def main():
         algorithms = {  'greedy' : func.greedy_algorithm, 
-                    #'modified_greedy': func.modified_greedy,
+                    'modified_greedy': func.modified_greedy,
                     'NN' : func.NN_algorithm,
                     'random' : func.random_algorithm,
                     'weight_trans' :func.weight_transformation_algorithm, 
                     'bipartite_matching' : func.bipartite_matching_removed_collisions,
                     'lonely_target' : func.lonely_target_algorithm,
                     'exact' : func.invert_and_clique,
-                    #'ilp' : ortools_solver.ILP,
-                    'cp-sat' : cp_sat_solver.cp_sat_solver,
+                    'ilp' : func.ILP,
+                    'cp-sat' : func.cp_sat_solver,
                     'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
-                    'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
-                    'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
-
+                    # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
+                    # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
                     # 'bipartite_matching_v2': func.bip,
                     #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
                     }
@@ -346,21 +345,25 @@ def main():
             results = JSON_IO.read_data_from_json_file('benchmark.txt')
             data_names = None
         else:
-            data, data_names = get_datasets(args.datasets)
-            print("hei", data_names)
+            data, data_names = get_datasets(args.datasets,algos,refresh)
             random_chosen = False
             if 'random' in args.datasets or 'increasing' in args.datasets: # Sets that would not have results saved from previous runs
                 random_chosen = True   
         
-        if args.datasets == None:
-            random_chosen = False    
-        elif 'random' in args.datasets:
-            random_chosen = True
-        results = calculate_or_read_results(algos,data,refresh, _is_random=random_chosen, _dataset_names =data_names)
-        find_best_performing_algorithm(results,algos)
-        optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results, args.outputfile)
-        for dataset_name in optimal_trajectory_dict:
-            print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name] )
+            results = calculate_or_read_results(algos,data, refresh,_is_random=random_chosen, _dataset_names =data_names)
+            find_best_performing_algorithm(results, algos)
+
+            optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results, args.outputfile)
+            for dataset_name in optimal_trajectory_dict:
+                print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name] )
+        
+        # Make a separate file for benchmark of algorithms
+        # if 'increasing' in args.datasets:
+        #     benchmark = results
+        #     for key1 in benchmark:
+        #         for key2 in benchmark[key1]:
+        #             benchmark[key1][key2].pop("trajectories")
+        #     JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
 
         plot_results_with_runtimes(algos, results, data_names)
         
