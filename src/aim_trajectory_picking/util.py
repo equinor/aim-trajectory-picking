@@ -701,7 +701,7 @@ def save_optimal_trajectories_to_file(results, filename,data_names):
     optimal_trajectories = {}
     max_value_dataset = {}
     for algorithm_name in results:
-        for dataset_name in data_names:
+        for dataset_name in results[algorithm_name]: #data_names
             if dataset_name not in max_value_dataset.keys():
                 max_value_dataset[dataset_name] = 0
             if dataset_name in results[algorithm_name].keys() and results[algorithm_name][dataset_name]['value'] > max_value_dataset[dataset_name]:
