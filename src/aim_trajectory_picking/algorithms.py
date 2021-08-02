@@ -139,7 +139,10 @@ def general_trajectory_algorithm(graph, choice_function, *, visualize=False):
             plt.show()
         optimal_trajectories.append(chosen_node)
         [graph.remove_node(n) for n in list(graph.neighbors(chosen_node))]
-        graph.remove_node(chosen_node)
+        try:
+            graph.remove_node(chosen_node)
+        except:
+            pass
     dictionary = {}
     dictionary['value'] = sum(n.value for n in optimal_trajectories)
     dictionary['trajectories'] = optimal_trajectories
