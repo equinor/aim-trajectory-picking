@@ -428,34 +428,23 @@ def main():
     
 
         results = calculate_or_read_results(algos,data, refresh,_is_random=random_chosen, _dataset_names =data_names)
-        find_best_performing_algorithm(results, algos)
+        if empty_folder == False:
+            find_best_performing_algorithm(results,algos,data_names)
+            plot_results_with_runtimes(algos, results, data_names)
+        else:
+            print('No datasets found in datasetfolder')
 
     optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results,args.outputfile,data_names)
     for dataset_name in optimal_trajectory_dict:
         print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name] )
 
-        # Make a separate file for benchmark of algorithms
-        # if 'increasing' in args.datasets:
-        #     benchmark = results
-        #     for key1 in benchmark:
-        #         for key2 in benchmark[key1]:
-        #             benchmark[key1][key2].pop("trajectories")
-        #     JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
-
-
-    random_chosen = False
-    
-    if args.datasets == None:
-        random_chosen = False    
-    elif 'random' in args.datasets:
-        random_chosen = True
-    results = calculate_or_read_results(algos,data,refresh, _is_random=random_chosen, _dataset_names =data_names)
-    if empty_folder == False:
-        find_best_performing_algorithm(results,algos,data_names)
-        plot_results_with_runtimes(algos, results, data_names)
-
-    else:
-        print('No datasets found in datasetfolder')
+    # Make a separate file for benchmark of algorithms
+    # if 'increasing' in args.datasets:
+    #     benchmark = results
+    #     for key1 in benchmark:
+    #         for key2 in benchmark[key1]:
+    #             benchmark[key1][key2].pop("trajectories")
+    #     JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
 
 if __name__ == '__main__':
     main()
