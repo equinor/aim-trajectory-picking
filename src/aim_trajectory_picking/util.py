@@ -1,10 +1,14 @@
 import random
+from networkx import algorithms
+from networkx.algorithms.chordal import _max_cardinality_node
 import numpy as np
 from itertools import combinations
 import networkx as nx
 import matplotlib.pyplot as plt
 import time
 from itertools import permutations
+
+from aim_trajectory_picking import JSON_IO
 
 class Trajectory:
     '''
@@ -666,3 +670,20 @@ def ILP_formatter(trajectories):
     data['num_vars'] = len(trajectories)
     data['num_constraints'] = len(data['constraint_coeffs'])
     return data, total_value, trajectories
+
+def save_optimal_trajectories_to_file(results, filename):
+    max_value = 0
+    optimal_trajectories = {}
+    max_value_dataset = {}
+    for algorithm_name in results:
+        for dataset_name in results[algorithm_name]:
+            if dataset_name not in max_value_dataset.keys():
+                max_value_dataset[dataset_name] = 0
+            if dataset_name in results[algorithm_name].keys() and results[algorithm_name][dataset_name]['value'] > max_value_dataset[dataset_name]:
+                max_value_dataset[dataset_name] =results[algorithm_name][dataset_name]['value']
+                optimal_trajectories[dataset_name] = [e.true_id for e in results[algorithm_name][dataset_name]['trajectories']]
+    for dataset_name in max_value_dataset:
+        if max_value_dataset[dataset_name] == 0:
+            print("Optimal trajectories not found for dataset: ", dataset_name)
+    JSON_IO.write_data_to_json_file(filename, optimal_trajectories)
+    return optimal_trajectories

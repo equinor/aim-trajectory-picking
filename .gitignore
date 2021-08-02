@@ -146,5 +146,6 @@ even_*
 big_datasets
 profile_results.txt
 GULLFAKS*
+optimal_trajectories.json
 
 .my_venv

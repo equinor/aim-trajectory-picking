@@ -1,6 +1,7 @@
 import argparse
 from warnings import catch_warnings
 from aim_trajectory_picking import algorithms as func
+from aim_trajectory_picking import util
 from aim_trajectory_picking import JSON_IO
 import os
 import matplotlib.pyplot as plt
@@ -326,13 +327,13 @@ def main():
             Default is datasets, and the algorithm will be run on datasets if the argument is not recognized. \
                 Can also be random, with specified number of donors, targets and trajectories, in addition to collision rate and number of datasets\
                     ex: random 10 10 100 0.05 10')
-        parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='trajectories.txt',help='Filename string of output data result, JSON format')
+        parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='optimal_trajectories.json',help='Filename string of output data result, JSON format')
         # could potentially add optional arguments for running test sets instead, or average of X trials
         parser.add_argument('-refresh', metavar='refresh', type = str, default='False', help='If true, ignores previous results and calculates the specified algorithms again')
 
         args = parser.parse_args()
-        print(args.refresh)
-        refresh = True if args.refresh == 'True' else False
+  
+        refresh = True if args.refresh == 'True' or args.refresh == 'true' else False
         if args.alg == 'all' or args.alg[0] == 'all':
             algos = [algorithms[key] for key in algorithms]
             if 'exact' not in args.alg:
@@ -351,7 +352,9 @@ def main():
             random_chosen = True
         results = calculate_or_read_results(algos,data,refresh, _is_random=random_chosen, _dataset_names =data_names)
         find_best_performing_algorithm(results,algos)
-
+        optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results, args.outputfile)
+        for dataset_name in optimal_trajectory_dict:
+            print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name] )
         plot_results_with_runtimes(algos, results, data_names)
 
 if __name__ == '__main__':
