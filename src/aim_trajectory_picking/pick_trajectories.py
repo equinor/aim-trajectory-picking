@@ -62,26 +62,31 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
             return data, None
         else:
             prev_results = get_previous_results(filename)
-            for folder in dataset_folders:
-                for filename in os.listdir(folder):
-                    print("else file")
-                    if refresh or not all(filename in prev_results[algo.__name__].keys() for algo in algorithms):
-                        #print("file not in results, reading it")
-                        fullpath = os.path.join(folder,filename)
-                        data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
-                        dataset_names.append(filename)
-                    else:
-                        dataset_names.append(filename)
+            datasets_as_string = ' '.join(map(str, dataset_folders))
+            if len(os.listdir(datasets_as_string))==0:
+                no_datasets = True
+            else:
+                no_datasets = False
+                for folder in dataset_folders:
+                    for filename in os.listdir(folder):
+                        print("else file")
+                        if refresh or not all(filename in prev_results[algo.__name__].keys() for algo in algorithms):
+                            fullpath = os.path.join(folder,filename)
+                            data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
+                            dataset_names.append(filename)
+                            print(fullpath)
+                        else:
+                            dataset_names.append(filename)
 
     except Exception as e:
         print("exception thrown:", str(e))
         if len(data) == 0:
             print("Dataset arguments not recognized, reading from datasets instead.")
-            for filename in os.listdir('datasets'):
-                fullpath = os.path.join('datasets',filename)
+            for filename in os.listdir('testsets'):
+                fullpath = os.path.join('testsets',filename)
                 data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
                 dataset_names.append(filename)
-    return data, dataset_names
+    return data, dataset_names, no_datasets
 
 def addlabels(x,y):
     for i in range(len(x)):
@@ -222,38 +227,53 @@ def calculate_or_read_results(algos, _datasets,refresh, *, _is_random=False, fil
     return prev_results
 
 
-def find_best_performing_algorithm(results, algorithms):
+def find_best_performing_algorithm(results, algorithms, used_datasets):
     best_result = 0
     algorithm_finder = 0
     best_algorithm_name_list = []
     matrix_list = []
+    all_datasets_list =[]
+    check_list = []
 
     for algorithm in algorithms:
-        results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]        
-        
-        matrix_list.append(results_per_dataset)
+        for all_datasets in results[algorithm.__name__]:
+            if all_datasets not in all_datasets_list:
+                all_datasets_list.append(all_datasets)
 
-        if sum(results_per_dataset) > best_result:
-            best_result = sum(results_per_dataset)
-            for key in results.keys():
-                best_algorithm_name_list.append(key)
-            best_algorithm_name = best_algorithm_name_list[algorithm_finder]
+    used_datasets_set = set(used_datasets)
+    all_datasets_set = set(all_datasets_list)
+    intersection = used_datasets_set.intersection(all_datasets_set)
+    intersection_as_list = sorted(list(intersection))
+
+    for algorithm in algorithms:
+    #     results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]   
+    #     matrix_list.append(results_per_dataset)
+        ram_list = []
+        for element in intersection_as_list:
+            if element in results[algorithm.__name__]:
+                chosen_results_per_dataset = [results[algorithm.__name__][element]['value']]
+                ram_list.append(chosen_results_per_dataset[0])
+
+                if sum(chosen_results_per_dataset) > best_result:
+                    best_result = sum(chosen_results_per_dataset)
+                    for key in results.keys():
+                        best_algorithm_name_list.append(key)
+                    best_algorithm_name = best_algorithm_name_list[algorithm_finder]
         algorithm_finder += 1
-    
+        matrix_list.append(ram_list)
     map_matrix = list(map(max, zip(*matrix_list)))
     algorithm_finder_per_dataset = 0
     best_performing_algorithms = [[] for x in range(len(map_matrix))]
-    for algorithm in algorithms:
-        check_results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]
-        for i in range(len(map_matrix)):
-            if map_matrix[i] == check_results_per_dataset[i]:
-                best_performing_algorithms[i].append(best_algorithm_name_list[algorithm_finder_per_dataset])
-        algorithm_finder_per_dataset += 1
-
+    for n in range(len(map_matrix)):
+        for m in range(len(matrix_list)):
+            if map_matrix[n] == matrix_list[m][n]:
+                best_performing_algorithms[n].append(best_algorithm_name_list[m])
+    print(best_performing_algorithms)
     for j in range(len(best_performing_algorithms)):
         listToStr = ' '.join(map(str, best_performing_algorithms[j]))
         print('On dataset', j+1, ',', listToStr, 'with value: ', map_matrix[j])
     print('Highest total value across all datasets: ', best_algorithm_name, ': value: ', best_result)
+
 
 def translate_results_to_dict(results, algorithms):
     '''
@@ -291,84 +311,86 @@ def plot_algorithm_values_per_dataset(algorithms, results, directory):
     
 
 def main():
-        algorithms = {  'greedy' : func.greedy_algorithm, 
-                    #'modified_greedy': func.modified_greedy,
-                    'NN' : func.NN_algorithm,
-                    #'random' : func.random_algorithm,
-                    'weight_trans' :func.weight_transformation_algorithm, 
-                    'bipartite_matching' : func.bipartite_matching_removed_collisions,
-                   'lonely_target' : func.lonely_target_algorithm,
-                    'exact' : func.invert_and_clique,
-                    #'ilp' : ortools_solver.ILP,
-                    'cp-sat' : cp_sat_solver.cp_sat_solver,
-                    # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
-                    # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
-                    # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
-                    # 'bipartite_matching_v2': func.bip,
-                    #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
-                    }
-        not_runnable = [func.invert_and_clique]
-        algo_choices = [ key for key in algorithms]
-        algo_choices.append('all')
-        algo_choices.append('runnable')
+    algorithms = {  'greedy' : func.greedy_algorithm, 
+                #'modified_greedy': func.modified_greedy,
+                'NN' : func.NN_algorithm,
+                #'random' : func.random_algorithm,
+                'weight_trans' :func.weight_transformation_algorithm, 
+                'bipartite_matching' : func.bipartite_matching_removed_collisions,
+                'lonely_target' : func.lonely_target_algorithm,
+                'exact' : func.invert_and_clique,
+                #'ilp' : ortools_solver.ILP,
+                'cp-sat' : cp_sat_solver.cp_sat_solver,
+                # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
+                # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
+                # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
+                # 'bipartite_matching_v2': func.bip,
+                #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
+                }
+    not_runnable = [func.invert_and_clique]
+    algo_choices = [ key for key in algorithms]
+    algo_choices.append('all')
+    algo_choices.append('runnable')
 
-        parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-            description=('''\
-                Trajectory picking algorithm for the AI for Maturation project
-                Example of use:
-                python pick_trajectories -datasets big_datasets -alg all 
-                python pick_trajectories -datasets random 15 15 1000 0.05 3 -alg greedy weight_trans bipartite
-                --------------------------------------------------------------
-                JSON inputfile format:
-                {
-                    "trajectories": [
-                        {
-                        "id": str,
-                        "donor": str,
-                        "target": str,
-                        "value": int,
-                        "collisions": [
-                            id, ...
-                            ]
-                        },
-                        ...    
-                    ]
-                }''')
-                ,epilog='This is the epilog',
-                add_help=True)
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=('''\
+            Trajectory picking algorithm for the AI for Maturation project
+            Example of use:
+            python pick_trajectories -datasets big_datasets -alg all 
+            python pick_trajectories -datasets random 15 15 1000 0.05 3 -alg greedy weight_trans bipartite
+            --------------------------------------------------------------
+            JSON inputfile format:
+            {
+                "trajectories": [
+                    {
+                    "id": str,
+                    "donor": str,
+                    "target": str,
+                    "value": int,
+                    "collisions": [
+                        id, ...
+                        ]
+                    },
+                    ...    
+                ]
+            }''')
+            ,epilog='This is the epilog',
+            add_help=True)
 
-        parser.add_argument('-alg',default='all',type=str,choices=algo_choices, nargs='*',help='Type of algorithm used (default: greedy)',)
-        parser.add_argument('-datasets',metavar='Datasets',nargs='*',type=str,help='String of the input data set folder, JSON format. \
-            Default is datasets, and the algorithm will be run on datasets if the argument is not recognized. \
-                Can also be random, with specified number of donors, targets and trajectories, in addition to collision rate and number of datasets\
-                    ex: random 10 10 100 0.05 10')
-        parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='trajectories.txt',help='Filename string of output data result, JSON format')
-        # could potentially add optional arguments for running test sets instead, or average of X trials
-        parser.add_argument('-refresh', metavar='refresh', type = str, default='False', help='If true, ignores previous results and calculates the specified algorithms again')
+    parser.add_argument('-alg',default='all',type=str,choices=algo_choices, nargs='*',help='Type of algorithm used (default: greedy)',)
+    parser.add_argument('-datasets',metavar='Datasets',nargs='*',type=str,help='String of the input data set folder, JSON format. \
+        Default is datasets, and the algorithm will be run on datasets if the argument is not recognized. \
+            Can also be random, with specified number of donors, targets and trajectories, in addition to collision rate and number of datasets\
+                ex: random 10 10 100 0.05 10')
+    parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='trajectories.txt',help='Filename string of output data result, JSON format')
+    # could potentially add optional arguments for running test sets instead, or average of X trials
+    parser.add_argument('-refresh', metavar='refresh', type = str, default='False', help='If true, ignores previous results and calculates the specified algorithms again')
 
-        args = parser.parse_args()
-        print(args.refresh)
-        refresh = True if args.refresh == 'True' else False
-        if args.alg == 'all' or args.alg[0] == 'all':
-            algos = [algorithms[key] for key in algorithms]
-            if 'exact' not in args.alg:
-                for unrunnable in not_runnable:
-                    algos.remove(unrunnable)
-        else:
-            algos = [algorithms[key] for key in args.alg]
+    args = parser.parse_args()
+    print(args.refresh)
+    refresh = True if args.refresh == 'True' else False
+    if args.alg == 'all' or args.alg[0] == 'all':
+        algos = [algorithms[key] for key in algorithms]
+        if 'exact' not in args.alg:
+            for unrunnable in not_runnable:
+                algos.remove(unrunnable)
+    else:
+        algos = [algorithms[key] for key in args.alg]
 
-        data, data_names = get_datasets(args.datasets, algos, refresh)
+    data, data_names, empty_folder = get_datasets(args.datasets, algos, refresh)
 
-        random_chosen = False
-        
-        if args.datasets == None:
-            random_chosen = False    
-        elif 'random' in args.datasets:
-            random_chosen = True
-        results = calculate_or_read_results(algos,data,refresh, _is_random=random_chosen, _dataset_names =data_names)
-        find_best_performing_algorithm(results,algos)
-
+    random_chosen = False
+    
+    if args.datasets == None:
+        random_chosen = False    
+    elif 'random' in args.datasets:
+        random_chosen = True
+    results = calculate_or_read_results(algos,data,refresh, _is_random=random_chosen, _dataset_names =data_names)
+    if empty_folder == False:
+        find_best_performing_algorithm(results,algos,data_names)
         plot_results_with_runtimes(algos, results, data_names)
+    else:
+        print('No datasets found in datasetfolder')
 
 if __name__ == '__main__':
     main()
