@@ -1,3 +1,134 @@
+import random
+from networkx import algorithms
+from networkx.algorithms.chordal import _max_cardinality_node
+import numpy as np
+from itertools import combinations
+import networkx as nx
+import matplotlib.pyplot as plt
+import time
+from itertools import permutations
+
+from aim_trajectory_picking import JSON_IO
+
+class Trajectory:
+    '''
+    A class to represent a Trajectory.
+
+    ...
+
+    Attributes:
+    -----------
+    id: int
+        unique id of this trajectory
+    donor: str
+        the donor (origin) of this particular trajectory
+    target: str
+        the target (endpoint) if this particular trajectory
+    value: int/double
+        the value of this particular trajectory in accordance to some cost function
+    collisions: List<int>
+        A list of trajectory id's with which this trajectory collides. 
+        Does not account for trajectories having the same donor/target
+
+    Methods:
+    --------
+    add_collision(self, trajectory):
+        Adds the trajectory to this objects collision list, and adds itself to the other trajectory objects collision list.
+    
+    add_collision_by_id(self, id):
+        Adds the given id to this trajectory's collision list. Does not add itself to the given trajectory id's collision list.
+
+
+    '''
+    def __init__(self,_id, _true_id, _donor, _target, _value):
+        ''' 
+        Constructs a trajectory object with an empty collision list.
+
+        Parameters:
+        -----------
+        id: int
+            id for this trajectory used for list indexing
+        true_id: int
+            unique id of this trajectory
+        donor: str
+            the donor (origin) of this particular trajectory
+        target: str
+            the target (endpoint) if this particular trajectory
+        value: int/double
+            the value of this particular trajectory in accordance to some cost function
+        '''
+        self.id = _id
+        self.true_id = _true_id
+        self.donor = _donor
+        self.target = _target
+        self.value = _value
+        self.collisions = []
+    
+    def add_collision(self, trajectory):
+        '''
+        Add a collision to this trajectory object. Also adds self to the other trajectory's collision list.
+
+        Parameters:
+        -----------
+        trajectory: Trajectory
+            the trajectory to be added to this objects collision list.
+        
+        Returns:
+        --------
+        None
+        '''
+        if trajectory.id not in self.collisions:
+            self.collisions.append(trajectory.id)
+            trajectory.add_collision(self)
+
+    def add_collision_by_id(self, id):
+        '''
+        Add a collision to this trajectory object
+
+        Parameters:
+        -----------
+        id: int
+            the trajectory id to be added to this trajectory objects collission list
+        
+        Returns:
+        --------
+        None
+        '''
+        self.collisions.append(id)
+ 
+    def __str__(self):
+        return str(self.id) + ": "+ str(self.donor) + "-->" + str(self.target) + "  Value " + str(self.value) + " collisions :" + str(self.collisions)
+    
+    def __eq__(self, other):
+        if not isinstance(other, Trajectory):
+            return NotImplemented
+        return self.id == other.id and self.donor == other.donor and self.target == other.target and self.value == other.value and self.collisions == other.collisions
+
+    def __hash__(self):
+        return self.id 
+
+def create_graph(trajectories, collisions):
+    G = nx.Graph()
+    G.add_nodes_from(trajectories)
+    G.add_edges_from(collisions)
+    donor_dict = {}
+    target_dict = {}
+    for t in trajectories:
+        if t.donor in donor_dict:
+            donor_dict[t.donor].append(t)
+        else:
+            donor_dict[t.donor] = [t]
+        if t.target in target_dict:
+            target_dict[t.target].append(t)
+        else:
+            target_dict[t.target] = [t]
+    for donor in donor_dict:
+        G.add_edges_from([item for item in permutations(donor_dict[donor],2) ])
+    for target in target_dict:
+        G.add_edges_from([item for item in permutations(target_dict[target],2) ])
+    return G
+
+
 def create_data(num_donors, num_targets, num_trajectories, collision_rate=0.05, data_range=100 ):
     '''
     Creates a dataset of the correct format for the trajectory picking problem.
@@ -34,13 +165,13 @@ def create_data(num_donors, num_targets, num_trajectories, collision_rate=0.05, 
     for i in range(num_targets):
         targets.append("T"+str(i)) 
     for i in range(num_trajectories):
-        trajectories.append(Trajectory(i, random.choice(donors), random.choice(targets),random.randint(0,data_range))) 
+        trajectories.append(Trajectory(i,i, random.choice(donors), random.choice(targets),random.randint(0,data_range))) 
     collisions = []
     for i in range(int(num_trajectories*collision_rate)):
         collisions.append((trajectories[np.random.randint(0,num_trajectories)],trajectories[np.random.randint(0,num_trajectories)]))
     for pair in collisions:
         pair[0].add_collision(pair[1])
-    return donors, targets, trajectories
+    return donors, targets, trajectories, collisions
 
 def create_realistic_data(num_donors, num_targets, num_trajectories, collision_rate=0,data_range=100 ):
     '''
@@ -78,7 +209,7 @@ def create_realistic_data(num_donors, num_targets, num_trajectories, collision_r
         donors.append(donor)
         target = random .randint(max(0, donor - num_targets//5), min(donor + num_targets//5, num_targets-1))
         targets.append(target)
-        trajectories.append(Trajectory(i, donor, target,random.randint(0,data_range))) 
+        trajectories.append(Trajectory(i,i, donor, target,random.randint(0,data_range))) 
     for i in range(num_trajectories):
         for j in range(i, num_trajectories):
             if i !=j and trajectories[i].donor != trajectories[j].donor and trajectories[i].target != trajectories[j].target:
@@ -322,7 +453,7 @@ def translate_trajectory_objects_to_dictionaries(trajectories):
     '''
     node_set = []
     for element in trajectories:
-        node_set.append(Trajectory(element.id, element.donor, element.target,element.value))
+        node_set.append(Trajectory(element.id,element.id, element.donor, element.target,element.value))
     dictionary = {}
     dictionary['value'] = sum(n.value for n in node_set)
     dictionary['trajectories'] = node_set
@@ -478,3 +609,81 @@ def NN_transformation(graph):
     
     return nodes[transformed_weights.index(max(transformed_weights))]
 
+
+def get_donor_and_target_collisions(trajectories):
+    donor_dict = {}
+    target_dict = {}
+    for t in trajectories:
+        if t.donor in donor_dict:
+            donor_dict[t.donor].append(t)
+        else:
+            donor_dict[t.donor] = [t]
+        if t.target in target_dict:
+            target_dict[t.target].append(t)
+        else:
+            target_dict[t.target] = [t]
+    return donor_dict, target_dict
+
+    
+def ILP_formatter(trajectories):
+    data = {}
+    donor_dict , target_dict = get_donor_and_target_collisions(trajectories)
+    
+    
+    data['constraint_coeffs'] = []
+    num_trajectories = len(trajectories)
+    for element in trajectories:
+        colls = [0] * len(trajectories)
+        if len(element.collisions) != 0:
+            colls[element.id] = -1
+            for collision in element.collisions:
+                colls[collision] = -1
+            data['constraint_coeffs'].append(colls)
+
+    for target in target_dict:
+        if len(target_dict[target]) < 2:
+            continue
+        target_constraint = [0] * num_trajectories
+        for trajectory in target_dict[target]:
+            target_constraint[trajectory.id] = -1
+        data['constraint_coeffs'].append(target_constraint)
+    '''
+    dictionary {
+        'D1': [2, 4, 6]
+    }
+    '''
+    for donor in donor_dict:
+        if len(donor_dict[donor]) < 2:
+            continue
+        donor_constraint = [0]*num_trajectories
+        for trajectory in donor_dict[donor]:
+            donor_constraint[trajectory.id] = -1
+        #print("donor constraints:", donor_constraint)
+        data['constraint_coeffs'].append(donor_constraint)
+
+    data['bounds'] = [-1] * len(data['constraint_coeffs'])
+    obj_coeffs = []
+    for element in trajectories:
+        obj_coeffs.append(element.value)
+    total_value = sum(obj_coeffs)
+    data['obj_coeffs'] = obj_coeffs
+    data['num_vars'] = len(trajectories)
+    data['num_constraints'] = len(data['constraint_coeffs'])
+    return data, total_value, trajectories
+
+def save_optimal_trajectories_to_file(results, filename):
+    max_value = 0
+    optimal_trajectories = {}
+    max_value_dataset = {}
+    for algorithm_name in results:
+        for dataset_name in results[algorithm_name]:
+            if dataset_name not in max_value_dataset.keys():
+                max_value_dataset[dataset_name] = 0
+            if dataset_name in results[algorithm_name].keys() and results[algorithm_name][dataset_name]['value'] > max_value_dataset[dataset_name]:
+                max_value_dataset[dataset_name] =results[algorithm_name][dataset_name]['value']
+                optimal_trajectories[dataset_name] = [e.true_id for e in results[algorithm_name][dataset_name]['trajectories']]
+    for dataset_name in max_value_dataset:
+        if max_value_dataset[dataset_name] == 0:
+            print("Optimal trajectories not found for dataset: ", dataset_name)
+    JSON_IO.write_data_to_json_file(filename, optimal_trajectories)
+    return optimal_trajectories
