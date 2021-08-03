@@ -861,7 +861,7 @@ def addlabels(x,y):
     for i in range(len(x)):
         plt.text(i,y[i],y[i])
 
-def plot_results_with_runtimes(algorithms, results, _dataset_names=0, *,show_figure=True):
+def plot_results_with_runtimes(algorithms, results, _dataset_names=0, *,show_figure='True'):
     '''
     Fully automatic function that plots the results per algorithm. 
 
@@ -893,7 +893,7 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0, *,show_fig
     algo_names = [e.__name__ for e in algorithms]
     algo_runtimes = []
 
-    if show_figure:
+    if show_figure == 'false' or show_figure == 'False':
         print("Not showing plots chosen")
     else:
         if len(dataset_names) > 1:
