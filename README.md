@@ -21,8 +21,7 @@ pytest
 This package is built using NetworkX and Python 3.
 
 ## How to use the package
-The package can be run from the command line. The input file should contain a list of trajectory dictionaries, which is examplified below:  
-The optimal trajectories for each dataset are written to a file (default='optimal_trajectories.json') in the form of a list of trajectory id's per dataset.
+The package can be run from the command line. The input file should contain a dictionary containing a list of trajectory dictionaries, which is examplified below:  
 ```
 {"trajectories": [
         {"id": 0,
@@ -33,6 +32,21 @@ The optimal trajectories for each dataset are written to a file (default='optima
          
          {...]}}
 ```
+The program will then calculate the optimal trajectories and save them to a json file as a dictionary where the keys are dataset name(s) and the values are a list of id's 
+which correspond to the optimal trajectories. Example:
+'''
+{
+        "dataset_1.json": [
+                id_1,
+                id_2,
+                ...,
+                id_n
+                ],
+        "dataset_2.json":[...]
+                ...
+        "dataset_k.json":[...]
+}
+'''
 
 ### Console script commands 
 
@@ -48,12 +62,13 @@ The optimal trajectories for each dataset are written to a file (default='optima
 | -alg           | specify algorithms to run. "all" runs all algorithms                                 |
 | -datasets      | specify datasets to run algorithm on. full path of folder with datasets is required  |
 | -refresh True  | Ignores if the result have already been calculated and does a new calculation        |
+| -outputfile    | Specifies outputfile to write results to. Default is 'optimal_trajectories.json'     |
 
 #### Examples:
 run -alg all -datasets full_path_of_datasetsfolder  
 Explanation: Runs all the algorithms on specified datasets
 
-run -alg greedy -datasets full_path_of_datasetsfolder  
+run -alg greedy -datasets full_path_of_datasetsfolder -outputfile local_file_name
 Explanation: Runs greedy algorithm on specified datasets
 
 run -alg greedy weight_trans lonely_target -datasets random 15 15 5000 0.05 5  
