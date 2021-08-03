@@ -48,6 +48,7 @@ def main():
     # could potentially add optional arguments for running test sets instead, or average of X trials
     parser.add_argument('-refresh', metavar='refresh', type = str, default='False', help='If true, ignores previous results and calculates the specified algorithms again')
     parser.add_argument('-show_figure',metavar='Show_figure',type=str,default='True',help='If true, do matplotlib.show to visualize runtime results')
+    parser.add_argument('-save_benchmark',default=False,type=bool,help='If True, save benchmark data to a benchmark.txt file')
 
     args = parser.parse_args()
 
@@ -69,6 +70,7 @@ def main():
             random_chosen = True
             data,data_names = util.get_datasets(args.datasets,algos,refresh)
             results = util.calculate_or_read_results(algos,data, refresh,_is_random=random_chosen, _dataset_names =data_names)   
+            util.plot_results_with_runtimes(algos, results, data_names,show_figure=args.show_figure)
         else:
             data, data_names, empty_folder = util.get_datasets(args.datasets,algos,refresh)
             random_chosen = False
@@ -92,22 +94,14 @@ def main():
 
 
 
-        # for j in range(len(list_of_used_datasets)):
-        #     print('On dataset: ', list_of_used_datasets[j], ',', best_algorithms_per_dataset[j], 'with value: ', highest_value_per_dataset[j])
-        # print('Highest total value across all datasets: ', best_algorithm_name, ': value: ', best_result)
-
-        # optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results,args.outputfile,data_names)
-        # for i in range(len(list_of_used_datasets)):
-        #     dataset_name = list_of_used_datasets[i]
-        #     print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name])
-
         # Make a separate file for benchmark of algorithms
-        # if 'increasing' in args.datasets:
-        #     benchmark = results
-        #     for key1 in benchmark:
-        #         for key2 in benchmark[key1]:
-        #             benchmark[key1][key2].pop("trajectories")
-        #     JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
+        if 'increasing' in args.datasets and args.save_benchmark == True:
+            print("saved benchmark -------------------")
+            # benchmark = results
+            # for key1 in benchmark:
+            #     for key2 in benchmark[key1]:
+            #         benchmark[key1][key2].pop("trajectories")
+            # JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
 
 if __name__ == '__main__':
     main()
