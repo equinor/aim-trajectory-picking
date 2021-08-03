@@ -10,7 +10,8 @@ import pandas as pd
     
 
 def main():
-    algorithms = {  'greedy' : func.greedy_algorithm, 
+    algorithms = {
+                'greedy' : func.greedy_algorithm, 
                 'modified_greedy': func.modified_greedy,
                 'NN' : func.NN_algorithm,
                 # 'random' : func.random_algorithm,
@@ -23,8 +24,6 @@ def main():
                 # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
                 # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                 # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
-                # 'bipartite_matching_v2': func.bip,
-                #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
                 }
     not_runnable = [func.invert_and_clique]
     algo_choices = [ key for key in algorithms]

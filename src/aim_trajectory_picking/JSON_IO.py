@@ -36,35 +36,35 @@ def read_data_from_json_file(filename):
         input_data = json.loads(file.read(),object_hook=as_python_object)
     return input_data
 
-# Wrapper for reading the trajectory from a json-formatted .txt file
-def read_trajectory_from_json(filename):
-    '''
-    Wrapper for reading the trajectory from a json-formatted .txt file
+#Wrapper for reading the trajectory from a json-formatted .txt file
+# def read_trajectory_from_json(filename):
+#     '''
+#     Wrapper for reading the trajectory from a json-formatted .txt file
 
-    Paramenters:
-    -----------
-    filename: str
-        name of file to be read
+#     Paramenters:
+#     -----------
+#     filename: str
+#         name of file to be read
         
-    Returns:
-    --------
-    liste: List<Trajectory>
-        list of trajectory objects contained in filename
+#     Returns:
+#     --------
+#     liste: List<Trajectory>
+#         list of trajectory objects contained in filename
     
-    '''
-    input_data = read_data_from_json_file(filename)
-    liste = []
-    list_id = 0
-    for trajectory in input_data["trajectories"]:
-        tra = util.Trajectory(list_id, trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
-        list_id += 1
-        for collision in trajectory["collisions"]:
-            tra.add_collision_by_id(collision)
-        liste.append(tra)
-    return liste
+#     '''
+#     input_data = read_data_from_json_file(filename)
+#     liste = []
+#     list_id = 0
+#     for trajectory in input_data["trajectories"]:
+#         tra = util.Trajectory(list_id, trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
+#         list_id += 1
+#         for collision in trajectory["collisions"]:
+#             tra.add_collision_by_id(collision)
+#         liste.append(tra)
+#     return liste
 
 
-def read_trajectory_from_json_v2(filename):
+def read_trajectory_from_json(filename):
     '''
     Wrapper for reading the trajectory from a json-formatted .txt file
 
