@@ -71,22 +71,38 @@ def main():
     
 
         results = util.calculate_or_read_results(algos,data, refresh,_is_random=random_chosen, _dataset_names =data_names)
+        list_of_used_datasets, best_algorithms_per_dataset, highest_value_per_dataset, best_algorithm_name, best_result = util.find_best_performing_algorithm(results,algos,data_names)
         if empty_folder == False:
             util.find_best_performing_algorithm(results,algos,data_names)
             util.plot_results_with_runtimes(algos, results, data_names)
+
+            for j in range(len(list_of_used_datasets)):
+                print('On dataset: ', list_of_used_datasets[j], ',', best_algorithms_per_dataset[j], 'with value: ', highest_value_per_dataset[j])
+            print('Highest total value across all datasets: ', best_algorithm_name, ': value: ', best_result)
+
+            optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results,args.outputfile,data_names)
+            for i in range(len(list_of_used_datasets)):
+                dataset_name = list_of_used_datasets[i]
+                print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name])
+
         else:
             print('No datasets found in datasetfolder')
 
-        optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results,args.outputfile,data_names)
-        for dataset_name in optimal_trajectory_dict:
-            print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name] )
+        # for j in range(len(list_of_used_datasets)):
+        #     print('On dataset: ', list_of_used_datasets[j], ',', best_algorithms_per_dataset[j], 'with value: ', highest_value_per_dataset[j])
+        # print('Highest total value across all datasets: ', best_algorithm_name, ': value: ', best_result)
+
+        # optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results,args.outputfile,data_names)
+        # for i in range(len(list_of_used_datasets)):
+        #     dataset_name = list_of_used_datasets[i]
+        #     print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name])
 
     # Make a separate file for benchmark of algorithms
     # if 'increasing' in args.datasets:
     #     benchmark = results
-    #     for key1 in benchmark:
-    #         for key2 in benchmark[key1]:
-    #             benchmark[key1][key2].pop("trajectories")
+    #     for key key2 in benchmark[key1]:
+    #            1 in benchmark:
+    #         for benchmark[key1][key2].pop("trajectories")
     #     JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
 
 if __name__ == '__main__':
