@@ -101,13 +101,13 @@ def main():
         #     dataset_name = list_of_used_datasets[i]
         #     print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name])
 
-    # Make a separate file for benchmark of algorithms
-    # if 'increasing' in args.datasets:
-    #     benchmark = results
-    #     for key1 in benchmark:
-    #         for key2 in benchmark[key1]:
-    #             benchmark[key1][key2].pop("trajectories")
-    #     JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
+        # Make a separate file for benchmark of algorithms
+        # if 'increasing' in args.datasets:
+        #     benchmark = results
+        #     for key1 in benchmark:
+        #         for key2 in benchmark[key1]:
+        #             benchmark[key1][key2].pop("trajectories")
+        #     JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
 
 if __name__ == '__main__':
     main()
