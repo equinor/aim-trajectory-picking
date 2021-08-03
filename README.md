@@ -97,6 +97,10 @@ Firstly, it would have been interesting to make a heuristic which cluster trajec
 
 Secondly, it would be smart to try out another package from python than networkx, as it seems to take much time. We tried to use igraph instead of networkx, and this needed only minor changes in the code for networkx. The result was lower runtimes. However, the results when using igraphs was actually worse than the ones using networkx, and despite the improvements in runtime, we therefore decided not to go on with igraph. However, the improvements show that it could be interesting to try out outher graphical tools than networkx.
 
+Thirdly, if one considers to implement the heuristic which cluster trajectories in space, it would be interesting to create a more realistic dataset which actually place trajectories different places in space. This could advantageously be done by assigning a x-, y- and z-coordinate to every donor and target, so that the program knows where in space all trajectories begin and end.
+
+Since no such heuristic has been made yet, no such realistic dataset has been made neither. However, we have made a function create_realistic_data() which makes a realistic dataset in another way than the one already described. Let it be clear that this function is not very generic and would typically only work well for some inputs of numbers of donors, number of targets, number of trajectories and collision rate. However, the function is good for it's purpose, since it's purpose is to creta a realistic dataset, and this could be doneCreates a dataset of the correct format for the trajectory picking problem. More information about this create_realistic_data() function can be found in the document file and as comments in the code.
+
 ## Alternatives (OR-Tools)
 
 An alternative to the algorithms we have developed is to solve this problem by integer-linear-programming. This could be done by usng OR-Tools which we have implemented in this project. This worked better than our algorithms, but on the other hand, the runtime was higher. However, for small problems with sufficiently few trajectories, we recommend ILP to be used.
