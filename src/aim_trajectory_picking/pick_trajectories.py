@@ -47,7 +47,7 @@ def main():
     parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='optimal_trajectories.json',help='Filename string of output data result, JSON format')
     # could potentially add optional arguments for running test sets instead, or average of X trials
     parser.add_argument('-refresh', metavar='refresh', type = str, default='False', help='If true, ignores previous results and calculates the specified algorithms again')
-    parser.add_argument('-show_figure',metavar='Show_figure',type=bool,default=True,help='If true, do matplotlib.show to visualize runtime results')
+    parser.add_argument('-show_figure',metavar='Show_figure',type=str,default='True',help='If true, do matplotlib.show to visualize runtime results')
 
     args = parser.parse_args()
 
