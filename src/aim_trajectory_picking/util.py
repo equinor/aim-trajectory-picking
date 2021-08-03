@@ -1087,10 +1087,28 @@ def calculate_or_read_results(algos, _datasets,refresh, *, _is_random=False, fil
 def find_best_performing_algorithm(results, algorithms, used_datasets):
     '''
     Function finding the best algorithm 
-    
+    Parameters:
+    ----------
+    results: dict
+        file of results with one big dictionary 
+    algorithms: dict 
+        dictionary with algorithms as elements
+    used_datasets: List
+        all datasets in results 
+
     Returns: 
     -------
-    None
+    intersection_as_list: List<input datasets>
+        list of datasets to analyse 
+    listToStr_list: Nested list
+        nested list of the best algorithms per dataset
+    map_matrix: List 
+        list with the best result per dataset
+    best_algorithm_name: Str    
+        algorithm with the highest total value across datasets 
+    best_result: Int
+        the highest total value across datasets 
+
     '''
     best_result = 0
     algorithm_finder = 0
@@ -1155,20 +1173,32 @@ def translate_results_to_dict(results, algorithms):
         results_as_dict[name] = [d['value'] for d in results[name]]
     return results_as_dict
 
-def plot_algorithm_values_per_dataset(algorithms, results, directory): 
-    results_dict = {}
-    for algorithm in algorithms: 
-        results_dict[algorithm.__name__ ] = 0
+# def plot_algorithm_values_per_dataset(algorithms, results, directory): 
+#     '''
+#     Parameters:
+#     -----------
+#     results: dict
+#         file of results with one big dictionary 
 
-    dataset_names = [i for i in range(4)]
-    pandas_dict = translate_results_to_dict(results, algorithms)
-    plotdata = pd.DataFrame(
-        pandas_dict, 
-        index=dataset_names
-    )
+#     algorithms: dict 
+#         dictionary with algorithms as elements
+    
+#     Returns: 
+#     ------
+#     '''
+#     results_dict = {}
+#     for algorithm in algorithms: 
+#         results_dict[algorithm.__name__ ] = 0
 
-    plotdata.plot(kind="bar", cmap =plt.get_cmap('Pastel1'))
-    plt.title("Performance of Algorithms on Datasets")
-    plt.xlabel("Dataset")
-    plt.ylabel("Value")
-    plt.show()
+#     dataset_names = [i for i in range(4)]
+#     pandas_dict = translate_results_to_dict(results, algorithms)
+#     plotdata = pd.DataFrame(
+#         pandas_dict, 
+#         index=dataset_names
+#     )
+
+#     plotdata.plot(kind="bar", cmap =plt.get_cmap('Pastel1'))
+#     plt.title("Performance of Algorithms on Datasets")
+#     plt.xlabel("Dataset")
+#     plt.ylabel("Value")
+#     plt.show()
