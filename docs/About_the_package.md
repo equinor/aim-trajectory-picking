@@ -61,7 +61,9 @@ The automatic tests for our program are run with the pytest framework. The pytes
 
 Our tests-file includes:
 - Tests for simple functions
+
 - Test for algorithms (looking at the algorithms result against results solved by hand)
+
 - Tests for writing and reading to and from json-files
 
 All of these tests need to pass for new developments to be merged into the main branch on GitHub.
@@ -84,6 +86,18 @@ In the end of the internship we had some ideas we unfortunately did not have tim
 Firstly, it would have been interesting to make a heuristic which cluster trajectories in space. Here a suggestion is that every donor and target could contain information about where it is located in space by, for instance, x-, y- and z-coordinates. Then the computer would know where each trajectory starts (donor coordinates) and ends (target coordinates). If the donor and target associated with one trajectory is far away from the donor and target associated with another trajectory, the idea is that those two trajectories are not likely to collide in space. In other words, if one implements a clustering algorithm which clusters trajectories which are relatively close to each other in space, then our algorithms can be run on each of these clusters. This would be under the assumption that trajectories in different clusters don't collide with each other, since they would have different donors and targets, adn the donors and targets are far away from each other, so that collisions in space also are highly unlikely. Since all of the clusters now can be considered as independent sets of trajectories, the algorithms could be run on each of these smaller sets, resulting in less computations and lower runtimes.      
 
 Secondly, it would be smart to try out another package from python than networkx, as it seems to take much time. We tried to use igraph instead of networkx, and this needed only minor changes in the code for networkx. The result was lower runtimes. However, the results when using igraphs was actually worse than the ones using networkx, and despite the improvements in runtime, we therefore decided not to go on with igraph. However, the improvements show that it could be interesting to try out outher graphical tools than networkx.
+
+Thirdly, if one considers to implement the heuristic which cluster trajectories in space, it would be interesting to create a more realistic dataset which actually place trajectories different places in space. This could advantageously be done by assigning a x-, y- and z-coordinate to every donor and target, so that the program knows where in space all trajectories begin and end.
+
+Since no such heuristic has been made yet, no such realistic dataset has been made neither. However, we have made a function create_realistic_data() which makes a realistic dataset in another way than the one already described. Let it be clear that this function is not very generic and would typically only work well for some inputs of numbers of donors, number of targets, number of trajectories and collision rate. However, the function is good for it's purpose, since it's purpose is to creta a realistic dataset, and this could be doneCreates a dataset of the correct format for the trajectory picking problem.
+
+The dataset consists of donors, targets, and trajectories, and a list of collisions. It is in multiple ways attempted to be more realistic than the dataset created from create_data():
+
+- The respective donors and targets of a trajectory is to be imgained as fairly close to each other. This is because the selectable trajectories in a realistic dataset typically will be short, since the cost of them depends on their length. I this function, the position of donors and targets are implied by their ids, which is sort of imagined to represent it's location. As an example, if there are 50 targets and 50 donors, then trajectories of donor id qual to 15 will typically go to a target id close to 15. However, if there are 50 targets and 200 trajectories, then a trajectory of donor id 15 will typically go to a target id close to 15*(200/50)
+
+- In addition to the locaion of trajectories, the collisions between them are - in this function - attempted to be generated more realistically. Here it is a five percent chance of each trajectory to collide with another trajectories, a 0.05*0.05 chance to collide with two trajectories etc. Since realistic datasets are of a maximum number of trajectories of approximately 200 000, the chance for any of these trajectories to collide with four or more trajectories is such low that this function decides neglect this.
+
+- If a trajectory collides with other trajectories, then a list of trajectories close to it is made by appending trajectories with donors and targets close to the relevant trajectory. Then the trajectory it collides with is randomly picked from this list, and the collision is appended to a list of collisions. In other words, the dataset is realistic in the way that it consists of trajectories imagined to be close to each other in space. This is done through donor and targets ids. In addition, there can only be collisions between trajectories close to each other in space, i.e. their donors and targets are fairly close to each other.
 
 ## 10 Discussion
 
