@@ -799,7 +799,7 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
                         print("else file")
                         if refresh or not all(algo.__name__ in prev_results.keys() for algo in algorithms) or not all(filename in prev_results[algo.__name__].keys() for algo in algorithms):
                             fullpath = os.path.join(folder,filename)
-                            data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
+                            data.append(JSON_IO.read_trajectory_from_json(fullpath))
                             dataset_names.append(filename)
                             print(fullpath)
                         else:
@@ -811,7 +811,7 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
             print("Dataset arguments not recognized, reading from testsets instead.")
             for filename in os.listdir('testsets'):
                 fullpath = os.path.join('testsets',filename)
-                data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
+                data.append(JSON_IO.read_trajectory_from_json(fullpath))
                 dataset_names.append(filename)
     return data, dataset_names, no_datasets
 
