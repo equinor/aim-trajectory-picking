@@ -96,12 +96,12 @@ def main():
 
         # Make a separate file for benchmark of algorithms
         if 'increasing' in args.datasets and args.save_benchmark == True:
-            print("saved benchmark -------------------")
-            # benchmark = results
-            # for key1 in benchmark:
-            #     for key2 in benchmark[key1]:
-            #         benchmark[key1][key2].pop("trajectories")
-            # JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
+            benchmark = results
+            for key1 in benchmark:
+                for key2 in benchmark[key1]:
+                    benchmark[key1][key2].pop("trajectories")
+            JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
+            print(" ---------- saved benchmark ----------")
 
 if __name__ == '__main__':
     main()
