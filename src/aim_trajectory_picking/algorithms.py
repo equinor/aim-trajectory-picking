@@ -289,7 +289,10 @@ def lonely_target_algorithm (trajectories, collisions):
         optimal_trajectories.append(chosen_node)
         for n in list(graph.neighbors(chosen_node)): 
             graph.remove_node(n)
-        graph.remove_node(chosen_node)
+        try:
+            graph.remove_node(chosen_node)
+        except:
+            pass
     dictionary = {}
     dictionary['value'] = sum(n.value for n in optimal_trajectories)
     dictionary['trajectories'] = optimal_trajectories
