@@ -420,8 +420,14 @@ def modified_greedy(trajectories,collisions):
             graph.remove_node(n)
             nodes.remove(n)
         #print("finished removing node")
-        graph.remove_node(chosen_node)
-        nodes.remove(chosen_node)
+        try:
+            graph.remove_node(chosen_node)
+        except:
+            pass
+        try:
+            nodes.remove(chosen_node)
+        except:
+            pass
         #print("added trajectory number: " + str(len(optimal_trajectories)))
     #print("Algorithm: " + choice_function.__name__ + ' sum: ' +str(sum(n.value for n in optimal_trajectories))) #print sum of trajectories
     dictionary = {}

@@ -47,7 +47,7 @@ def main():
     parser.add_argument('-outputfile',metavar='Outputfile',type=str,default='optimal_trajectories.json',help='Filename string of output data result, JSON format')
     # could potentially add optional arguments for running test sets instead, or average of X trials
     parser.add_argument('-refresh', metavar='refresh', type = str, default='False', help='If true, ignores previous results and calculates the specified algorithms again')
-    parser.add_argument('-show_figure',metavar='Show_figure',type=bool,default=True,help='If true, do matplotlib.show to visualize runtime results')
+    parser.add_argument('-show_figure',metavar='Show_figure',type=str,default='True',help='If true, do matplotlib.show to visualize runtime results')
 
     args = parser.parse_args()
 
@@ -101,13 +101,13 @@ def main():
         #     dataset_name = list_of_used_datasets[i]
         #     print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name])
 
-    # Make a separate file for benchmark of algorithms
-    # if 'increasing' in args.datasets:
-    #     benchmark = results
-    #     for key1 in benchmark:
-    #         for key2 in benchmark[key1]:
-    #             benchmark[key1][key2].pop("trajectories")
-    #     JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
+        # Make a separate file for benchmark of algorithms
+        # if 'increasing' in args.datasets:
+        #     benchmark = results
+        #     for key1 in benchmark:
+        #         for key2 in benchmark[key1]:
+        #             benchmark[key1][key2].pop("trajectories")
+        #     JSON_IO.write_data_to_json_file('benchmark.txt',benchmark)
 
 if __name__ == '__main__':
     main()
