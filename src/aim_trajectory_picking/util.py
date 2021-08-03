@@ -861,7 +861,7 @@ def addlabels(x,y):
     for i in range(len(x)):
         plt.text(i,y[i],y[i])
 
-def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
+def plot_results_with_runtimes(algorithms, results, _dataset_names=0, *,show_figure=True):
     '''
     Fully automatic function that plots the results per algorithm. 
 
@@ -893,57 +893,60 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0):
     algo_names = [e.__name__ for e in algorithms]
     algo_runtimes = []
 
-    if len(dataset_names) > 1:
-        fig, axs = plt.subplots(2,1, figsize=(10,5))
-        ax1 = axs[0]
-        ax2 = axs[1]
-        ax1.set_xlabel('Datasets')
-        ax2.set_xlabel('Datasets')
-        ax1.set_ylabel('Value')
-        ax2.set_ylabel('Runtime (seconds)')
-        ax1.title.set_text('Algorithm Performance')
-        ax2.title.set_text('Algorithm Runtime')
-        fig.tight_layout(pad=3)
-        for algorithm in algorithms:
-            results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
-            algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
-
-            ax1.plot(dataset_names, results_per_dataset, label=algorithm.__name__)
-            ax1.scatter(dataset_names, results_per_dataset, s=5, alpha=0.5) 
-            ax2.plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
-            ax2.scatter(dataset_names, algo_runtimes, s=5, alpha=0.5)
-
-            means.append(np.mean(results_per_dataset))
-        leg1 = ax1.legend()
-        leg1.set_draggable(state=True)
-        # plt.xticks(rotation=45)
-        leg2 = ax2.legend()
-        leg2.set_draggable(state=True)
-        plt.show()
+    if show_figure:
+        print("Not showing plots chosen")
     else:
-        plt.figure()
-        for algorithm in algorithms:
-            results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
-            algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
-            means.append(np.mean(results_per_dataset))
-            plt.scatter(dataset_names, algo_runtimes, s=10, alpha=0.5)
+        if len(dataset_names) > 1:
+            fig, axs = plt.subplots(2,1, figsize=(10,5))
+            ax1 = axs[0]
+            ax2 = axs[1]
+            ax1.set_xlabel('Datasets')
+            ax2.set_xlabel('Datasets')
+            ax1.set_ylabel('Value')
+            ax2.set_ylabel('Runtime (seconds)')
+            ax1.title.set_text('Algorithm Performance')
+            ax2.title.set_text('Algorithm Runtime')
+            fig.tight_layout(pad=3)
+            for algorithm in algorithms:
+                results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
+                algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
+
+                ax1.plot(dataset_names, results_per_dataset, label=algorithm.__name__)
+                ax1.scatter(dataset_names, results_per_dataset, s=5, alpha=0.5) 
+                ax2.plot(dataset_names, algo_runtimes, '--',label=algorithm.__name__)
+                ax2.scatter(dataset_names, algo_runtimes, s=5, alpha=0.5)
+
+                means.append(np.mean(results_per_dataset))
+            leg1 = ax1.legend()
+            leg1.set_draggable(state=True)
+            # plt.xticks(rotation=45)
+            leg2 = ax2.legend()
+            leg2.set_draggable(state=True)
+            plt.show()
+        else:
+            plt.figure()
+            for algorithm in algorithms:
+                results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in dataset_names]
+                algo_runtimes =  [results[algorithm.__name__][dataset_name]['runtime'] for dataset_name in dataset_names]
+                means.append(np.mean(results_per_dataset))
+                plt.scatter(dataset_names, algo_runtimes, s=10, alpha=0.5)
+            plt.xlabel('Algorithm Name')
+            plt.ylabel('Runtime (seconds)')
+            plt.title('Runtime graph')
+            leg = plt.legend(algo_names)
+            leg.set_draggable(state=True)
+            plt.show()
+        plt.figure(figsize=(12, 6))
+        plt.bar(algo_names, means, color=(0.2, 0.4, 0.6, 0.6))
+        addlabels(algo_names, means)
+        for i, (name, height) in enumerate(zip(algo_names,  means)):
+            plt.text(i, height/2, ' ' + name,
+                ha='center', va='center', rotation=-90, fontsize=10)
+        plt.xticks([])
+        plt.title('Average Algorithm Performance')
         plt.xlabel('Algorithm Name')
-        plt.ylabel('Runtime (seconds)')
-        plt.title('Runtime graph')
-        leg = plt.legend(algo_names)
-        leg.set_draggable(state=True)
+        plt.ylabel('Average Value')
         plt.show()
-    plt.figure(figsize=(12, 6))
-    plt.bar(algo_names, means, color=(0.2, 0.4, 0.6, 0.6))
-    addlabels(algo_names, means)
-    for i, (name, height) in enumerate(zip(algo_names,  means)):
-        plt.text(i, height/2, ' ' + name,
-            ha='center', va='center', rotation=-90, fontsize=10)
-    plt.xticks([])
-    plt.title('Average Algorithm Performance')
-    plt.xlabel('Algorithm Name')
-    plt.ylabel('Average Value')
-    plt.show()
 
 def get_previous_results(filename):
     '''
