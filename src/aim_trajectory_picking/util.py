@@ -110,6 +110,23 @@ class Trajectory:
         return self.id 
 
 def create_graph(trajectories, collisions):
+    '''
+    Creates a graph by adding nodes and edges. 
+
+    Parameters:
+    -----------
+    trajectories: List<Trajectory>
+        list of trajectory objects to be added to the graph
+    collisions: List<Tuple(Trajectory, Trajectory)>
+        list of tuples with colliding trajectory objects
+        
+    Returns:
+    --------
+    G: nx.Graph()
+        graph with trajectories as nodes.\
+             All nodes have a dictionary of their attributes attached
+    
+    '''
     G = nx.Graph()
     G.add_nodes_from(trajectories)
     G.add_edges_from(collisions)
@@ -462,6 +479,21 @@ def translate_trajectory_objects_to_dictionaries(trajectories):
     return dictionary
 
 def optimal_trajectories_to_return_dictionary(optimal_trajectories):
+    '''
+    Making a dictionary which stores optimal trajectories. 
+    
+    Parameters:
+    -----------
+    optimal_trajectories: List<Trajectory>
+        list of trajectories
+
+    Returns:
+    -----------
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects.
+
+    '''
 
     value = sum([t.value for t in optimal_trajectories])
     dictionary = {}
@@ -613,6 +645,20 @@ def NN_transformation(graph):
 
 
 def get_donor_and_target_collisions(trajectories):
+    '''
+    A function which extracts colliding donors and targets from a list of trajectories. 
+
+    Parameters:
+    ----------
+    trajectories: list<Trajectory>
+
+    Returns: 
+    -------
+    donor_dict: dict
+        dictionary with colliding donors
+    target_dict: dict
+        dictionary with colliding targets
+    '''
     donor_dict = {}
     target_dict = {}
     for t in trajectories:
@@ -816,6 +862,9 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
     return data, dataset_names, no_datasets
 
 def addlabels(x,y):
+    '''
+    Adding text to bars in bar charts. 
+    '''
     for i in range(len(x)):
         plt.text(i,y[i],y[i])
 
@@ -991,6 +1040,13 @@ def calculate_or_read_results(algos, _datasets,refresh, *, _is_random=False, fil
     return prev_results
 
 def find_best_performing_algorithm(results, algorithms, used_datasets):
+    '''
+    Function finding the best algorithm 
+    
+    Returns: 
+    -------
+    None
+    '''
     best_result = 0
     algorithm_finder = 0
     best_algorithm_name_list = []
@@ -1009,8 +1065,6 @@ def find_best_performing_algorithm(results, algorithms, used_datasets):
     intersection_as_list = sorted(list(intersection))
 
     for algorithm in algorithms:
-    #     results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]   
-    #     matrix_list.append(results_per_dataset)
         ram_list = []
         for element in intersection_as_list:
             if element in results[algorithm.__name__]:
@@ -1038,11 +1092,16 @@ def find_best_performing_algorithm(results, algorithms, used_datasets):
 
 def translate_results_to_dict(results, algorithms):
     '''
-    Translates the results to a dictionary to make plotting.
+    Translates the results to a dictionary used for plotting.
 
     Parameters:
-    results
-    algorithms
+    -----------
+    results: dict
+        file of results with one big dictionary 
+
+    algorithms: dict 
+        dictionary with algorithms as elements
+
     '''
     results_as_dict = {}
     for algo in algorithms:
