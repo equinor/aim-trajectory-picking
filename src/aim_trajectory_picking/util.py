@@ -175,11 +175,14 @@ def create_data(num_donors, num_targets, num_trajectories, collision_rate=0.05, 
         pair[0].add_collision(pair[1])
     return donors, targets, trajectories, collisions
 
-def create_realistic_data(num_donors, num_targets, num_trajectories, collision_rate=0,data_range=100 ):
+
+def create_realistic_data(num_donors, num_targets, num_trajectories, collision_rate=0.05,data_range=100 ):
     '''
     Creates a dataset of the correct format for the trajectory picking problem.
 
-    The dataset consists of donors, targets, and trajectories
+    The dataset consists of donors, targets, and trajectories, and a list of collisions.
+    The dataset is in multiple ways attempted to be more realistic than the dataset created from create_data(),
+    as explained in the document file in GitHub:
 
     Parameters:
     ----------
@@ -190,7 +193,7 @@ def create_realistic_data(num_donors, num_targets, num_trajectories, collision_r
         num_trajectories: int
             a positive integer corresponding to the number of trajectories desired
         collision_rate: float, optional
-            a positive floating point number corresponding to the percentage probability that two trajectories collide (default is 0)
+            a positive floating point number corresponding to the percentage probability that two trajectories collide (default is 0.05)
         data_range: int, optional
             a positive integer corresponding to the maximal value of the Trajectory.value field (default is 100)
 
@@ -206,24 +209,62 @@ def create_realistic_data(num_donors, num_targets, num_trajectories, collision_r
     donors = []
     targets =[]
     trajectories = []
+    # Notice that the donors and targets are represented by integers instead of strings. This is
+    # to make it easier to generate targets based on donors
     for i in range(num_trajectories):
         donor = random.randint(0, num_donors)
         donors.append(donor)
-        target = random .randint(max(0, donor - num_targets//5), min(donor + num_targets//5, num_targets-1))
+        # Target is related to the donor. The respective donors and targets of a trajectory is to be imgained as fairly close to each
+        # other. This is because the selectable trajectories in a realistic dataset typically will be short,
+        # since the cost of them depends on their length. I this function, the position of donors and
+        # targets are implied by their ids, which is sort of imagined to represent it's location.
+        # As an example, if there are 50 targets and 50 donors, then trajectories of donor id qual to 15
+        # will typically go to a target id close to 15. However, if there are 50 targets and 200 trajectories,
+        # then a trajectory of donor id 15 will typically go to a target id close to 15*(200/50)
+        target = random.randint(max(0, donor*(int(num_targets/num_donors)) - int(num_targets*0.1)), min(donor*(int(num_targets//num_donors)) + int(num_targets*0.1, num_targets-1)))
         targets.append(target)
-        trajectories.append(Trajectory(i,i, donor, target,random.randint(0,data_range))) 
-    for i in range(num_trajectories):
-        for j in range(i, num_trajectories):
-            if i !=j and trajectories[i].donor != trajectories[j].donor and trajectories[i].target != trajectories[j].target:
-                if trajectories[i].donor in list(range(trajectories[j].donor - num_donors//10, trajectories[j].donor + num_donors//5)):
-                    collision_rate = 0.05
-                elif trajectories[i].donor in list(range(trajectories[j].donor - num_donors//6, trajectories[j].donor + num_donors//5)):
-                    collision_rate = 0.02
-                elif trajectories[i].donor in list(range(trajectories[j].donor - num_donors//4, trajectories[j].donor + num_donors//3)):
-                    collision_rate = 0.01           
-                if np.random.binomial(1,collision_rate):
-                    trajectories[i].add_collision(trajectories[j])
-    return donors, targets, trajectories
+        trajectories.append(Trajectory(i, donor, target,random.randint(0,data_range))) 
+    in_collision = 0
+    collisions = []
+    for trajectory in trajectories:
+        collision_each_trajectory = []
+        in_collision = random.randint(0, num_trajectories)
+        # If a trajectory collides with other trajectories, then a list of trajectories close to it is
+        # made by appending trajectories with donors and targets close to the relevant trajectory. Then
+        # the trajectory it collides with is randomly picked from this list, and the collision is appended
+        # to a list of collisions.
+        if in_collision < num_trajectories*collision_rate:
+            for trajectory2 in trajectories:
+                if trajectory.donor != trajectory2.donor and trajectory.target != trajectory2.target:
+                    if (trajectory2.donor > (trajectory.donor - num_donors*0.10) and trajectory2.donor < (trajectory.donor + num_donors*0.10)) or (trajectory2.target > (trajectory.target - num_targets*0.10) and trajectory2.target < (trajectory.target + num_targets*0.10)):
+                        collision_each_trajectory.append(trajectory2)
+        # Adds three collisions if the trajectory collides with three other trajectories and has more than
+        # or equal to three trajectories close to itself
+        if in_collision < num_trajectories*(collision_rate**3) and len(collision_each_trajectory) >= 3:
+            colliding_trajectory1 = random.choice(collision_each_trajectory)
+            collision_each_trajectory.remove(colliding_trajectory1)
+            colliding_trajectory2 = random.choice(collision_each_trajectory)
+            collision_each_trajectory.remove(colliding_trajectory2)
+            colliding_trajectory3 = random.choice(collision_each_trajectory)
+            collisions.append((trajectory, colliding_trajectory1))
+            collisions.append((trajectory, colliding_trajectory2))
+            collisions.append((trajectory, colliding_trajectory3))
+        # Adds two collisions if the trajectory collides with three other trajectories and has more than
+        # or equal to two trajectories close to itself
+        elif in_collision < num_trajectories*(collision_rate**2) and len(collision_each_trajectory) >= 2:
+            colliding_trajectory1 = random.choice(collision_each_trajectory)
+            collision_each_trajectory.remove(colliding_trajectory1)
+            colliding_trajectory2 = random.choice(collision_each_trajectory)
+            collisions.append((trajectory, colliding_trajectory1))
+            collisions.append((trajectory, colliding_trajectory2))
+        # Adds one collision if the trajectory collides with another trajectory and has more than
+        # or equal to one trajectory close to itself
+        elif in_collision < num_trajectories*collision_rate and len(collision_each_trajectory) >= 1:
+            colliding_trajectory1 = random.choice(collision_each_trajectory)
+            collisions.append((trajectory, colliding_trajectory1))    
+    for pair in collisions:
+        pair[0].add_collision(pair[1])
+    return donors, targets, trajectories, collisions
 
 def bipartite_graph(donors, targets, trajectories, *, visualize=False):
     '''
@@ -743,6 +784,7 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
     dataset_names: list<str>
     list of dataset_names, either read (when reading from file) or None (when random data is chosen)
     '''
+    no_datasets = False
     data = []
     dataset_names = []
     if dataset_folders == None:
