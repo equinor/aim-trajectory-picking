@@ -893,7 +893,7 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0, *,show_fig
     algo_names = [e.__name__ for e in algorithms]
     algo_runtimes = []
 
-    if show_figure:
+    if not show_figure:
         print("Not showing plots chosen")
     else:
         if len(dataset_names) > 1:
