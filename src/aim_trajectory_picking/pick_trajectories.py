@@ -324,10 +324,9 @@ def find_best_performing_algorithm(results, algorithms, used_datasets):
         for m in range(len(matrix_list)):
             if map_matrix[n] == matrix_list[m][n]:
                 best_performing_algorithms[n].append(best_algorithm_name_list[m])
-    print(best_performing_algorithms)
     for j in range(len(best_performing_algorithms)):
         listToStr = ' '.join(map(str, best_performing_algorithms[j]))
-        print('On dataset', j+1, ',', listToStr, 'with value: ', map_matrix[j])
+        print('On dataset: ', intersection_as_list[j], ',', listToStr, 'with value: ', map_matrix[j])
     print('Highest total value across all datasets: ', best_algorithm_name, ': value: ', best_result)
 
 
