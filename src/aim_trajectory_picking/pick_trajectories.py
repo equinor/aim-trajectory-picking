@@ -419,6 +419,7 @@ def main():
     if 'benchmark' in args.datasets:
         results = JSON_IO.read_data_from_json_file('benchmark.txt')
         data_names = None
+        plot_results_with_runtimes(algos, results, data_names)
     else:
         data, data_names, empty_folder = get_datasets(args.datasets,algos,refresh)
         random_chosen = False
@@ -433,9 +434,9 @@ def main():
         else:
             print('No datasets found in datasetfolder')
 
-    optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results,args.outputfile,data_names)
-    for dataset_name in optimal_trajectory_dict:
-        print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name] )
+        optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results,args.outputfile,data_names)
+        for dataset_name in optimal_trajectory_dict:
+            print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name] )
 
     # Make a separate file for benchmark of algorithms
     # if 'increasing' in args.datasets:
