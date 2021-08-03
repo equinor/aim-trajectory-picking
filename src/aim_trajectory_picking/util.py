@@ -799,7 +799,7 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
                         print("else file")
                         if refresh or not all(algo.__name__ in prev_results.keys() for algo in algorithms) or not all(filename in prev_results[algo.__name__].keys() for algo in algorithms):
                             fullpath = os.path.join(folder,filename)
-                            data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
+                            data.append(JSON_IO.read_trajectory_from_json(fullpath))
                             dataset_names.append(filename)
                             print(fullpath)
                         else:
@@ -811,7 +811,7 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
             print("Dataset arguments not recognized, reading from testsets instead.")
             for filename in os.listdir('testsets'):
                 fullpath = os.path.join('testsets',filename)
-                data.append(JSON_IO.read_trajectory_from_json_v2(fullpath))
+                data.append(JSON_IO.read_trajectory_from_json(fullpath))
                 dataset_names.append(filename)
     return data, dataset_names, no_datasets
 
@@ -999,7 +999,8 @@ def find_best_performing_algorithm(results, algorithms, used_datasets):
     best_algorithm_name_list = []
     matrix_list = []
     all_datasets_list =[]
-    check_list = []
+    listToStr_list = []
+    best_algorithm_name = 0
 
     for algorithm in algorithms:
         for all_datasets in results[algorithm.__name__]:
@@ -1036,8 +1037,8 @@ def find_best_performing_algorithm(results, algorithms, used_datasets):
                 best_performing_algorithms[n].append(best_algorithm_name_list[m])
     for j in range(len(best_performing_algorithms)):
         listToStr = ' '.join(map(str, best_performing_algorithms[j]))
-        print('On dataset: ', intersection_as_list[j], ',', listToStr, 'with value: ', map_matrix[j])
-    print('Highest total value across all datasets: ', best_algorithm_name, ': value: ', best_result)
+        listToStr_list.append(listToStr)
+    return(intersection_as_list, listToStr_list, map_matrix, best_algorithm_name, best_result)
 
 def translate_results_to_dict(results, algorithms):
     '''

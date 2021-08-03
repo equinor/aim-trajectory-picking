@@ -10,7 +10,8 @@ import pandas as pd
     
 
 def main():
-    algorithms = {  'greedy' : func.greedy_algorithm, 
+    algorithms = {
+                'greedy' : func.greedy_algorithm, 
                 'modified_greedy': func.modified_greedy,
                 'NN' : func.NN_algorithm,
                 # 'random' : func.random_algorithm,
@@ -23,8 +24,6 @@ def main():
                 # 'reversed_greedy_bipartite': func.reversed_greedy_bipartite_matching,
                 # 'reversed_greedy_weight_trans' : func.reversed_greedy_weight_transformation,
                 # 'reversed_greedy_regular_greedy' :func.reversed_greedy_regular_greedy,
-                # 'bipartite_matching_v2': func.bip,
-                #'approx_vertex_cover' :func.inverted_minimum_weighted_vertex_cover_algorithm # not working currently
                 }
     not_runnable = [func.invert_and_clique]
     algo_choices = [ key for key in algorithms]
@@ -73,17 +72,34 @@ def main():
         else:
             data, data_names, empty_folder = util.get_datasets(args.datasets,algos,refresh)
             random_chosen = False
-        
             results = util.calculate_or_read_results(algos,data, refresh,_is_random=random_chosen, _dataset_names =data_names)
+            list_of_used_datasets, best_algorithms_per_dataset, highest_value_per_dataset, best_algorithm_name, best_result = util.find_best_performing_algorithm(results,algos,data_names)
+            
             if empty_folder == False:
                 util.find_best_performing_algorithm(results,algos,data_names)
                 util.plot_results_with_runtimes(algos, results, data_names,show_figure=args.show_figure)
             else:
                 print('No datasets found in datasetfolder')
+                
+            for j in range(len(list_of_used_datasets)):
+                print('On dataset: ', list_of_used_datasets[j], ',', best_algorithms_per_dataset[j], 'with value: ', highest_value_per_dataset[j])
+            print('Highest total value across all datasets: ', best_algorithm_name, ': value: ', best_result)
 
-        optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results,args.outputfile,data_names)
-        for dataset_name in optimal_trajectory_dict:
-            print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name] )
+            optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results,args.outputfile,data_names)
+            for i in range(len(list_of_used_datasets)):
+                dataset_name = list_of_used_datasets[i]
+                print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name])
+
+
+
+        # for j in range(len(list_of_used_datasets)):
+        #     print('On dataset: ', list_of_used_datasets[j], ',', best_algorithms_per_dataset[j], 'with value: ', highest_value_per_dataset[j])
+        # print('Highest total value across all datasets: ', best_algorithm_name, ': value: ', best_result)
+
+        # optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results,args.outputfile,data_names)
+        # for i in range(len(list_of_used_datasets)):
+        #     dataset_name = list_of_used_datasets[i]
+        #     print("Optimal trajectories for dataset ", dataset_name, ": ", optimal_trajectory_dict[dataset_name])
 
     # Make a separate file for benchmark of algorithms
     # if 'increasing' in args.datasets:

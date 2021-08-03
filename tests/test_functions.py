@@ -17,7 +17,7 @@ def algorithm_testing_function(algorithm):
     for filename in os.listdir(directory):
         testset_names.append(filename)
         fullpath = os.path.join(directory,filename)
-        testset1_after = JSON_IO.read_trajectory_from_json_v2(fullpath)
+        testset1_after = JSON_IO.read_trajectory_from_json(fullpath)
 
         for algorithm in test_functions:
             answer = algorithm(testset1_after[0],testset1_after[1] )
@@ -48,7 +48,7 @@ def test_JSON_IO():
     _, _, trajectories, collisions = util.create_data(3,3,10,0.2)
     filename = 'JSON_test.txt'
     JSON_IO.write_trajectory_to_json(filename, trajectories)
-    read_trajectories, coll = JSON_IO.read_trajectory_from_json_v2(filename)
+    read_trajectories, coll = JSON_IO.read_trajectory_from_json(filename)
     for i in range(len(read_trajectories)):
         print(trajectories[i])
         print(read_trajectories[i])
