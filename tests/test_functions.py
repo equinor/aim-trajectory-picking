@@ -4,6 +4,7 @@ import os
 from aim_trajectory_picking import util
 from aim_trajectory_picking import JSON_IO
 from aim_trajectory_picking import algorithms
+from aim_trajectory_picking import pick_trajectories
 
 def algorithm_testing_function(algorithm):
     targeted_result_list = []
@@ -92,3 +93,24 @@ def test_ILP():
     greedy_result = algorithm_testing_function(algorithms.greedy_algorithm)
     exact_result = algorithm_testing_function(algorithms.invert_and_clique)
     assert ilp_result == exact_result and ilp_result >= greedy_result
+
+def test_CP_Sat():
+    cpsat_result = algorithm_testing_function(algorithms.ILP)
+    greedy_result = algorithm_testing_function(algorithms.greedy_algorithm)
+    exact_result = algorithm_testing_function(algorithms.invert_and_clique)
+    assert cpsat_result == exact_result and cpsat_result >= greedy_result
+
+def test_testsets_dataset_input():
+    function_path = os.path.join('src','aim_trajectory_picking','pick_trajectories.py')
+    retval = os.system(r'python ' + function_path + ' -datasets testsets -show_figure False')
+    assert retval == 0
+
+def test_random_dataset_input():
+    function_path = os.path.join('src','aim_trajectory_picking','pick_trajectories.py')
+    retval = os.system(r'python ' + function_path + ' -datasets random 10 10 20 0.05 3 -show_figure False')
+    assert retval == 0
+
+def test_benchmark_dataset_input():
+    function_path = os.path.join('src','aim_trajectory_picking','pick_trajectories.py')
+    retval = os.system(r'python ' + function_path + ' -show_figure False')
+    assert retval == 0
