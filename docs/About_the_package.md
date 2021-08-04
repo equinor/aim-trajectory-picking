@@ -4,7 +4,6 @@
 - Write more about OR-Tools under "4 Alternatives (OR-Tools)"
 - Se 5.1 Exact solutions. Gjorde vi dette, eller implementerte vi eksakt løsning på en annen måte. HEr har også noen lagt inn en todo om noe mer som må gjøres
 - Er også usikker på hva avsnitt 5.2 er
-- Jeg tror vi har flere tester som ikke er omtalt under avsnitt 7 enda
 - Vil vi skrive mer om resultater? Må uansett gjøre Excel-dokumentet litt ryddigere dersom det skal være med, og eventuelt litt bedre forklart her i dokumentet. Burde også ha med en graf som viser OR-Tools. Må ha med OR-Tools i Results!!!
 - Alexander hadde et forslag om å se på risiko i stedet for verdi når vi kjører algoritmene, hvis jeg forsto dette rett. Denne ideen kan det i så fall skrives om under "Further ideas"
 - Vi må skrive discussion og conclusion. Her bør vi svare på det som sto på lysbildene til Jon Gustav, og diskutere resultatene ellers.
@@ -74,6 +73,8 @@ Our tests-file includes:
 - Tests for simple functions
 - Test for algorithms (looking at the algorithms results against results solved by hand)
 - Tests for writing and reading to and from json-files
+- Tests for timing
+- Tests for different command line inputs
 
 All of these tests need to pass for new developments to be merged into the main branch on GitHub.
 
