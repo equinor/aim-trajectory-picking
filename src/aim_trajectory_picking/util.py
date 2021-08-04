@@ -110,6 +110,23 @@ class Trajectory:
         return self.id 
 
 def create_graph(trajectories, collisions):
+    '''
+    Creates a graph by adding nodes and edges. 
+
+    Parameters:
+    -----------
+    trajectories: List<Trajectory>
+        list of trajectory objects to be added to the graph
+    collisions: List<Tuple(Trajectory, Trajectory)>
+        list of tuples with colliding trajectory objects
+        
+    Returns:
+    --------
+    G: nx.Graph()
+        graph with trajectories as nodes.\
+             All nodes have a dictionary of their attributes attached
+    
+    '''
     G = nx.Graph()
     G.add_nodes_from(trajectories)
     G.add_edges_from(collisions)
@@ -503,6 +520,21 @@ def translate_trajectory_objects_to_dictionaries(trajectories):
     return dictionary
 
 def optimal_trajectories_to_return_dictionary(optimal_trajectories):
+    '''
+    Making a dictionary which stores optimal trajectories. 
+    
+    Parameters:
+    -----------
+    optimal_trajectories: List<Trajectory>
+        list of trajectories
+
+    Returns:
+    -----------
+    dictionary: dict
+        a dictionary with the keys 'value' and 'trajectories'. 'value' gives the total value of the trajectories as int, \
+            and 'trajectories' gives a list of the 'optimal' trajectory objects.
+
+    '''
 
     value = sum([t.value for t in optimal_trajectories])
     dictionary = {}
@@ -654,6 +686,20 @@ def NN_transformation(graph):
 
 
 def get_donor_and_target_collisions(trajectories):
+    '''
+    A function which extracts colliding donors and targets from a list of trajectories. 
+
+    Parameters:
+    ----------
+    trajectories: list<Trajectory>
+
+    Returns: 
+    -------
+    donor_dict: dict
+        dictionary with colliding donors
+    target_dict: dict
+        dictionary with colliding targets
+    '''
     donor_dict = {}
     target_dict = {}
     for t in trajectories:
@@ -858,10 +904,13 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
     return data, dataset_names, no_datasets
 
 def addlabels(x,y):
+    '''
+    Adding text to bars in bar charts. 
+    '''
     for i in range(len(x)):
         plt.text(i,y[i],y[i])
 
-def plot_results_with_runtimes(algorithms, results, _dataset_names=0, *,show_figure=True):
+def plot_results_with_runtimes(algorithms, results, _dataset_names=0, *,show_figure='True'):
     '''
     Fully automatic function that plots the results per algorithm. 
 
@@ -893,7 +942,7 @@ def plot_results_with_runtimes(algorithms, results, _dataset_names=0, *,show_fig
     algo_names = [e.__name__ for e in algorithms]
     algo_runtimes = []
 
-    if show_figure:
+    if show_figure == 'false' or show_figure == 'False':
         print("Not showing plots chosen")
     else:
         if len(dataset_names) > 1:
@@ -1036,6 +1085,31 @@ def calculate_or_read_results(algos, _datasets,refresh, *, _is_random=False, fil
     return prev_results
 
 def find_best_performing_algorithm(results, algorithms, used_datasets):
+    '''
+    Function finding the best algorithm 
+    Parameters:
+    ----------
+    results: dict
+        file of results with one big dictionary 
+    algorithms: dict 
+        dictionary with algorithms as elements
+    used_datasets: List
+        all datasets in results 
+
+    Returns: 
+    -------
+    intersection_as_list: List<input datasets>
+        list of datasets to analyse 
+    listToStr_list: Nested list
+        nested list of the best algorithms per dataset
+    map_matrix: List 
+        list with the best result per dataset
+    best_algorithm_name: Str    
+        algorithm with the highest total value across datasets 
+    best_result: Int
+        the highest total value across datasets 
+
+    '''
     best_result = 0
     algorithm_finder = 0
     best_algorithm_name_list = []
@@ -1055,8 +1129,6 @@ def find_best_performing_algorithm(results, algorithms, used_datasets):
     intersection_as_list = sorted(list(intersection))
 
     for algorithm in algorithms:
-    #     results_per_dataset = [results[algorithm.__name__][dataset_name]['value'] for dataset_name in results[algorithm.__name__]]   
-    #     matrix_list.append(results_per_dataset)
         ram_list = []
         for element in intersection_as_list:
             if element in results[algorithm.__name__]:
@@ -1084,11 +1156,16 @@ def find_best_performing_algorithm(results, algorithms, used_datasets):
 
 def translate_results_to_dict(results, algorithms):
     '''
-    Translates the results to a dictionary to make plotting.
+    Translates the results to a dictionary used for plotting.
 
     Parameters:
-    results
-    algorithms
+    -----------
+    results: dict
+        file of results with one big dictionary 
+
+    algorithms: dict 
+        dictionary with algorithms as elements
+
     '''
     results_as_dict = {}
     for algo in algorithms:
@@ -1096,20 +1173,32 @@ def translate_results_to_dict(results, algorithms):
         results_as_dict[name] = [d['value'] for d in results[name]]
     return results_as_dict
 
-def plot_algorithm_values_per_dataset(algorithms, results, directory): 
-    results_dict = {}
-    for algorithm in algorithms: 
-        results_dict[algorithm.__name__ ] = 0
+# def plot_algorithm_values_per_dataset(algorithms, results, directory): 
+#     '''
+#     Parameters:
+#     -----------
+#     results: dict
+#         file of results with one big dictionary 
 
-    dataset_names = [i for i in range(4)]
-    pandas_dict = translate_results_to_dict(results, algorithms)
-    plotdata = pd.DataFrame(
-        pandas_dict, 
-        index=dataset_names
-    )
+#     algorithms: dict 
+#         dictionary with algorithms as elements
+    
+#     Returns: 
+#     ------
+#     '''
+#     results_dict = {}
+#     for algorithm in algorithms: 
+#         results_dict[algorithm.__name__ ] = 0
 
-    plotdata.plot(kind="bar", cmap =plt.get_cmap('Pastel1'))
-    plt.title("Performance of Algorithms on Datasets")
-    plt.xlabel("Dataset")
-    plt.ylabel("Value")
-    plt.show()
+#     dataset_names = [i for i in range(4)]
+#     pandas_dict = translate_results_to_dict(results, algorithms)
+#     plotdata = pd.DataFrame(
+#         pandas_dict, 
+#         index=dataset_names
+#     )
+
+#     plotdata.plot(kind="bar", cmap =plt.get_cmap('Pastel1'))
+#     plt.title("Performance of Algorithms on Datasets")
+#     plt.xlabel("Dataset")
+#     plt.ylabel("Value")
+#     plt.show()
