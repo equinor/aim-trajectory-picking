@@ -1,9 +1,6 @@
 # Equinor Summer Intern AIM Project 2021
 
 ## What still needs to be done
-- Write more about OR-Tools under "4 Alternatives (OR-Tools)"
-- Se 5.1 Exact solutions. Gjorde vi dette, eller implementerte vi eksakt løsning på en annen måte. HEr har også noen lagt inn en todo om noe mer som må gjøres
-- Er også usikker på hva avsnitt 5.2 er
 - Vil vi skrive mer om resultater? Må uansett gjøre Excel-dokumentet litt ryddigere dersom det skal være med, og eventuelt litt bedre forklart her i dokumentet. Burde også ha med en graf som viser OR-Tools. Må ha med OR-Tools i Results!!!
 - Alexander hadde et forslag om å se på risiko i stedet for verdi når vi kjører algoritmene, hvis jeg forsto dette rett. Denne ideen kan det i så fall skrives om under "Further ideas"
 - Vi må skrive discussion og conclusion. Her bør vi svare på det som sto på lysbildene til Jon Gustav, og diskutere resultatene ellers.
@@ -106,6 +103,8 @@ The function creates a dataset of the correct format for the trajectory picking 
 - If a trajectory collides with other trajectories, then a list of trajectories close to it is made by appending trajectories with donors and targets close to the relevant trajectory. Then the trajectory it collides with is randomly picked from this list, and the collision is appended to a list of collisions. 
  
 In other words, the dataset is realistic in the way that it consists of trajectories imagined to be close to each other in space. This is done through donor and targets IDs. In addition, there can only be collisions between trajectories close to each other in space, i.e. their donors and targets are fairly close to each other.
+
+To be able to optimize on an arbitrary key, adding another input argument such as -optimize_on "value"|"risk"
 
 ## 10 Discussion
 
