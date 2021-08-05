@@ -13,9 +13,9 @@ For our own algorithm implementations the problem has been treated as a graph pr
 
 ### Getting started 
 ```
-pip install git+https://github.com/equinor/aim-trajectory-picking.git@master
+pip install git+https://github.com/equinor/aim-trajectory-picking.git@main
 pip install -r test_requirements.txt
-pip install .
+pip install -e .
 pytest
 ```
 This package is built using Python 3.
