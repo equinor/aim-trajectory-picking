@@ -1,10 +1,10 @@
 import pytest
 import os
 
-from aim_trajectory_picking import util
 from aim_trajectory_picking import JSON_IO
 from aim_trajectory_picking import algorithms
 from aim_trajectory_picking import pick_trajectories
+from aim_trajectory_picking import util
 
 def algorithm_testing_function(algorithm):
     targeted_result_list = []
