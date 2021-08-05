@@ -39,7 +39,7 @@ def main():
             ,epilog='This is the epilog',
             add_help=True)
 
-    parser.add_argument('-alg',default='all',type=str,choices=algo_choices, nargs='*',help='Type of algorithm used',)
+    parser.add_argument('-alg',default='cp-sat',type=str,choices=algo_choices, nargs='*',help='Type of algorithm used',)
     parser.add_argument('-datasets',default='benchmark',nargs='*',type=str,help='String of the input data set folder, JSON format. \
         Default is datasets, and the algorithm will be run on datasets if the argument is not recognized. \
             Can also be random, with specified number of donors, targets and trajectories, in addition to collision rate and number of datasets\
@@ -51,15 +51,16 @@ def main():
     parser.add_argument('-save_benchmark',default=False,type=bool,help='If True, save benchmark data to a benchmark.txt file')
 
     args = parser.parse_args()
-
     refresh = True if args.refresh == 'True' or args.refresh == 'true' else False
     if args.alg == 'all' or args.alg[0] == 'all':
         algos = [algorithms[key] for key in algorithms]
         if 'exact' not in args.alg:
             for unrunnable in not_runnable:
                 algos.remove(unrunnable)
-    else:
+    elif isinstance(args.alg, list):
         algos = [algorithms[key] for key in args.alg]
+    else:
+        algos = [algorithms[args.alg]]
 
     if 'benchmark' in args.datasets:
         results = JSON_IO.read_data_from_json_file('benchmark.txt')
