@@ -3,14 +3,14 @@
 ## What still needs to be done
 - Vil vi skrive mer om resultater? Må uansett gjøre Excel-dokumentet litt ryddigere dersom det skal være med, og eventuelt litt bedre forklart her i dokumentet. Burde også ha med en graf som viser OR-Tools. Må ha med OR-Tools i Results!!!
 - Alexander hadde et forslag om å se på risiko i stedet for verdi når vi kjører algoritmene, hvis jeg forsto dette rett. Denne ideen kan det i så fall skrives om under "Further ideas"
-- Vi må skrive discussion og conclusion. Her bør vi svare på det som sto på lysbildene til Jon Gustav, og diskutere resultatene ellers.
+- Vi må skrive conclusion. Her bør vi svare på det som sto på lysbildene til Jon Gustav, og diskutere resultatene ellers.
 
 ## 1 Introduction
 This report includes discoveries, reflections and results for the AIM trajectory picking project, carried out by five summer interns. The goal of the project was to explore and discover algorithms that coordinate wellbore trajectories and pick paths that optimize different variables, given certain constraints.
 Knowing from the start that the greedy algorithm performs well on the given problem despite its limitations, it became the baseline algorithm which the aim was to beat. 
 
 ## 2 Setting up the problem
-To operationalize the trajectory picking problem, trajectories were considered nodes in a graph. Given this formulation, ideas and solutions from graph theory could be utilized to solve the problem. Each trajectory has a donor, a target and a non-negative value, in addition to a list of other trajectories it collides with. Given that no trajectories should share the same donor, nor target, and not collide with other trajectories, the task was to pick trajectories that maximize the sum of trajectory values. 
+To operationalize the trajectory picking problem, trajectories were initially considered nodes in a graph. Given this formulation, ideas and solutions from graph theory could be utilized to solve the problem. Each trajectory has a donor, a target and a non-negative value, in addition to a list of other trajectories it collides with. Given that no trajectories should share the same donor, nor target, and not collide with other trajectories, the task was to pick trajectories that maximize the sum of trajectory values. 
 
 ## 3 Algorithms
 During the working process we developed multiple modifications to the greedy algorithm, as well as new heuristic algorithms. 
@@ -53,17 +53,17 @@ The problem of picking the best trajectories can be considered a maximum weighte
 Approximations of the afore mentioned problems may result in exact or near-exact results at a fraction of the runtime that the exact method would use. An approximation to the minimum weighted vertex cover was tried, but the results were sub-par with out other algorithms we had implemented already. Additionally, the approximation would not result in a similar goodness approximation of the maximum weighted independent set since the latter lacks a constant approximation factor.
 
 ## 5 Alternatives (OR-Tools)
-An alternative to the algorithms we have developed is to solve this problem as a optimization problem. This could be done by using Google Optimization Research Tools (aka OR-Tools), which we have implemented in this project. By formulation the optimization problem where the objective function is the minimum weighted vertex cover (WVC), contraints could be added to account for collisions between trajectories and shared donor/target pairs. Since the minimum WVC contains the nodes not in the maximum weighted independent set (WIS), one only need to solve either one to find the other. It should be noted this does not necessary hold hold for approximations to the exact solutions, however this is not a concern for our case. 
+An alternative to the algorithms we have developed is to solve this problem as a optimization problem. By doing this, we moved away from formulating the task as a graph problem. This could be done by using Google Optimization Research Tools (OR-Tools), which we have implemented in this project. By formulating the optimization problem where the objective function is the minimum weighted vertex cover (WVC), contraints could be added to account for collisions between trajectories and shared donor/target pairs. Since the minimum WVC contains the nodes that are not in the maximum weighted independent set (WIS), one only needs to solve either one to find the other. It should be noted this does not necessary hold hold for approximations to the exact solutions, however this is in our case not a concern. 
 
-Two methods from ORTools has have been tested, Mixed Integer Programming (MIP) where the variables are allowed to be arbitrary integers, and a Assignment problem with contraints. The MIP was initially tested since the exact vertex cover could be set up as such a problem. This worked better than our algorithms, but as the problem is NP-complete the runtime was higher. Next, since the task of assigning the trajectories to either do or dont, the problem could instead be treated as a Constraint Programming using a Satisfiability methods (CP-SAT) problem. This time the variables would either be assigned a 0 or 1 and only one trajectory from each list of collisions could be included in the maximum WIS. This proved to be incredibly effective and solved the exact solution faster than the approximations we had ourself implemented. Seemingly, the runtime is linear with number of trajectories but exponential with number of constraints. Since the numbe rof contraints is far less than the number of trajectories, this did not make a huge inpact on the total runtime.
+Two methods from OR-Tools has have been tested, Mixed Integer Programming (MIP) where the variables are allowed to be arbitrary integers, and a Assignment problem with contraints. The MIP was initially tested since the exact vertex cover could be set up as such a problem. This worked better than our algorithms, but as the problem is NP-complete the runtime was higher. Next, since the task of assigning the trajectories to either do or dont, the problem could instead be treated as a Constraint Programming using a Satisfiability methods (CP-SAT) problem. This time the variables would either be assigned a 0 or 1 and only one trajectory from each list of collisions could be included in the maximum WIS. This proved to be incredibly effective and solved the exact solution faster than the approximations we had ourself implemented. Seemingly, the runtime is linear with number of trajectories but exponential with number of constraints. Since the numbe rof contraints is far less than the number of trajectories, this did not make a huge inpact on the total runtime.
 
-## 6 Implementation
-The program was built using NetworkX, but other graph tools were considered. The Python module \textit{graph-tool} was quickly shelved as it turned out that it only works for Linux. Next, \textit{igraph} was also tested with the hope that it would decrease the time complexity of the program. Graph building was tested using igraph, and it was twice as fast as using NetworkX. However, igraph is less developed than NetworkX, with less internal functionality. After implementing a few algorithms in igraph and comparing the results to the outcome of equivalent algorithms built with NetworkX, other weaknesses became evident, as the results of algorithms for the exact solution differed, as well as the outcomes of the bipartite matching algorithms. This may reflect flaws in igraph's functions, or be due to different understandings of how a graph should be created before applying the algorithms. Because of this uncertainty and general underdevelopment of igraph, we decided to continue developing the program using NetworkX.
+## 6 Testing other packages for implementation
+The initial program was built using NetworkX, but other graph tools were considered. The Python module *graph-tool* was quickly shelved as it turned out that it only works for Linux. Next, *igraph* was also tested with the hope that it would decrease the time complexity of the program. Graph building was tested using igraph, and it was twice as fast as using NetworkX. However, igraph is less developed than NetworkX, with less internal functionality. After implementing a few algorithms in igraph and comparing the results to the outcome of equivalent algorithms built with NetworkX, other weaknesses became evident, as the results of algorithms for the exact solution differed, as well as the outcomes of the bipartite matching algorithms. This may reflect flaws in igraph's functions, or be due to different understandings of how a graph should be created before applying the algorithms. Because of this uncertainty and general underdevelopment of igraph, we decided to continue developing the program using NetworkX. To tackle the problematic runtimes of NetworkX, OR-Tools was used with very good results.  
 
 ## 7 Testing
 
 ### 7.1 Pytest
-The automatic tests for our program are run with the pytest framework. The pytest framework is used to write small tests in python programs. These tests are used through development to showcase potential errors in the program and to show that algorithms and functions run as expected.
+The automatic tests for our program are run with the pytest framework. The pytest framework is used to write small tests in Python programs. These tests are used through development to showcase potential errors in the program and to show that algorithms and functions run as expected.
 
 Our tests-file includes:
 - Tests for simple functions
@@ -79,8 +79,11 @@ In the beginning of the project, five small datasets were created, on which all 
 
 ## 8 Results
 
+See Appendix for an overview of the performance of the different algorithms on randomly generated datasets. 
+
+
 ### 8.1 Value/Performance
-The results of a selection of the algorithms described above are shown in the Excel-document in the Appendix section. The algorithms are run on datasets with different combinations of number of donors, targets and trajectories. As one can read in the document, the weight transformation algorithm clearly gives the best results, and that the reversed greedy utilizing weight transformation also is significantly better than the original greedy algorithm. It is also interesting to see that the bipartite matching algorithms actually perform worse than the greedy algorithm. The results are discussed in more detail in the discussion section.
+The results of a selection of the algorithms described above are shown in the Excel-document in the Appendix section. The algorithms are run on datasets with different combinations of number of donors, targets and trajectories. As one can read in the document, the weight transformation algorithm clearly gives the best results, and that the reversed greedy utilizing weight transformation also is significantly better than the original greedy algorithm. It is also interesting to see that the bipartite matching algorithms actually perform worse than the greedy algorithm.
 
 ### 8.2 Runtime
 The figure below shows the runtime of the algorithms. Here it is clear that the greedy algorithm and it's variants (such as the weight transformation) are not efficient and demand relatively much time. On the oter hand, the bipartite matching algorithm works fast in comparison to the others. However, this might be because the bipartite matching used is imported from networkx, and is therefore expected to be faster than the greedy algorithms we have implemented on our own.
@@ -106,9 +109,10 @@ In other words, the dataset is realistic in the way that it consists of trajecto
 
 To be able to optimize on an arbitrary key, adding another input argument such as -optimize_on "value"|"risk"
 
-## 10 Discussion
 
-## 11 Conclusion
+## 10 Conclusion
 
-## 12 Appendix
+In sum, the results of the AIM trajectory picking problem has shown that using the greedy algorithm for picking wellbore trajectories that optimize a value is good, but that better alternatives exist. However, better algorithms, such as weight transformation, suffer from poor runtimes. To overcome this problem, the problem was formulated as an linear optimization problem and applied to OR-Tools. This resulted in both high values and incredible runtimes, compared to the algorithms that were implemented using NetworkX and the graph-formulation of the problem. 
+
+## 11 Appendix
 [resultater_for_mange_random_sett.xlsx](https://github.com/equinor/aim-trajectory-picking/files/6892701/resultater_for_mange_random_sett.xlsx)
