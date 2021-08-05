@@ -115,4 +115,6 @@ To be able to optimize on an arbitrary key, adding another input argument such a
 In sum, the results of the AIM trajectory picking problem has shown that using the greedy algorithm for picking wellbore trajectories that optimize a value is good, but that better alternatives exist. However, better algorithms, such as weight transformation, suffer from poor runtimes. To overcome this problem, the problem was formulated as an linear optimization problem and applied to OR-Tools. This resulted in both high values and incredible runtimes, compared to the algorithms that were implemented using NetworkX and the graph-formulation of the problem. 
 
 ## 11 Appendix
-[resultater_for_mange_random_sett.xlsx](https://github.com/equinor/aim-trajectory-picking/files/6892701/resultater_for_mange_random_sett.xlsx)
+- [resultater_for_mange_random_sett.xlsx](https://github.com/equinor/aim-trajectory-picking/files/6892701/resultater_for_mange_random_sett.xlsx)
+- [results_random_datasets.xlsx](https://github.com/equinor/aim-trajectory-picking/files/6938354/results_random_datasets.xlsx)
+
