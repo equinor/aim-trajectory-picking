@@ -50,6 +50,7 @@ def main():
     parser.add_argument('--refresh', '-r',   help='If given, ignores previous results and calculates the specified algorithms again',action='store_true')
     parser.add_argument('-show_figure',metavar='Show_figure',type=str,default='True',help='If True, do matplotlib.show to visualize runtime results')
     parser.add_argument('-save_benchmark',help='If given, save benchmark data to a benchmark.txt file',action='store_true')
+    parser.add_argument('--verbose', '-v', help='Flag to indicate if the user wants the program to print more information', action='store_true')
 
     args = parser.parse_args()
     arguments = sys.argv[1:]
@@ -72,12 +73,12 @@ def main():
         if 'random' in args.datasets or 'increasing' in args.datasets: # Sets that would not have results saved from previous runs
             random_chosen = True
             data,data_names = util.get_datasets(args.datasets,algos,refresh)
-            results = util.calculate_or_read_results(algos,data, refresh,_is_random=random_chosen, _dataset_names =data_names)   
+            results = util.calculate_or_read_results(algos,data, refresh,_is_random=random_chosen, _dataset_names =data_names,verbose=args.verbose)   
             util.plot_results_with_runtimes(algos, results, data_names,show_figure=args.show_figure)
         else:
             data, data_names, empty_folder = util.get_datasets(args.datasets,algos,refresh)
             random_chosen = False
-            results = util.calculate_or_read_results(algos,data, refresh,_is_random=random_chosen, _dataset_names =data_names)
+            results = util.calculate_or_read_results(algos,data, refresh,_is_random=random_chosen, _dataset_names =data_names,verbose=args.verbose)
             list_of_used_datasets, best_algorithms_per_dataset, highest_value_per_dataset, best_algorithm_name, best_result = util.find_best_performing_algorithm(results,algos,data_names)
             
             if empty_folder == False:
@@ -85,10 +86,11 @@ def main():
                 util.plot_results_with_runtimes(algos, results, data_names,show_figure=args.show_figure)
             else:
                 print('No datasets found in datasetfolder')
-                
-            for j in range(len(list_of_used_datasets)):
-                print('On dataset: ', list_of_used_datasets[j], ',', best_algorithms_per_dataset[j], 'with value: ', highest_value_per_dataset[j])
-            print('Highest total value across all datasets: ', best_algorithm_name, ': value: ', best_result)
+            
+            if args.verbose:
+                for j in range(len(list_of_used_datasets)):
+                    print('On dataset: ', list_of_used_datasets[j], ',', best_algorithms_per_dataset[j], 'with value: ', highest_value_per_dataset[j])
+                print('Highest total value across all datasets: ', best_algorithm_name, ': value: ', best_result)
 
             optimal_trajectory_dict = util.save_optimal_trajectories_to_file(results,args.outputfile,data_names)
             for i in range(len(list_of_used_datasets)):
