@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sys
+from pathlib import Path
     
 
 def main():
@@ -66,7 +67,8 @@ def main():
         algos = [algorithms[args.alg]]
 
     if 'benchmark' in args.datasets:
-        results = JSON_IO.read_data_from_json_file('benchmark.txt')
+        p = Path("benchmark.txt").resolve()
+        results = JSON_IO.read_data_from_json_file(str(p))
         data_names = None
         util.plot_results_with_runtimes(algos, results, data_names,show_figure=args.show_figure)
     else:
