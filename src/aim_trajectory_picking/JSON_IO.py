@@ -57,14 +57,19 @@ def read_trajectory_from_json(filename):
     liste = []
     collision_ids = set()
     list_id = 0
-    for trajectory in input_data["trajectories"]:
+    if isinstance(input_data, dict):
+        trajectory_list = input_data['trajectories']
+    else:
+        trajectory_list = input_data
+
+    for trajectory in trajectory_list:
         tra = util.Trajectory(list_id, trajectory["id"], trajectory["donor"], trajectory["target"], trajectory["value"])
         list_id +=1
         for collision in trajectory["collisions"]:
             collision_ids.add((tra.id,collision))
             tra.add_collision_by_id(collision)
         liste.append(tra)
-    
+
     collisions = [(liste[pair[0]], liste[pair[1]]) for pair in collision_ids]
     return liste, collisions
 
@@ -100,8 +105,7 @@ def write_trajectory_to_json(filename,list_of_trajectories):
     --------
     None
     '''
-    JSON_trajectories = {}
-    JSON_trajectories['trajectories'] = []
+    save_list = []
     for x in range(len(list_of_trajectories)):
         trajectory = {}
         trajectory['id'] = list_of_trajectories[x].id
@@ -110,8 +114,8 @@ def write_trajectory_to_json(filename,list_of_trajectories):
         trajectory['value'] = list_of_trajectories[x].value
         trajectory['collisions'] = list_of_trajectories[x].collisions
         trajectory['true_id'] = list_of_trajectories[x].true_id
-        JSON_trajectories['trajectories'].append(trajectory)
-    write_data_to_json_file(filename,JSON_trajectories)
+        save_list.append(trajectory)
+    write_data_to_json_file(filename,save_list)
 
 # For generating datasets with choosen parameters
 def generate_datasets_as_json_files(num_datasets):
@@ -232,23 +236,23 @@ def generate_big_datasets():
     LOW_TRAJECTORIES = 500
     HIGH_TRAJECTORIES= 50000
     print('started generating data')
-    _,_, trajectories = util.create_data(HIGH_DONORS, HIGH_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories, collisions = util.create_data(HIGH_DONORS, HIGH_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/highD_highT_lowT.txt', trajectories)
-    _,_, trajectories = util.create_data(HIGH_DONORS, LOW_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories, collisions = util.create_data(HIGH_DONORS, LOW_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/highD_lowT_lowT.txt', trajectories)
-    _,_, trajectories = util.create_data(LOW_DONORS, HIGH_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories, collisions = util.create_data(LOW_DONORS, HIGH_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/lowD_highT_lowT.txt', trajectories)
-    _,_, trajectories = util.create_data(LOW_DONORS, LOW_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories, collisions = util.create_data(LOW_DONORS, LOW_TARGETS, LOW_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/lowD_lowT_lowT.txt', trajectories)
 
     print('started high collision rate')
-    _,_, trajectories = util.create_data(HIGH_DONORS, HIGH_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories, collisions = util.create_data(HIGH_DONORS, HIGH_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/highD_highT_highT.txt', trajectories)
-    _,_, trajectories = util.create_data(HIGH_DONORS, LOW_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories, collisions = util.create_data(HIGH_DONORS, LOW_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/highD_lowT_highT.txt', trajectories)
-    _,_, trajectories = util.create_data(LOW_DONORS, HIGH_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories, collisions = util.create_data(LOW_DONORS, HIGH_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/lowD_highT_highT.txt', trajectories)
-    _,_, trajectories = util.create_data(LOW_DONORS, LOW_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
+    _,_, trajectories, collisions= util.create_data(LOW_DONORS, LOW_TARGETS, HIGH_TRAJECTORIES,COLLISION_RATE)
     write_trajectory_to_json('big_datasets/lowD_lowT_highT.txt', trajectories)
 
 if __name__ == '__main__':
