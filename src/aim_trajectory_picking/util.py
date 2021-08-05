@@ -805,7 +805,7 @@ def save_optimal_trajectories_to_file(results, filename,data_names):
     JSON_IO.write_data_to_json_file(filename, optimal_trajectories)
     return optimal_trajectories
 
-def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
+def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt',verbose=False):
     '''
     Function to find and/or create the given data and return it as a list.
 
@@ -870,7 +870,7 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
             for i in range(num_datasets):
                 if initial_num_trajectories * (i+1) > upper_limit_trajectories:
                     break
-                print("making dataset nr: " + str(i))
+                if verbose: print("making dataset nr: " + str(i))
                 _,_,trajectories, collisions = create_data(num_donors, num_targets, initial_num_trajectories * (i + 1), collision_rate)
                 data.append((trajectories, collisions))
                 dataset_names.append('dataset_' + str(i)+ '.txt')
@@ -884,7 +884,7 @@ def get_datasets(dataset_folders, algorithms,refresh, filename='results.txt'):
                 no_datasets = False
                 for folder in dataset_folders:
                     for filename in os.listdir(folder):
-                        print("else file")
+                        if verbose: print("Found file", filename, " in folder: ", folder)
                         if refresh or not all(algo.__name__ in prev_results.keys() for algo in algorithms) or not all(filename in prev_results[algo.__name__].keys() for algo in algorithms):
                             fullpath = os.path.join(folder,filename)
                             data.append(JSON_IO.read_trajectory_from_json(fullpath))
@@ -1019,7 +1019,7 @@ def get_previous_results(filename):
         prev_results = {}
     return prev_results
 
-def calculate_or_read_results(algos, _datasets,refresh, *, _is_random=False, filename='results.txt', _dataset_names=None):
+def calculate_or_read_results(algos, _datasets,refresh, *, _is_random=False, filename='results.txt', _dataset_names=None,verbose=False):
     '''
     Function to either calculate the specified results or read them from file (if they have been calculated before)
 
@@ -1066,13 +1066,13 @@ def calculate_or_read_results(algos, _datasets,refresh, *, _is_random=False, fil
         data_name = dataset_names[_datasets.index(data)]
         for algorithm in algos:
             if not refresh and algorithm.__name__ in prev_results.keys() and _dataset_names!=None and data_name in prev_results[algorithm.__name__].keys():
-                print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
+                if verbose: print("algorithm " + algorithm.__name__ + " on dataset " + data_name + " already in " + filename)
             else:
                 #print(type(data))
                 answer, runtime = timer(algorithm, data[0], data[1])
                 answer['runtime'] = runtime
                 prev_results[algorithm.__name__][data_name] = answer
-                print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name)
+                if verbose: print("done with algorithm: " + algorithm.__name__ + " on dataset " + data_name)
 
     #check that trajectories are feasible
     for name in algos:
