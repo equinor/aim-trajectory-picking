@@ -96,6 +96,7 @@ Two methods from OR-Tools have been tested, Mixed Integer Programming (MIP) wher
 - argparse: https://docs.python.org/3/library/argparse.html
 - igraph: https://igraph.org/python/doc/tutorial/tutorial.html
 
+For more information about the package and its algorithms, please consult the file About_the_package.md, which can be found in the docs folder. 
 
 ### Authors: ## 
 Alexander Johnsgaard\
