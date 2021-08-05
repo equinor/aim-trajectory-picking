@@ -4,6 +4,7 @@ from aim_trajectory_picking import algorithms as func
 from aim_trajectory_picking import util
 from aim_trajectory_picking import JSON_IO
 import os
+import aim_trajectory_picking
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

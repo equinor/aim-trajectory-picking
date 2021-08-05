@@ -110,7 +110,7 @@ def test_random_dataset_input():
     retval = os.system(r'python ' + function_path + ' -datasets random 10 10 20 0.05 3 -show_figure False')
     assert retval == 0
 
-def test_benchmark_dataset_input():
-    function_path = os.path.join('src','aim_trajectory_picking','pick_trajectories.py')
-    retval = os.system(r'python ' + function_path + ' -show_figure False')
-    assert retval == 0
+# def test_benchmark_dataset_input():
+#     function_path = os.path.join('src','aim_trajectory_picking','pick_trajectories.py')
+#     retval = os.system(r'python ' + function_path + ' -show_figure False')
+#     assert retval == 0
