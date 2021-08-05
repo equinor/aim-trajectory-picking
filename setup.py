@@ -27,6 +27,8 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(where='src'),
     package_dir={"": "src"},
+    package_data={'': ['benchmark.txt']},
+    include_package_data=True,
     install_requires=["networkx", "matplotlib", "numpy", "pandas", "python-igraph","argparse","ortools"],
     python_requires=">=3.6",
 )
