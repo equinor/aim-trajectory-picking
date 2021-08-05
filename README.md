@@ -60,9 +60,12 @@ which correspond to the optimal trajectories. Example:
 |----------------|--------------------------------------------------------------------------------------|
 | -alg           | Specify algorithms to run. "all" runs all algorithms                                 |
 | -datasets      | Specify datasets to run algorithm on. Full path of the dataset folder  is required   |
-| -refresh True  | Ignores if the result has already been calculated and does a new calculation         |
+| --refresh / -r | Takes no arguments. Ignores if the result has already been calculated and does       |
+|                  a new calculation                                                                    |
 | -outputfile    | Specifies outputfile to write results to. Default is 'optimal_trajectories.json'     |
-
+| --verbose / -v | Takes no arguments. If given, prints more information in the process of calculating  |
+|                | trajectories.                                                                        |
+ 
 #### Examples:
 
 | Command | Explanation |
