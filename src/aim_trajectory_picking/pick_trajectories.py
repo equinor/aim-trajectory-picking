@@ -6,6 +6,7 @@ from aim_trajectory_picking import JSON_IO
 import os
 import aim_trajectory_picking
 import matplotlib.pyplot as plt
+import aim_trajectory_picking
 import numpy as np
 import pandas as pd
 import sys
@@ -68,8 +69,13 @@ def main():
         algos = [algorithms[args.alg]]
 
     if 'benchmark' in args.datasets:
-        p = Path("benchmark.txt").resolve()
-        results = JSON_IO.read_data_from_json_file(str(p))
+        liste = aim_trajectory_picking.__file__.split('\\')
+        liste.remove('__init__.py')
+        path = liste.pop(0)+'\\'
+        for i in range(len(liste)):
+            path = os.path.join(path, liste.pop(0))
+        path = os.path.join(path, 'benchmark.txt')
+        results = JSON_IO.read_data_from_json_file(path)
         data_names = None
         util.plot_results_with_runtimes(algos, results, data_names,show_figure=args.show_figure)
     else:
