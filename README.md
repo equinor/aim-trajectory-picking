@@ -66,7 +66,7 @@ which correspond to the optimal trajectories. Example:
 | -outputfile    | Specifies outputfile to write results to. Default is 'optimal_trajectories.json'                   |
 | --verbose / -v | Takes no arguments. If given, prints more information in the process of calculating trajectories.  |
 | -show_figure   | Default to True. If False, figures of value and runtime plots will not be shown                    |
-
+| -save_benchmark| Default to False. If True, and using increasing set, overwrite the benchmark.txt file with new runtime result. |
  
 #### Examples:
 
