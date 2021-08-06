@@ -65,6 +65,7 @@ which correspond to the optimal trajectories. Example:
 | --refresh / -r | Takes no arguments. Ignores if the result has already been calculated and does a new calculation   |
 | -outputfile    | Specifies outputfile to write results to. Default is 'optimal_trajectories.json'                   |
 | --verbose / -v | Takes no arguments. If given, prints more information in the process of calculating trajectories.  |
+| -show_figure   | Default to True. If False, figures of value and runtime plots will not be shown                    |
 
  
 #### Examples:
