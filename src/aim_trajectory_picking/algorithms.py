@@ -569,7 +569,7 @@ def cp_sat_solver(trajectories, collisions):
     for i in range(len(x)):
         if solver.Value(x[i]) == 1:
             optimal_trajectories.append(trajectories[i])
-    print(sum(t.value for t in optimal_trajectories))
+    #print(sum(t.value for t in optimal_trajectories))
     return optimal_trajectories_to_return_dictionary(optimal_trajectories)
 
 
@@ -602,7 +602,7 @@ def ILP(trajectories, collisions):
     x = {}
     for j in range(data['num_vars']):
         x[j] = solver.IntVar(0, 1, 'x[%i]' % j)
-    print('Number of variables =', solver.NumVariables())
+    #print('Number of variables =', solver.NumVariables())
 
 
     for i in range(data['num_constraints']):
@@ -610,7 +610,7 @@ def ILP(trajectories, collisions):
         [data['constraint_coeffs'][i][j] * x[j] for j in range(data['num_vars'])]
         solver.Add(sum(constraint_expr) >= data['bounds'][i])
     
-    print('Number of constraints =', solver.NumConstraints())
+    #print('Number of constraints =', solver.NumConstraints())
 
     # Set objective function coefficients
     objective = solver.Objective()
