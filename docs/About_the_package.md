@@ -1,10 +1,5 @@
 # Equinor Summer Intern AIM Project 2021
 
-## What still needs to be done
-- Vil vi skrive mer om resultater? Må uansett gjøre Excel-dokumentet litt ryddigere dersom det skal være med, og eventuelt litt bedre forklart her i dokumentet. Burde også ha med en graf som viser OR-Tools. Må ha med OR-Tools i Results!!!
-- Alexander hadde et forslag om å se på risiko i stedet for verdi når vi kjører algoritmene, hvis jeg forsto dette rett. Denne ideen kan det i så fall skrives om under "Further ideas"
-- Vi må skrive conclusion. Her bør vi svare på det som sto på lysbildene til Jon Gustav, og diskutere resultatene ellers.
-
 ## 1 Introduction
 This report includes discoveries, reflections and results for the AIM trajectory picking project, carried out by five summer interns. The goal of the project was to explore and discover algorithms that coordinate wellbore trajectories and pick paths that optimize different variables, given certain constraints.
 Knowing from the start that the greedy algorithm performs well on the given problem despite its limitations, it became the baseline algorithm which the aim was to beat. 
@@ -79,18 +74,17 @@ In the beginning of the project, five small datasets were created, on which all 
 
 ## 8 Results
 
-See Appendix for an overview of the performance of the different algorithms on randomly generated datasets. 
-
-
 ### 8.1 Value/Performance
 The results of a selection of the algorithms described above are shown in the Excel-document in the Appendix section. The algorithms are run on datasets with different combinations of number of donors, targets and trajectories. As one can read in the document, the weight transformation algorithm clearly gives the best results, and that the reversed greedy utilizing weight transformation also is significantly better than the original greedy algorithm. It is also interesting to see that the bipartite matching algorithms actually perform worse than the greedy algorithm.
 
 ### 8.2 Runtime
-The figure below shows the runtime of the algorithms. Here it is clear that the greedy algorithm and it's variants (such as the weight transformation) are not efficient and demand relatively much time. On the oter hand, the bipartite matching algorithm works fast in comparison to the others. However, this might be because the bipartite matching used is imported from networkx, and is therefore expected to be faster than the greedy algorithms we have implemented on our own.
+The figure below shows the runtime of the algorithms. Here it is clear that the greedy algorithm and it's variants (such as the weight transformation) are not efficient and demand relatively much time. On the oter hand, the bipartite matching algorithm works fast in comparison to the others. However, this might be because the bipartite matching used is imported from NetworkX, and is therefore expected to be faster than the greedy algorithms we have implemented on our own.
 ![runtime_analysis](https://user-images.githubusercontent.com/86296731/127311069-48c84c07-6764-4541-b9b4-67663cab91ec.png)
 
 ### 8.3 OR-Tools
-The best results were however not achieved by using the algorithms and graph theory, but by treating the problem as a Constraint Programming problem, using a Satisfiability method (CP-SAT). This was extremely effective and solved the exact solution faster than the approximations we had ourself implemented. In other words, Constraint Programming generated the best results in regards to both value and runtime.
+The best results were however not achieved by using the algorithms and graph theory, but by treating the problem as a Constraint Programming problem, using a Satisfiability method (CP-SAT). This was extremely efficient and solved the exact solution faster than the approximations we had implemented ourself. In other words, Constraint Programming generated the best results in regards to both value and runtime. Given that OR-Tools gives the exact solution, solutions are feasible for datasets with realistic sizes, meaning up to 200 000 trajectories, although high numbers of collisions slow down the runtime. 
+
+![Picture1](https://user-images.githubusercontent.com/43993453/128465362-6e88c60e-e2ea-4ef2-a037-78229d25cc01.png)
 
 ## 9 Further ideas
 In the end of the internship we had some ideas we unfortunately did not have time to implement.
